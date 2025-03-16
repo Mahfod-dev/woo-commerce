@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { FaShoppingCart, FaUser, FaSearch } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
+import MiniCart from './MiniCart';
 
 export default function Header() {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -89,16 +90,9 @@ export default function Header() {
 						<FaSearch size={18} />
 					</button>
 					{/* Icône Panier */}
-					<Link
-						href='/cart'
-						className='relative cursor-pointer text-gray-800 hover:text-indigo-600 transition-colors'>
-						<FaShoppingCart size={18} />
-						{cartCount > 0 && (
-							<span className='absolute -top-1 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center'>
-								{cartCount}
-							</span>
-						)}
-					</Link>
+					<div className='relative'>
+						<MiniCart />
+					</div>
 					{/* Icône Compte */}
 					<Link
 						href='/account'

@@ -7,6 +7,7 @@ import { formatPrice, addToCart } from '@/lib/wooClient';
 import { WooProduct } from '@/lib/woo';
 
 import { useRouter } from 'next/navigation';
+import ProductGallery from './ProductGallery';
 
 export default function ProductDetailContent({
 	product,
@@ -172,58 +173,10 @@ export default function ProductDetailContent({
 
 			<div className='flex flex-col md:flex-row gap-8'>
 				{/* Galerie d'images */}
-				<div className='md:w-1/2'>
-					{product.images.length > 0 && (
-						<div className='mb-4 relative rounded-2xl overflow-hidden bg-gray-100 aspect-square'>
-							<Image
-								src={product.images[selectedImage].src}
-								alt={
-									product.images[selectedImage].alt ||
-									product.name
-								}
-								className='object-cover'
-								fill
-								sizes='(max-width: 768px) 100vw, 50vw'
-								priority
-							/>
-							{product.on_sale && (
-								<span className='absolute top-4 right-4 bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full'>
-									Promo
-								</span>
-							)}
-						</div>
-					)}
-
-					{/* Vignettes */}
-					{product.images.length > 1 && (
-						<div className='grid grid-cols-5 gap-2'>
-							{product.images.map((image, index) => (
-								<button
-									key={image.id}
-									onClick={() => setSelectedImage(index)}
-									className={`relative rounded-lg overflow-hidden aspect-square border-2 transition-all ${
-										selectedImage === index
-											? 'border-indigo-600 opacity-100'
-											: 'border-transparent opacity-80 hover:opacity-100'
-									}`}>
-									<Image
-										src={image.src}
-										alt={
-											image.alt ||
-											`${product.name} - image ${
-												index + 1
-											}`
-										}
-										className='object-cover'
-										fill
-										sizes='(max-width: 768px) 20vw, 10vw'
-									/>
-								</button>
-							))}
-						</div>
-					)}
-				</div>
-
+				<ProductGallery
+					images={product.images}
+					productName={product.name}
+				/>
 				{/* Informations produit */}
 				<div className='md:w-1/2'>
 					<h1 className='text-3xl font-bold text-gray-900 mb-2'>
