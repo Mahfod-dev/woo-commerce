@@ -1,100 +1,14 @@
 'use client';
-import React, {
-	createContext,
-	useContext,
-	useState,
-	useRef,
-	useEffect,
-} from 'react';
+import React, { useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { NotificationContext } from './notificationContext';
 
-// Contexte pour les notifications
-const NotificationContext = createContext();
-
-export const useNotification = () => {
-	const context = useContext(NotificationContext);
-	if (!context) {
-		throw new Error(
-			'useNotification must be used within a NotificationProvider'
-		);
-	}
-	return context;
-};
-
-export const NotificationProvider = ({ children }) => {
-	const [notifications, setNotifications] = useState([]);
-	const idCounter = useRef(0);
-
-	// Ajouter une nouvelle notification
-	const addNotification = (notification) => {
-		const id = idCounter.current++;
-		const newNotification = {
-			id,
-			title: notification.title || '',
-			message: notification.message || '',
-			type: notification.type || 'info', // 'success', 'error', 'warning', 'info'
-			duration: notification.duration || 5000, // Durée en ms avant disparition auto
-			action: notification.action, // {label, onClick} optionnel
-			...notification,
-		};
-
-		setNotifications((prev) => [...prev, newNotification]);
-
-		// Auto-suppression après la durée spécifiée
-		if (newNotification.duration !== Infinity) {
-			setTimeout(() => {
-				removeNotification(id);
-			}, newNotification.duration);
-		}
-
-		return id;
-	};
-
-	// Supprimer une notification par son ID
-	const removeNotification = (id) => {
-		setNotifications((prev) =>
-			prev.filter((notification) => notification.id !== id)
-		);
-	};
-
-	// Supprimer toutes les notifications
-	const clearAllNotifications = () => {
-		setNotifications([]);
-	};
-
-	// Valeur du contexte
-	const contextValue = {
-		notifications,
-		addNotification,
-		removeNotification,
-		clearAllNotifications,
-	};
-
-	return (
-		<NotificationContext.Provider value={contextValue}>
-			{children}
-			<NotificationContainer />
-		</NotificationContext.Provider>
-	);
-};
-
-// Conteneur des notifications
-const NotificationContainer = () => {
+// Composant qui affiche les notifications
+export const NotificationContainer: React.FC = () => {
 	const { notifications, removeNotification } =
 		useContext(NotificationContext);
 
 	// Variantes pour les animations
-	const containerVariants = {
-		hidden: { opacity: 0 },
-		visible: {
-			opacity: 1,
-			transition: {
-				when: 'beforeChildren',
-				staggerChildren: 0.1,
-			},
-		},
-	};
-
 	const notificationVariants = {
 		hidden: { opacity: 0, y: 50, scale: 0.8 },
 		visible: {
@@ -284,49 +198,4 @@ const NotificationContainer = () => {
 			</AnimatePresence>
 		</div>
 	);
-};
-
-// Hooks d'utilité pour les différents types de notifications
-export const useSuccessNotification = () => {
-	const { addNotification } = useNotification();
-	return (message, options = {}) => {
-		return addNotification({
-			message,
-			type: 'success',
-			...options,
-		});
-	};
-};
-
-export const useErrorNotification = () => {
-	const { addNotification } = useNotification();
-	return (message, options = {}) => {
-		return addNotification({
-			message,
-			type: 'error',
-			...options,
-		});
-	};
-};
-
-export const useWarningNotification = () => {
-	const { addNotification } = useNotification();
-	return (message, options = {}) => {
-		return addNotification({
-			message,
-			type: 'warning',
-			...options,
-		});
-	};
-};
-
-export const useInfoNotification = () => {
-	const { addNotification } = useNotification();
-	return (message, options = {}) => {
-		return addNotification({
-			message,
-			type: 'info',
-			...options,
-		});
-	};
 };

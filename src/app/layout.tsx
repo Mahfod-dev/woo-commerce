@@ -4,7 +4,8 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import CartContext from '@/components/CartContext';
+import { CartProvider } from '@/components/CartProvider';
+import { NotificationProvider } from '@/context/notificationContext';
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -23,6 +24,15 @@ export const metadata: Metadata = {
 	keywords: 'boutique, e-commerce, produits, shopping, en ligne',
 };
 
+// Exemple de catégories pour le header (dans une implémentation réelle, ces données viendraient d'une API)
+const mockCategories = [
+	{ id: 1, name: 'Électronique', slug: 'electronique' },
+	{ id: 2, name: 'Mode', slug: 'mode' },
+	{ id: 3, name: 'Maison', slug: 'maison' },
+	{ id: 4, name: 'Sports', slug: 'sports' },
+	{ id: 5, name: 'Beauté', slug: 'beaute' },
+];
+
 export default function RootLayout({
 	children,
 }: {
@@ -33,11 +43,15 @@ export default function RootLayout({
 			<head />
 			<body
 				className={`${geistSans.className} ${geistMono.className} antialiased`}>
-				<CartContext>
-					<Header />
-					<main className='flex-grow pt-16 md:pt-20'>{children}</main>
-					<Footer />
-				</CartContext>
+				<NotificationProvider>
+					<CartProvider>
+						<Header categories={mockCategories} />
+						<main className='flex-grow min-h-screen pt-16 md:pt-20'>
+							{children}
+						</main>
+						<Footer />
+					</CartProvider>
+				</NotificationProvider>
 			</body>
 		</html>
 	);

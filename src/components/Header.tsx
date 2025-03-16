@@ -1,28 +1,39 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { FaShoppingCart, FaUser, FaSearch } from 'react-icons/fa';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+	FaShoppingCart,
+	FaUser,
+	FaSearch,
+	FaBars,
+	FaTimes,
+} from 'react-icons/fa';
 import { usePathname } from 'next/navigation';
+import { useCart } from './CartProvider';
 import MiniCart from './MiniCart';
+import MegaMenu from './MegaMenu';
 
-export default function Header() {
+export default function Header({ categories }) {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [isSearchOpen, setIsSearchOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [scrolled, setScrolled] = useState(false);
-	const [cartCount, setCartCount] = useState(0);
 	const pathname = usePathname();
+	const searchRef = useRef(null);
+	const { itemCount } = useCart();
 
-	// Détection du scroll pour changer l'arrière-plan du header
+	// Détection du scroll pour changer l'apparence du header
 	useEffect(() => {
 		const handleScroll = () => {
-			const isScrolled = window.scrollY > 10;
+			const isScrolled = window.scrollY > 20;
 			if (isScrolled !== scrolled) {
 				setScrolled(isScrolled);
 			}
 		};
+
 		window.addEventListener('scroll', handleScroll);
 		return () => window.removeEventListener('scroll', handleScroll);
 	}, [scrolled]);
@@ -33,25 +44,35 @@ export default function Header() {
 		setIsSearchOpen(false);
 	}, [pathname]);
 
-	// Simulation de la récupération du nombre d'articles dans le panier
+	// Fermer la recherche quand on clique en dehors
 	useEffect(() => {
-		// Remplacez ceci par votre appel à l'API réelle du panier
-		setCartCount(3);
+		const handleClickOutside = (event) => {
+			if (
+				searchRef.current &&
+				!searchRef.current.contains(event.target)
+			) {
+				setIsSearchOpen(false);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		return () =>
+			document.removeEventListener('mousedown', handleClickOutside);
 	}, []);
 
-	const handleSearch = (e: React.FormEvent) => {
+	const handleSearch = (e) => {
 		e.preventDefault();
 		if (searchQuery.trim()) {
 			window.location.href = `/search?q=${encodeURIComponent(
 				searchQuery
 			)}`;
+			setIsSearchOpen(false);
 		}
 	};
 
 	const navigationItems = [
 		{ name: 'Accueil', href: '/' },
 		{ name: 'Produits', href: '/products' },
-		{ name: 'Catégories', href: '/categories' },
 		{ name: 'Nouveautés', href: '/new-arrivals' },
 		{ name: 'Promotions', href: '/promotions' },
 		{ name: 'Blog', href: '/blog' },
@@ -61,168 +82,238 @@ export default function Header() {
 
 	return (
 		<header
-			className={`fixed top-0 w-full z-50 transition-colors duration-300 ${
-				scrolled ? 'bg-white shadow-lg' : 'bg-transparent'
+			className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+				scrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'
 			}`}>
-			<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16'>
-				{/* Logo */}
-				<div className='flex-shrink-0'>
+			<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+				<div className='flex items-center justify-between'>
+					{/* Logo */}
 					<Link
 						href='/'
-						className='text-2xl font-bold text-indigo-600 cursor-pointer'>
-						VotreLogo
+						className='flex-shrink-0'>
+						<div className='flex items-center'>
+							<h1
+								className={`text-2xl font-bold transition-colors duration-300 ${
+									scrolled || pathname !== '/'
+										? 'text-indigo-600'
+										: 'text-white'
+								}`}>
+								VotreLogo
+							</h1>
+						</div>
 					</Link>
-				</div>
-				{/* Desktop Navigation */}
-				<nav className='hidden md:flex space-x-6 items-center'>
-					{navigationItems.map((item) => (
+
+					{/* Navigation desktop */}
+					<nav className='hidden md:flex items-center space-x-1'>
+						{/* Navigation principale */}
+						{navigationItems.map((item) => (
+							<Link
+								key={item.name}
+								href={item.href}
+								className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 ${
+									pathname === item.href
+										? 'text-indigo-600'
+										: scrolled || pathname !== '/'
+										? 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
+										: 'text-white hover:text-white hover:bg-white/20'
+								}`}>
+								{item.name}
+							</Link>
+						))}
+
+						{/* Méga-menu des catégories */}
+						<div className='relative z-50'>
+							<MegaMenu
+								categories={categories}
+								isDarkBg={!scrolled && pathname === '/'}
+							/>
+						</div>
+					</nav>
+
+					{/* Actions (recherche, panier, compte) */}
+					<div className='flex items-center space-x-1'>
+						{/* Bouton recherche */}
+						<button
+							onClick={() => setIsSearchOpen(!isSearchOpen)}
+							className={`p-2 rounded-full transition-colors ${
+								scrolled || pathname !== '/'
+									? 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
+									: 'text-white hover:text-white hover:bg-white/20'
+							}`}
+							aria-label='Recherche'>
+							<FaSearch size={18} />
+						</button>
+
+						{/* Mini-panier */}
+						<div className='relative z-50'>
+							<MiniCart
+								isDarkBg={!scrolled && pathname === '/'}
+							/>
+						</div>
+
+						{/* Compte utilisateur */}
 						<Link
-							key={item.name}
-							href={item.href}
-							className='cursor-pointer text-gray-800 hover:text-indigo-600 transition-colors'>
-							{item.name}
+							href='/account'
+							className={`p-2 rounded-full transition-colors ${
+								scrolled || pathname !== '/'
+									? 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
+									: 'text-white hover:text-white hover:bg-white/20'
+							}`}
+							aria-label='Mon compte'>
+							<FaUser size={18} />
 						</Link>
-					))}
-					{/* Bouton Recherche */}
-					<button
-						onClick={() => setIsSearchOpen(!isSearchOpen)}
-						className='text-gray-800 hover:text-indigo-600 transition-colors'>
-						<FaSearch size={18} />
-					</button>
-					{/* Icône Panier */}
-					<div className='relative'>
-						<MiniCart />
+
+						{/* Bouton menu mobile */}
+						<button
+							onClick={() => setIsMenuOpen(!isMenuOpen)}
+							className={`md:hidden p-2 rounded-full transition-colors ${
+								scrolled || pathname !== '/'
+									? 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
+									: 'text-white hover:text-white hover:bg-white/20'
+							}`}
+							aria-label={
+								isMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'
+							}>
+							{isMenuOpen ? (
+								<FaTimes size={20} />
+							) : (
+								<FaBars size={20} />
+							)}
+						</button>
 					</div>
-					{/* Icône Compte */}
-					<Link
-						href='/account'
-						className='cursor-pointer text-gray-800 hover:text-indigo-600 transition-colors'>
-						<FaUser size={18} />
-					</Link>
-				</nav>
-				{/* Mobile Menu et Recherche */}
-				<div className='md:hidden flex items-center'>
-					<button
-						onClick={() => setIsSearchOpen(!isSearchOpen)}
-						className='mr-4 text-gray-800 hover:text-indigo-600 transition-colors'>
-						<FaSearch size={18} />
-					</button>
-					<button
-						onClick={() => setIsMenuOpen(!isMenuOpen)}
-						className='text-gray-800 hover:text-indigo-600 transition-colors'>
-						{isMenuOpen ? (
-							<svg
-								xmlns='http://www.w3.org/2000/svg'
-								className='h-6 w-6'
-								fill='none'
-								viewBox='0 0 24 24'
-								stroke='currentColor'>
-								<path
-									strokeLinecap='round'
-									strokeLinejoin='round'
-									strokeWidth={2}
-									d='M6 18L18 6M6 6l12 12'
-								/>
-							</svg>
-						) : (
-							<svg
-								xmlns='http://www.w3.org/2000/svg'
-								className='h-6 w-6'
-								fill='none'
-								viewBox='0 0 24 24'
-								stroke='currentColor'>
-								<path
-									strokeLinecap='round'
-									strokeLinejoin='round'
-									strokeWidth={2}
-									d='M4 8h16M4 16h16'
-								/>
-							</svg>
-						)}
-					</button>
 				</div>
 			</div>
-			{/* Barre de recherche animée */}
+
+			{/* Barre de recherche */}
 			<AnimatePresence>
 				{isSearchOpen && (
 					<motion.div
+						ref={searchRef}
 						initial={{ opacity: 0, y: -10 }}
 						animate={{ opacity: 1, y: 0 }}
 						exit={{ opacity: 0, y: -10 }}
-						className='bg-white shadow-md'>
-						<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-							<form
-								onSubmit={handleSearch}
-								className='flex items-center py-2'>
-								<input
-									type='text'
-									value={searchQuery}
-									onChange={(e) =>
-										setSearchQuery(e.target.value)
-									}
-									placeholder='Recherche...'
-									className='w-full border border-gray-300 rounded-l-md py-2 px-4 focus:outline-none focus:border-indigo-600'
-								/>
-								<button
-									type='submit'
-									className='bg-indigo-600 text-white rounded-r-md py-2 px-4 hover:bg-indigo-500 transition-colors'>
-									Rechercher
-								</button>
-							</form>
-						</div>
+						transition={{ duration: 0.2 }}
+						className='absolute top-full left-0 right-0 p-4 bg-white shadow-lg border-t border-gray-200 z-40'>
+						<form
+							onSubmit={handleSearch}
+							className='max-w-3xl mx-auto flex'>
+							<input
+								type='text'
+								value={searchQuery}
+								onChange={(e) => setSearchQuery(e.target.value)}
+								placeholder='Rechercher un produit...'
+								className='flex-grow px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent'
+								autoFocus
+							/>
+							<button
+								type='submit'
+								className='bg-indigo-600 text-white px-4 py-2 rounded-r-md hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'>
+								<FaSearch size={18} />
+							</button>
+						</form>
+
+						{/* Suggestions de recherche (à implémenter) */}
+						{searchQuery.length > 2 && (
+							<div className='mt-4 max-w-3xl mx-auto bg-white rounded-md shadow-sm'>
+								<div className='p-2 text-center text-sm text-gray-500'>
+									Tapez pour rechercher...
+								</div>
+							</div>
+						)}
 					</motion.div>
 				)}
 			</AnimatePresence>
-			{/* Menu mobile animé */}
+
+			{/* Menu mobile */}
 			<AnimatePresence>
 				{isMenuOpen && (
-					<motion.nav
+					<motion.div
 						initial={{ opacity: 0, height: 0 }}
 						animate={{ opacity: 1, height: 'auto' }}
 						exit={{ opacity: 0, height: 0 }}
-						className='md:hidden bg-white shadow-md'>
-						<div className='px-4 py-2 space-y-2'>
+						transition={{ duration: 0.3 }}
+						className='md:hidden bg-white shadow-lg border-t border-gray-200 overflow-hidden'>
+						<nav className='max-w-7xl mx-auto px-4 py-3 space-y-1'>
 							{navigationItems.map((item) => (
 								<Link
 									key={item.name}
 									href={item.href}
 									onClick={() => setIsMenuOpen(false)}
-									className='block cursor-pointer text-gray-800 hover:bg-indigo-100 hover:text-indigo-600 px-3 py-2 rounded-md transition-colors'>
+									className={`block px-3 py-2 rounded-md transition-colors ${
+										pathname === item.href
+											? 'bg-indigo-50 text-indigo-600 font-medium'
+											: 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600'
+									}`}>
 									{item.name}
 								</Link>
 							))}
-							<Link
-								href='/cart'
-								onClick={() => setIsMenuOpen(false)}
-								className='flex items-center cursor-pointer text-gray-800 hover:bg-indigo-100 hover:text-indigo-600 px-3 py-2 rounded-md transition-colors'>
-								<FaShoppingCart
-									size={18}
-									className='mr-2'
-								/>
-								Panier
-							</Link>
-							<Link
-								href='/account'
-								onClick={() => setIsMenuOpen(false)}
-								className='flex items-center cursor-pointer text-gray-800 hover:bg-indigo-100 hover:text-indigo-600 px-3 py-2 rounded-md transition-colors'>
-								<FaUser
-									size={18}
-									className='mr-2'
-								/>
-								Compte
-							</Link>
-							<Link
-								href='/blog'
-								onClick={() => setIsMenuOpen(false)}
-								className='flex items-center cursor-pointer text-gray-800 hover:bg-indigo-100 hover:text-indigo-600 px-3 py-2 rounded-md transition-colors'>
-								<FaSearch
-									size={18}
-									className='mr-2'
-								/>
-								Blog
-							</Link>
-						</div>
-					</motion.nav>
+
+							{/* Catégories dans le menu mobile */}
+							<div className='pt-2 pb-1'>
+								<p className='px-3 text-xs font-medium text-gray-500 uppercase tracking-wider'>
+									Catégories
+								</p>
+							</div>
+
+							{categories?.slice(0, 5).map((category) => (
+								<Link
+									key={category.id}
+									href={`/categories/${category.slug}`}
+									onClick={() => setIsMenuOpen(false)}
+									className='block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors'>
+									{category.name}
+								</Link>
+							))}
+
+							{categories?.length > 5 && (
+								<Link
+									href='/categories'
+									onClick={() => setIsMenuOpen(false)}
+									className='block px-3 py-2 rounded-md text-indigo-600 font-medium hover:bg-indigo-50 transition-colors'>
+									Voir toutes les catégories
+								</Link>
+							)}
+
+							{/* Actions du menu mobile */}
+							<div className='pt-4 pb-3 border-t border-gray-200'>
+								<div className='flex items-center px-3'>
+									<div className='flex-shrink-0'>
+										<div className='h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600'>
+											<FaUser size={20} />
+										</div>
+									</div>
+									<div className='ml-3'>
+										<div className='text-base font-medium text-gray-800'>
+											Mon compte
+										</div>
+										<div className='text-sm font-medium text-gray-500'>
+											Accédez à votre compte
+										</div>
+									</div>
+								</div>
+								<div className='mt-3 space-y-1'>
+									<Link
+										href='/account'
+										onClick={() => setIsMenuOpen(false)}
+										className='block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors'>
+										Mon profil
+									</Link>
+									<Link
+										href='/orders'
+										onClick={() => setIsMenuOpen(false)}
+										className='block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors'>
+										Mes commandes
+									</Link>
+									<Link
+										href='/cart'
+										onClick={() => setIsMenuOpen(false)}
+										className='block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors'>
+										Mon panier ({itemCount})
+									</Link>
+								</div>
+							</div>
+						</nav>
+					</motion.div>
 				)}
 			</AnimatePresence>
 		</header>

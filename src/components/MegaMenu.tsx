@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const MegaMenu = ({ categories }) => {
+const MegaMenu = ({ categories, isDarkBg = false }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [selectedCategory, setSelectedCategory] = useState(null);
 	const menuRef = useRef(null);
@@ -72,16 +72,19 @@ const MegaMenu = ({ categories }) => {
 					slug: 'popular-product-2-2',
 					image: '/placeholder.jpg',
 				},
-				{
-					id: 2003,
-					name: 'Produit populaire 2.3',
-					slug: 'popular-product-2-3',
-					image: '/placeholder.jpg',
-				},
 			],
 		},
-		// Vous pouvez ajouter d'autres catégories ici
+		// Ajoutez d'autres catégories au besoin
 	};
+
+	// Si pas de catégories, générer quelques fausses données pour la démo
+	if (!categories || categories.length === 0) {
+		categories = [
+			{ id: 1, name: 'Catégorie 1', slug: 'categorie-1' },
+			{ id: 2, name: 'Catégorie 2', slug: 'categorie-2' },
+			{ id: 3, name: 'Catégorie 3', slug: 'categorie-3' },
+		];
+	}
 
 	// Fermer le menu quand on clique en dehors
 	useEffect(() => {
@@ -95,6 +98,13 @@ const MegaMenu = ({ categories }) => {
 		return () =>
 			document.removeEventListener('mousedown', handleClickOutside);
 	}, []);
+
+	// Définir la catégorie sélectionnée par défaut quand le menu s'ouvre
+	useEffect(() => {
+		if (isOpen && !selectedCategory && categories.length > 0) {
+			setSelectedCategory(categories[0].id);
+		}
+	}, [isOpen, selectedCategory, categories]);
 
 	// Animation variants
 	const menuVariants = {
@@ -138,10 +148,14 @@ const MegaMenu = ({ categories }) => {
 			<button
 				onClick={() => setIsOpen(!isOpen)}
 				onMouseEnter={() => setIsOpen(true)}
-				className={`flex items-center py-2 px-4 rounded-md transition-colors ${
+				className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
 					isOpen
-						? 'bg-gray-100 text-indigo-600'
-						: 'text-gray-700 hover:text-indigo-600'
+						? isDarkBg
+							? 'bg-white/20 text-white'
+							: 'bg-gray-50 text-indigo-600'
+						: isDarkBg
+						? 'text-white hover:bg-white/20'
+						: 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
 				}`}>
 				<span className='mr-1'>Catégories</span>
 				<svg
@@ -172,7 +186,7 @@ const MegaMenu = ({ categories }) => {
 						onMouseLeave={() => setIsOpen(false)}>
 						<div className='grid grid-cols-4 gap-0'>
 							{/* Liste des catégories principales */}
-							<div className='col-span-1 bg-gray-50 border-r border-gray-200 py-6 h-96 overflow-y-auto'>
+							<div className='col-span-1 bg-gray-50 border-r border-gray-200 py-6 max-h-96 overflow-y-auto'>
 								<ul className='space-y-1'>
 									{categories.map((category) => (
 										<motion.li
@@ -197,12 +211,7 @@ const MegaMenu = ({ categories }) => {
 												}`}>
 												<span>{category.name}</span>
 												<svg
-													className={`h-4 w-4 transition-transform ${
-														selectedCategory ===
-														category.id
-															? 'rotate-180'
-															: ''
-													}`}
+													className='h-4 w-4 text-gray-400'
 													fill='none'
 													viewBox='0 0 24 24'
 													stroke='currentColor'>
@@ -248,7 +257,7 @@ const MegaMenu = ({ categories }) => {
 																	)
 																}>
 																<svg
-																	className='h-4 w-4 mr-2'
+																	className='h-4 w-4 mr-2 text-gray-400'
 																	fill='none'
 																	viewBox='0 0 24 24'
 																	stroke='currentColor'>
@@ -354,10 +363,27 @@ const MegaMenu = ({ categories }) => {
 										</div>
 									</div>
 								) : (
-									<div className='h-full flex items-center justify-center'>
-										<p className='text-gray-500'>
-											Sélectionnez une catégorie pour voir
-											les détails
+									// Si la catégorie n'a pas de détails ou si aucune catégorie n'est sélectionnée
+									<div className='h-64 flex flex-col items-center justify-center text-center p-8'>
+										<svg
+											className='h-16 w-16 text-indigo-100 mb-4'
+											fill='none'
+											viewBox='0 0 24 24'
+											stroke='currentColor'>
+											<path
+												strokeLinecap='round'
+												strokeLinejoin='round'
+												strokeWidth={2}
+												d='M4 6h16M4 12h16M4 18h16'
+											/>
+										</svg>
+										<h3 className='text-lg font-medium text-gray-900 mb-1'>
+											Explorez nos catégories
+										</h3>
+										<p className='text-gray-500 max-w-md'>
+											Découvrez notre large gamme de
+											produits organisés en catégories
+											pour faciliter votre navigation.
 										</p>
 									</div>
 								)}
@@ -365,9 +391,9 @@ const MegaMenu = ({ categories }) => {
 						</div>
 
 						{/* Pied du méga-menu avec offres et navigation rapide */}
-						<div className='bg-gray-50 border-t border-gray-200 p-6'>
-							<div className='flex justify-between items-center'>
-								<div>
+						<div className='bg-gray-50 border-t border-gray-200 p-4'>
+							<div className='flex flex-wrap justify-between items-center'>
+								<div className='mb-2 sm:mb-0'>
 									<h3 className='text-sm font-semibold text-gray-900'>
 										Offres spéciales
 									</h3>
@@ -380,6 +406,18 @@ const MegaMenu = ({ categories }) => {
 									className='inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition-colors'
 									onClick={() => setIsOpen(false)}>
 									Voir les offres
+									<svg
+										className='ml-2 h-4 w-4'
+										fill='none'
+										viewBox='0 0 24 24'
+										stroke='currentColor'>
+										<path
+											strokeLinecap='round'
+											strokeLinejoin='round'
+											strokeWidth={2}
+											d='M14 5l7 7m0 0l-7 7m7-7H3'
+										/>
+									</svg>
 								</Link>
 							</div>
 						</div>

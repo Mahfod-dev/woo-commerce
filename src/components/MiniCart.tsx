@@ -1,12 +1,13 @@
 'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FaShoppingCart } from 'react-icons/fa';
 import { useCart } from './CartProvider';
-import { formatPrice } from '@/lib/wooClient';
 
-const MiniCart = () => {
+const MiniCart = ({ isDarkBg = false }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const cartRef = useRef(null);
 	const {
@@ -20,8 +21,11 @@ const MiniCart = () => {
 
 	// Fermer le mini-panier quand on clique en dehors
 	useEffect(() => {
-		const handleClickOutside = (event) => {
-			if (cartRef.current && !cartRef.current.contains(event.target)) {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (
+				cartRef.current &&
+				!cartRef.current.contains(event.target as Node)
+			) {
 				setIsOpen(false);
 			}
 		};
@@ -59,28 +63,26 @@ const MiniCart = () => {
 		},
 	};
 
+	// Formatter le prix pour l'affichage
+	const formatPrice = (price: number | string) => {
+		return parseFloat(price.toString()).toFixed(2) + ' €';
+	};
+
 	return (
 		<div
 			ref={cartRef}
-			className='relative z-50'>
+			className='relative'>
 			{/* Bouton du panier */}
 			<button
 				onClick={() => setIsOpen(!isOpen)}
 				onMouseEnter={() => setIsOpen(true)}
-				className='relative flex items-center justify-center h-10 w-10 rounded-full hover:bg-gray-100 transition-colors'
+				className={`relative p-2 rounded-full transition-colors ${
+					isDarkBg
+						? 'text-white hover:bg-white/20'
+						: 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
+				}`}
 				aria-label='Panier'>
-				<svg
-					className='h-6 w-6 text-gray-800'
-					fill='none'
-					viewBox='0 0 24 24'
-					stroke='currentColor'>
-					<path
-						strokeLinecap='round'
-						strokeLinejoin='round'
-						strokeWidth={2}
-						d='M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z'
-					/>
-				</svg>
+				<FaShoppingCart size={18} />
 
 				{itemCount > 0 && (
 					<motion.span
@@ -100,7 +102,7 @@ const MiniCart = () => {
 						initial='hidden'
 						animate='visible'
 						exit='exit'
-						className='absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden'>
+						className='absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-50'>
 						<div className='p-4 border-b border-gray-100'>
 							<div className='flex justify-between items-center'>
 								<h3 className='font-medium text-gray-900'>
