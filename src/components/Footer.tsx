@@ -2,25 +2,32 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
 import {
 	FaFacebook,
 	FaTwitter,
 	FaInstagram,
 	FaLinkedin,
 	FaYoutube,
+	FaMapMarkerAlt,
+	FaPhone,
+	FaEnvelope,
+	FaClock,
 } from 'react-icons/fa';
 
-export default function Footer() {
+export default function ImprovedFooter() {
 	const [email, setEmail] = useState('');
 	const [subscribeStatus, setSubscribeStatus] = useState<{
 		message: string;
 		type: 'success' | 'error' | null;
 	}>({ message: '', type: null });
+	const [activeAccordion, setActiveAccordion] = useState<string | null>(null);
 
 	const handleSubscribe = async (e: React.FormEvent) => {
 		e.preventDefault();
 
-		if (!email.trim()) {
+		if (!email.trim() || !email.includes('@')) {
 			setSubscribeStatus({
 				message: 'Veuillez entrer une adresse e-mail valide',
 				type: 'error',
@@ -30,7 +37,6 @@ export default function Footer() {
 
 		try {
 			// Simulation d'appel API pour l'inscription à la newsletter
-			// À remplacer par votre implémentation réelle
 			await new Promise((resolve) => setTimeout(resolve, 800));
 
 			setSubscribeStatus({
@@ -52,18 +58,57 @@ export default function Footer() {
 		}
 	};
 
-	return (
-		<footer className='bg-gray-900 text-white'>
-			{/* Fond abstrait */}
-			<div className='relative overflow-hidden'>
-				<div className='absolute inset-0 opacity-5'>
-					<div className='absolute -top-20 -left-20 w-96 h-96 rounded-full bg-indigo-500'></div>
-					<div className='absolute bottom-0 right-0 w-96 h-96 rounded-full bg-purple-500'></div>
-				</div>
+	// Animation variants
+	const containerVariants = {
+		hidden: { opacity: 0 },
+		visible: {
+			opacity: 1,
+			transition: {
+				staggerChildren: 0.1,
+				delayChildren: 0.2,
+			},
+		},
+	};
 
-				<div className='relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16'>
-					{/* Section newsletter */}
-					<div className='relative z-10 bg-gradient-to-r from-indigo-700 to-purple-700 rounded-2xl p-8 md:p-12 mb-16 shadow-xl'>
+	const itemVariants = {
+		hidden: { opacity: 0, y: 20 },
+		visible: {
+			opacity: 1,
+			y: 0,
+			transition: {
+				type: 'spring',
+				stiffness: 100,
+				damping: 15,
+			},
+		},
+	};
+
+	// Toggle accordion (for mobile view)
+	const toggleAccordion = (id: string) => {
+		if (activeAccordion === id) {
+			setActiveAccordion(null);
+		} else {
+			setActiveAccordion(id);
+		}
+	};
+
+	return (
+		<footer className='bg-gradient-to-b from-gray-900 to-indigo-900 text-white relative overflow-hidden'>
+			{/* Fond abstrait */}
+			<div className='absolute inset-0 opacity-5'>
+				<div className='absolute -top-20 -left-20 w-96 h-96 rounded-full bg-indigo-500'></div>
+				<div className='absolute bottom-0 right-0 w-96 h-96 rounded-full bg-purple-500'></div>
+			</div>
+
+			<div className='relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+				{/* Section newsletter */}
+				<div className='relative z-10 pt-16 pb-8'>
+					{/* <motion.div
+						initial={{ opacity: 0, y: 50 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						viewport={{ once: true, margin: '-100px' }}
+						transition={{ duration: 0.7 }}
+						className='bg-gradient-to-r from-indigo-700 to-purple-700 rounded-2xl p-8 md:p-12 mb-16 shadow-xl'>
 						<div className='grid md:grid-cols-2 gap-8 items-center'>
 							<div>
 								<h2 className='text-2xl md:text-3xl font-bold mb-2'>
@@ -79,284 +124,641 @@ export default function Footer() {
 								<form
 									onSubmit={handleSubscribe}
 									className='flex flex-col sm:flex-row gap-2'>
-									<input
-										type='email'
-										value={email}
-										onChange={(e) =>
-											setEmail(e.target.value)
-										}
-										placeholder='Votre adresse e-mail'
-										className='flex-grow px-4 py-3 rounded-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-white'
-										required
-									/>
-									<button
+									<div className='flex-grow relative'>
+										<input
+											type='email'
+											value={email}
+											onChange={(e) =>
+												setEmail(e.target.value)
+											}
+											placeholder='Votre adresse e-mail'
+											className='w-full px-4 py-3 rounded-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-white'
+											required
+										/>
+										{subscribeStatus.message && (
+											<p
+												className={`absolute left-0 -bottom-6 text-sm ${
+													subscribeStatus.type ===
+													'success'
+														? 'text-green-300'
+														: 'text-red-300'
+												}`}>
+												{subscribeStatus.message}
+											</p>
+										)}
+									</div>
+									<motion.button
 										type='submit'
-										className='px-6 py-3 bg-white text-indigo-700 font-medium rounded-full hover:bg-gray-100 transition-colors duration-300 whitespace-nowrap'>
-										S&apos;inscrire
-									</button>
+										whileHover={{ scale: 1.03 }}
+										whileTap={{ scale: 0.97 }}
+										className='px-6 py-3 bg-white text-indigo-700 font-medium rounded-full hover:bg-gray-100 transition-colors duration-300 whitespace-nowrap shadow-md'>
+										S'inscrire
+									</motion.button>
 								</form>
-								{subscribeStatus.message && (
-									<p
-										className={`mt-2 text-sm ${
-											subscribeStatus.type === 'success'
-												? 'text-green-300'
-												: 'text-red-300'
-										}`}>
-										{subscribeStatus.message}
-									</p>
-								)}
-								<p className='mt-2 text-xs text-indigo-200'>
+								<p className='mt-4 text-xs text-indigo-200'>
 									En vous inscrivant, vous acceptez de
 									recevoir nos emails marketing et confirmez
 									avoir lu notre{' '}
 									<Link
 										href='/privacy-policy'
-										className='underline hover:text-white'>
+										className='underline hover:text-white transition-colors'>
 										politique de confidentialité
 									</Link>
 									.
 								</p>
 							</div>
 						</div>
-					</div>
+					</motion.div> */}
 
 					{/* Grille de liens */}
-					<div className='grid grid-cols-2 md:grid-cols-4 gap-8 mb-12'>
-						<div>
-							<h3 className='text-lg font-semibold mb-4 text-indigo-300'>
-								Produits
-							</h3>
-							<ul className='space-y-2'>
-								<li>
-									<Link
-										href='/products'
-										className='text-gray-300 hover:text-white transition-colors'>
-										Tous les produits
-									</Link>
-								</li>
-								<li>
-									<Link
-										href='/new-arrivals'
-										className='text-gray-300 hover:text-white transition-colors'>
-										Nouveautés
-									</Link>
-								</li>
-								<li>
-									<Link
-										href='/promotions'
-										className='text-gray-300 hover:text-white transition-colors'>
-										Promotions
-									</Link>
-								</li>
-								<li>
-									<Link
-										href='/best-sellers'
-										className='text-gray-300 hover:text-white transition-colors'>
-										Meilleures ventes
-									</Link>
-								</li>
-							</ul>
-						</div>
-
-						<div>
-							<h3 className='text-lg font-semibold mb-4 text-indigo-300'>
-								Catégories
-							</h3>
-							<ul className='space-y-2'>
-								<li>
-									<Link
-										href='/categories'
-										className='text-gray-300 hover:text-white transition-colors'>
-										Toutes les catégories
-									</Link>
-								</li>
-								<li>
-									<Link
-										href='/categories/category-1'
-										className='text-gray-300 hover:text-white transition-colors'>
-										Catégorie 1
-									</Link>
-								</li>
-								<li>
-									<Link
-										href='/categories/category-2'
-										className='text-gray-300 hover:text-white transition-colors'>
-										Catégorie 2
-									</Link>
-								</li>
-								<li>
-									<Link
-										href='/categories/category-3'
-										className='text-gray-300 hover:text-white transition-colors'>
-										Catégorie 3
-									</Link>
-								</li>
-							</ul>
-						</div>
-
-						<div>
-							<h3 className='text-lg font-semibold mb-4 text-indigo-300'>
-								À propos
-							</h3>
-							<ul className='space-y-2'>
-								<li>
-									<Link
-										href='/about'
-										className='text-gray-300 hover:text-white transition-colors'>
-										Notre histoire
-									</Link>
-								</li>
-								<li>
-									<Link
-										href='/blog'
-										className='text-gray-300 hover:text-white transition-colors'>
-										Blog
-									</Link>
-								</li>
-								<li>
-									<Link
-										href='/testimonials'
-										className='text-gray-300 hover:text-white transition-colors'>
-										Témoignages
-									</Link>
-								</li>
-								<li>
-									<Link
-										href='/faq'
-										className='text-gray-300 hover:text-white transition-colors'>
-										FAQ
-									</Link>
-								</li>
-							</ul>
-						</div>
-
-						<div>
-							<h3 className='text-lg font-semibold mb-4 text-indigo-300'>
-								Support
-							</h3>
-							<ul className='space-y-2'>
-								<li>
-									<Link
-										href='/contact'
-										className='text-gray-300 hover:text-white transition-colors'>
-										Contact
-									</Link>
-								</li>
-								<li>
-									<Link
-										href='/shipping'
-										className='text-gray-300 hover:text-white transition-colors'>
-										Livraison
-									</Link>
-								</li>
-								<li>
-									<Link
-										href='/returns'
-										className='text-gray-300 hover:text-white transition-colors'>
-										Retours
-									</Link>
-								</li>
-								<li>
-									<Link
-										href='/terms'
-										className='text-gray-300 hover:text-white transition-colors'>
-										Conditions générales
-									</Link>
-								</li>
-							</ul>
-						</div>
-					</div>
-
-					{/* Informations de contact et médias sociaux */}
-					<div className='grid md:grid-cols-2 gap-8 border-t border-gray-800 pt-8'>
-						<div>
+					<motion.div
+						variants={containerVariants}
+						initial='hidden'
+						whileInView='visible'
+						viewport={{ once: true, margin: '-100px' }}
+						className='grid grid-cols-1 md:grid-cols-4 gap-8 mb-12'>
+						{/* Première colonne - Logo et infos */}
+						<motion.div
+							variants={itemVariants}
+							className='md:col-span-1'>
 							<Link
 								href='/'
 								className='text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 inline-block mb-4'>
 								LOGO
 							</Link>
-							<p className='text-gray-400 mb-4 max-w-md'>
+							<p className='text-gray-400 mb-6 max-w-md'>
 								Votre boutique en ligne innovante qui redéfinit
-								l&apos;expérience shopping avec des produits
+								l'expérience shopping avec des produits
 								soigneusement sélectionnés et un service client
 								exceptionnel.
 							</p>
 							<div className='flex space-x-4'>
-								<a
+								<motion.a
 									href='https://facebook.com'
 									target='_blank'
 									rel='noopener noreferrer'
 									className='text-gray-400 hover:text-white transition-colors'
-									aria-label='Facebook'>
+									aria-label='Facebook'
+									whileHover={{
+										scale: 1.2,
+										color: '#4267B2',
+									}}>
 									<FaFacebook size={20} />
-								</a>
-								<a
+								</motion.a>
+								<motion.a
 									href='https://twitter.com'
 									target='_blank'
 									rel='noopener noreferrer'
 									className='text-gray-400 hover:text-white transition-colors'
-									aria-label='Twitter'>
+									aria-label='Twitter'
+									whileHover={{
+										scale: 1.2,
+										color: '#1DA1F2',
+									}}>
 									<FaTwitter size={20} />
-								</a>
-								<a
+								</motion.a>
+								<motion.a
 									href='https://instagram.com'
 									target='_blank'
 									rel='noopener noreferrer'
 									className='text-gray-400 hover:text-white transition-colors'
-									aria-label='Instagram'>
+									aria-label='Instagram'
+									whileHover={{
+										scale: 1.2,
+										color: '#E1306C',
+									}}>
 									<FaInstagram size={20} />
-								</a>
-								<a
+								</motion.a>
+								<motion.a
 									href='https://linkedin.com'
 									target='_blank'
 									rel='noopener noreferrer'
 									className='text-gray-400 hover:text-white transition-colors'
-									aria-label='LinkedIn'>
+									aria-label='LinkedIn'
+									whileHover={{
+										scale: 1.2,
+										color: '#0077B5',
+									}}>
 									<FaLinkedin size={20} />
-								</a>
-								<a
+								</motion.a>
+								<motion.a
 									href='https://youtube.com'
 									target='_blank'
 									rel='noopener noreferrer'
 									className='text-gray-400 hover:text-white transition-colors'
-									aria-label='YouTube'>
+									aria-label='YouTube'
+									whileHover={{
+										scale: 1.2,
+										color: '#FF0000',
+									}}>
 									<FaYoutube size={20} />
-								</a>
+								</motion.a>
 							</div>
+						</motion.div>
+
+						{/* Colonnes pour les liens - version desktop */}
+						<div className='hidden md:grid md:grid-cols-3 md:col-span-3 gap-8'>
+							<motion.div variants={itemVariants}>
+								<h3 className='text-lg font-semibold text-indigo-300 mb-4'>
+									Produits
+								</h3>
+								<ul className='space-y-2'>
+									<motion.li
+										variants={itemVariants}
+										whileHover={{ x: 5 }}
+										transition={{
+											type: 'spring',
+											stiffness: 300,
+										}}>
+										<Link
+											href='/products'
+											className='text-gray-300 hover:text-white transition-colors block'>
+											Tous les produits
+										</Link>
+									</motion.li>
+									<motion.li
+										variants={itemVariants}
+										whileHover={{ x: 5 }}
+										transition={{
+											type: 'spring',
+											stiffness: 300,
+										}}>
+										<Link
+											href='/new-arrivals'
+											className='text-gray-300 hover:text-white transition-colors block'>
+											Nouveautés
+										</Link>
+									</motion.li>
+									<motion.li
+										variants={itemVariants}
+										whileHover={{ x: 5 }}
+										transition={{
+											type: 'spring',
+											stiffness: 300,
+										}}>
+										<Link
+											href='/promotions'
+											className='text-gray-300 hover:text-white transition-colors block'>
+											Promotions
+										</Link>
+									</motion.li>
+									<motion.li
+										variants={itemVariants}
+										whileHover={{ x: 5 }}
+										transition={{
+											type: 'spring',
+											stiffness: 300,
+										}}>
+										<Link
+											href='/best-sellers'
+											className='text-gray-300 hover:text-white transition-colors block'>
+											Meilleures ventes
+										</Link>
+									</motion.li>
+								</ul>
+							</motion.div>
+
+							<motion.div variants={itemVariants}>
+								<h3 className='text-lg font-semibold text-indigo-300 mb-4'>
+									À propos
+								</h3>
+								<ul className='space-y-2'>
+									<motion.li
+										variants={itemVariants}
+										whileHover={{ x: 5 }}
+										transition={{
+											type: 'spring',
+											stiffness: 300,
+										}}>
+										<Link
+											href='/about'
+											className='text-gray-300 hover:text-white transition-colors block'>
+											Notre histoire
+										</Link>
+									</motion.li>
+									<motion.li
+										variants={itemVariants}
+										whileHover={{ x: 5 }}
+										transition={{
+											type: 'spring',
+											stiffness: 300,
+										}}>
+										<Link
+											href='/blog'
+											className='text-gray-300 hover:text-white transition-colors block'>
+											Blog
+										</Link>
+									</motion.li>
+									<motion.li
+										variants={itemVariants}
+										whileHover={{ x: 5 }}
+										transition={{
+											type: 'spring',
+											stiffness: 300,
+										}}>
+										<Link
+											href='/testimonials'
+											className='text-gray-300 hover:text-white transition-colors block'>
+											Témoignages
+										</Link>
+									</motion.li>
+									<motion.li
+										variants={itemVariants}
+										whileHover={{ x: 5 }}
+										transition={{
+											type: 'spring',
+											stiffness: 300,
+										}}>
+										<Link
+											href='/faq'
+											className='text-gray-300 hover:text-white transition-colors block'>
+											FAQ
+										</Link>
+									</motion.li>
+								</ul>
+							</motion.div>
+
+							<motion.div variants={itemVariants}>
+								<h3 className='text-lg font-semibold text-indigo-300 mb-4'>
+									Support
+								</h3>
+								<ul className='space-y-2'>
+									<motion.li
+										variants={itemVariants}
+										whileHover={{ x: 5 }}
+										transition={{
+											type: 'spring',
+											stiffness: 300,
+										}}>
+										<Link
+											href='/contact'
+											className='text-gray-300 hover:text-white transition-colors block'>
+											Contact
+										</Link>
+									</motion.li>
+									<motion.li
+										variants={itemVariants}
+										whileHover={{ x: 5 }}
+										transition={{
+											type: 'spring',
+											stiffness: 300,
+										}}>
+										<Link
+											href='/shipping'
+											className='text-gray-300 hover:text-white transition-colors block'>
+											Livraison
+										</Link>
+									</motion.li>
+									<motion.li
+										variants={itemVariants}
+										whileHover={{ x: 5 }}
+										transition={{
+											type: 'spring',
+											stiffness: 300,
+										}}>
+										<Link
+											href='/returns'
+											className='text-gray-300 hover:text-white transition-colors block'>
+											Retours
+										</Link>
+									</motion.li>
+									<motion.li
+										variants={itemVariants}
+										whileHover={{ x: 5 }}
+										transition={{
+											type: 'spring',
+											stiffness: 300,
+										}}>
+										<Link
+											href='/terms'
+											className='text-gray-300 hover:text-white transition-colors block'>
+											Conditions générales
+										</Link>
+									</motion.li>
+								</ul>
+							</motion.div>
 						</div>
 
-						<div className='flex flex-col md:items-end'>
-							<div className='text-gray-400'>
-								<p className='mb-2'>
-									<strong className='text-white'>
-										Adresse:
-									</strong>{' '}
-									123 Rue du Commerce, 75000 Paris, France
-								</p>
-								<p className='mb-2'>
-									<strong className='text-white'>
-										Téléphone:
-									</strong>{' '}
-									+33 1 23 45 67 89
-								</p>
-								<p className='mb-2'>
-									<strong className='text-white'>
-										Email:
-									</strong>{' '}
-									contact@votre-boutique.fr
-								</p>
-								<p className='mb-2'>
-									<strong className='text-white'>
-										Horaires:
-									</strong>{' '}
-									Lun-Ven: 9h-18h | Sam: 10h-17h
-								</p>
+						{/* Version mobile avec accordéons */}
+						<div className='md:hidden space-y-4'>
+							{/* Accordéon Produits */}
+							<div className='border-b border-gray-800 pb-4'>
+								<button
+									onClick={() => toggleAccordion('products')}
+									className='flex justify-between items-center w-full text-left'>
+									<h3 className='text-lg font-semibold text-indigo-300'>
+										Produits
+									</h3>
+									<svg
+										className={`h-5 w-5 text-gray-300 transform transition-transform ${
+											activeAccordion === 'products'
+												? 'rotate-180'
+												: ''
+										}`}
+										fill='none'
+										viewBox='0 0 24 24'
+										stroke='currentColor'>
+										<path
+											strokeLinecap='round'
+											strokeLinejoin='round'
+											strokeWidth={2}
+											d='M19 9l-7 7-7-7'
+										/>
+									</svg>
+								</button>
+
+								{activeAccordion === 'products' && (
+									<motion.ul
+										initial={{ height: 0, opacity: 0 }}
+										animate={{ height: 'auto', opacity: 1 }}
+										exit={{ height: 0, opacity: 0 }}
+										transition={{ duration: 0.3 }}
+										className='mt-3 space-y-2 pl-2'>
+										<li>
+											<Link
+												href='/products'
+												className='text-gray-300 hover:text-white transition-colors block py-1'>
+												Tous les produits
+											</Link>
+										</li>
+										<li>
+											<Link
+												href='/new-arrivals'
+												className='text-gray-300 hover:text-white transition-colors block py-1'>
+												Nouveautés
+											</Link>
+										</li>
+										<li>
+											<Link
+												href='/promotions'
+												className='text-gray-300 hover:text-white transition-colors block py-1'>
+												Promotions
+											</Link>
+										</li>
+										<li>
+											<Link
+												href='/best-sellers'
+												className='text-gray-300 hover:text-white transition-colors block py-1'>
+												Meilleures ventes
+											</Link>
+										</li>
+									</motion.ul>
+								)}
+							</div>
+
+							{/* Accordéon À propos */}
+							<div className='border-b border-gray-800 pb-4'>
+								<button
+									onClick={() => toggleAccordion('about')}
+									className='flex justify-between items-center w-full text-left'>
+									<h3 className='text-lg font-semibold text-indigo-300'>
+										À propos
+									</h3>
+									<svg
+										className={`h-5 w-5 text-gray-300 transform transition-transform ${
+											activeAccordion === 'about'
+												? 'rotate-180'
+												: ''
+										}`}
+										fill='none'
+										viewBox='0 0 24 24'
+										stroke='currentColor'>
+										<path
+											strokeLinecap='round'
+											strokeLinejoin='round'
+											strokeWidth={2}
+											d='M19 9l-7 7-7-7'
+										/>
+									</svg>
+								</button>
+
+								{activeAccordion === 'about' && (
+									<motion.ul
+										initial={{ height: 0, opacity: 0 }}
+										animate={{ height: 'auto', opacity: 1 }}
+										exit={{ height: 0, opacity: 0 }}
+										transition={{ duration: 0.3 }}
+										className='mt-3 space-y-2 pl-2'>
+										<li>
+											<Link
+												href='/about'
+												className='text-gray-300 hover:text-white transition-colors block py-1'>
+												Notre histoire
+											</Link>
+										</li>
+										<li>
+											<Link
+												href='/blog'
+												className='text-gray-300 hover:text-white transition-colors block py-1'>
+												Blog
+											</Link>
+										</li>
+										<li>
+											<Link
+												href='/testimonials'
+												className='text-gray-300 hover:text-white transition-colors block py-1'>
+												Témoignages
+											</Link>
+										</li>
+										<li>
+											<Link
+												href='/faq'
+												className='text-gray-300 hover:text-white transition-colors block py-1'>
+												FAQ
+											</Link>
+										</li>
+									</motion.ul>
+								)}
+							</div>
+
+							{/* Accordéon Support */}
+							<div className='border-b border-gray-800 pb-4'>
+								<button
+									onClick={() => toggleAccordion('support')}
+									className='flex justify-between items-center w-full text-left'>
+									<h3 className='text-lg font-semibold text-indigo-300'>
+										Support
+									</h3>
+									<svg
+										className={`h-5 w-5 text-gray-300 transform transition-transform ${
+											activeAccordion === 'support'
+												? 'rotate-180'
+												: ''
+										}`}
+										fill='none'
+										viewBox='0 0 24 24'
+										stroke='currentColor'>
+										<path
+											strokeLinecap='round'
+											strokeLinejoin='round'
+											strokeWidth={2}
+											d='M19 9l-7 7-7-7'
+										/>
+									</svg>
+								</button>
+
+								{activeAccordion === 'support' && (
+									<motion.ul
+										initial={{ height: 0, opacity: 0 }}
+										animate={{ height: 'auto', opacity: 1 }}
+										exit={{ height: 0, opacity: 0 }}
+										transition={{ duration: 0.3 }}
+										className='mt-3 space-y-2 pl-2'>
+										<li>
+											<Link
+												href='/contact'
+												className='text-gray-300 hover:text-white transition-colors block py-1'>
+												Contact
+											</Link>
+										</li>
+										<li>
+											<Link
+												href='/shipping'
+												className='text-gray-300 hover:text-white transition-colors block py-1'>
+												Livraison
+											</Link>
+										</li>
+										<li>
+											<Link
+												href='/returns'
+												className='text-gray-300 hover:text-white transition-colors block py-1'>
+												Retours
+											</Link>
+										</li>
+										<li>
+											<Link
+												href='/terms'
+												className='text-gray-300 hover:text-white transition-colors block py-1'>
+												Conditions générales
+											</Link>
+										</li>
+									</motion.ul>
+								)}
 							</div>
 						</div>
-					</div>
+					</motion.div>
 
-					{/* Bas de page, copyright et liens légaux */}
-					<div className='border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center'>
+					{/* Informations de contact */}
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						viewport={{ once: true }}
+						transition={{ duration: 0.5, delay: 0.3 }}
+						className='pt-8 border-t border-gray-800'>
+						<div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
+							<div className='space-y-4'>
+								<h3 className='text-lg font-semibold text-white'>
+									Contactez-nous
+								</h3>
+								<ul className='space-y-3'>
+									<li className='flex items-start'>
+										<FaMapMarkerAlt className='text-indigo-400 mt-1 mr-3 flex-shrink-0' />
+										<span className='text-gray-300'>
+											123 Rue du Commerce, 75000 Paris,
+											France
+										</span>
+									</li>
+									<li className='flex items-start'>
+										<FaPhone className='text-indigo-400 mt-1 mr-3 flex-shrink-0' />
+										<span className='text-gray-300'>
+											+33 1 23 45 67 89
+										</span>
+									</li>
+									<li className='flex items-start'>
+										<FaEnvelope className='text-indigo-400 mt-1 mr-3 flex-shrink-0' />
+										<span className='text-gray-300'>
+											contact@votre-boutique.fr
+										</span>
+									</li>
+									<li className='flex items-start'>
+										<FaClock className='text-indigo-400 mt-1 mr-3 flex-shrink-0' />
+										<span className='text-gray-300'>
+											Lun-Ven: 9h-18h | Sam: 10h-17h
+										</span>
+									</li>
+								</ul>
+							</div>
+
+							<div className='flex flex-col md:items-end justify-center space-y-4'>
+								<div>
+									<h3 className='text-lg font-semibold text-white mb-3'>
+										Méthodes de paiement
+									</h3>
+									<div className='flex space-x-3'>
+										<div className='bg-white p-2 rounded w-12 h-8 flex items-center justify-center'>
+											<Image
+												src='/visa.svg'
+												alt='Visa'
+												width={30}
+												height={20}
+											/>
+										</div>
+										<div className='bg-white p-2 rounded w-12 h-8 flex items-center justify-center'>
+											<Image
+												src='/mastercard.svg'
+												alt='Mastercard'
+												width={30}
+												height={20}
+											/>
+										</div>
+										<div className='bg-white p-2 rounded w-12 h-8 flex items-center justify-center'>
+											<Image
+												src='/paypal.svg'
+												alt='PayPal'
+												width={30}
+												height={20}
+											/>
+										</div>
+										<div className='bg-white p-2 rounded w-12 h-8 flex items-center justify-center'>
+											<Image
+												src='/apple-pay.svg'
+												alt='Apple Pay'
+												width={30}
+												height={20}
+											/>
+										</div>
+									</div>
+								</div>
+
+								<div>
+									<h3 className='text-lg font-semibold text-white mb-3'>
+										Livraison par
+									</h3>
+									<div className='flex space-x-3'>
+										<div className='bg-white p-2 rounded w-12 h-8 flex items-center justify-center'>
+											<Image
+												src='/dhl.svg'
+												alt='DHL'
+												width={30}
+												height={20}
+											/>
+										</div>
+										<div className='bg-white p-2 rounded w-12 h-8 flex items-center justify-center'>
+											<Image
+												src='/ups.svg'
+												alt='UPS'
+												width={30}
+												height={20}
+											/>
+										</div>
+										<div className='bg-white p-2 rounded w-12 h-8 flex items-center justify-center'>
+											<Image
+												src='/fedex.svg'
+												alt='FedEx'
+												width={30}
+												height={20}
+											/>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</motion.div>
+				</div>
+
+				{/* Copyright et liens légaux */}
+				<div className='border-t border-gray-800 py-8'>
+					<div className='flex flex-col md:flex-row justify-between items-center'>
 						<p className='text-gray-400 text-sm mb-4 md:mb-0'>
 							&copy; {new Date().getFullYear()} Votre Boutique.
 							Tous droits réservés.
@@ -365,7 +767,7 @@ export default function Footer() {
 							<Link
 								href='/terms'
 								className='hover:text-white transition-colors'>
-								Conditions d&apos;utilisation
+								Conditions d'utilisation
 							</Link>
 							<Link
 								href='/privacy-policy'
