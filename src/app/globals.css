@@ -1,7 +1,17 @@
 @import "tailwindcss";
 
+/* Définition explicite des polices */
+body {
+  font-family: var(--font-geist-sans);
+}
 
-/* Dans votre fichier global.css */
+code,
+pre,
+.font-mono {
+  font-family: var(--font-geist-mono);
+}
+
+/* Vos autres styles existants */
 .hide-scrollbar {
   scrollbar-width: none;
   /* Firefox */
