@@ -1,52 +1,30 @@
 'use client';
-import React, { useState, useRef, useEffect } from 'react';
+
+import React, { useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const ProductGallery = ({ images, productName }) => {
+interface ImprovedProductGalleryProps {
+	images: { src: string; alt: string }[];
+	productName: string;
+}
+
+export default function ImprovedProductGallery({
+	images,
+	productName,
+}: ImprovedProductGalleryProps) {
 	const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 	const [isZoomed, setIsZoomed] = useState(false);
-	const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
-	const [lightboxOpen, setLightboxOpen] = useState(false);
-	const mainImageRef = useRef(null);
+	const [zoomPos, setZoomPos] = useState({ x: 0, y: 0 });
+	const [showLightbox, setShowLightbox] = useState(false);
+	const mainImageRef = useRef<HTMLDivElement>(null);
 
-	// Gère le zoom sur l'image principale
-	const handleMouseMove = (e) => {
-		if (!mainImageRef.current || !isZoomed) return;
-
-		const { left, top, width, height } =
-			mainImageRef.current.getBoundingClientRect();
-		const x = (e.clientX - left) / width;
-		const y = (e.clientY - top) / height;
-
-		setZoomPosition({ x, y });
-	};
-
-	// Gestion des touches clavier pour la navigation du lightbox
-	useEffect(() => {
-		const handleKeyDown = (e) => {
-			if (!lightboxOpen) return;
-
-			if (e.key === 'ArrowRight') {
-				setSelectedImageIndex((prev) => (prev + 1) % images.length);
-			} else if (e.key === 'ArrowLeft') {
-				setSelectedImageIndex(
-					(prev) => (prev - 1 + images.length) % images.length
-				);
-			} else if (e.key === 'Escape') {
-				setLightboxOpen(false);
-			}
-		};
-
-		window.addEventListener('keydown', handleKeyDown);
-		return () => window.removeEventListener('keydown', handleKeyDown);
-	}, [lightboxOpen, images.length]);
-
+	// Si pas d'images, afficher un placeholder
 	if (!images || images.length === 0) {
 		return (
-			<div className='bg-gray-100 rounded-lg aspect-square flex items-center justify-center'>
+			<div className='aspect-square bg-gray-100 rounded-xl flex items-center justify-center'>
 				<svg
-					className='h-16 w-16 text-gray-400'
+					className='h-20 w-20 text-gray-300'
 					fill='none'
 					viewBox='0 0 24 24'
 					stroke='currentColor'>
@@ -61,16 +39,47 @@ const ProductGallery = ({ images, productName }) => {
 		);
 	}
 
+	// Zoomer sur l'image
+	const handleZoom = useCallback((e: React.MouseEvent) => {
+		if (!mainImageRef.current) return;
+
+		const { left, top, width, height } =
+			mainImageRef.current.getBoundingClientRect();
+		const x = (e.clientX - left) / width;
+		const y = (e.clientY - top) / height;
+
+		setZoomPos({ x, y });
+	}, []);
+
+	// Image suivante
+	const nextImage = () => {
+		setSelectedImageIndex((prev) => (prev + 1) % images.length);
+	};
+
+	// Image précédente
+	const prevImage = () => {
+		setSelectedImageIndex(
+			(prev) => (prev - 1 + images.length) % images.length
+		);
+	};
+
+	// Animation variants
+	const thumbnailVariants = {
+		inactive: { opacity: 0.6, scale: 0.9 },
+		active: { opacity: 1, scale: 1 },
+		hover: { opacity: 1, y: -5 },
+	};
+
 	return (
-		<div className='space-y-4'>
-			{/* Image principale avec zoom */}
+		<>
+			{/* Image principale */}
 			<div
-				className='relative overflow-hidden bg-gray-50 rounded-xl aspect-square cursor-zoom-in'
+				ref={mainImageRef}
+				className='aspect-square bg-gray-50 rounded-xl overflow-hidden relative mb-4 cursor-zoom-in'
+				onMouseMove={isZoomed ? handleZoom : undefined}
 				onMouseEnter={() => setIsZoomed(true)}
 				onMouseLeave={() => setIsZoomed(false)}
-				onMouseMove={handleMouseMove}
-				onClick={() => setLightboxOpen(true)}
-				ref={mainImageRef}>
+				onClick={() => setShowLightbox(true)}>
 				<Image
 					src={images[selectedImageIndex].src}
 					alt={images[selectedImageIndex].alt || productName}
@@ -78,8 +87,8 @@ const ProductGallery = ({ images, productName }) => {
 					sizes='(max-width: 768px) 100vw, 50vw'
 					className='object-cover transition-transform duration-200'
 					style={{
-						transformOrigin: `${zoomPosition.x * 100}% ${
-							zoomPosition.y * 100
+						transformOrigin: `${zoomPos.x * 100}% ${
+							zoomPos.y * 100
 						}%`,
 						transform: isZoomed ? 'scale(1.5)' : 'scale(1)',
 					}}
@@ -88,7 +97,7 @@ const ProductGallery = ({ images, productName }) => {
 
 				{/* Indicateur de zoom */}
 				<div
-					className={`absolute bottom-4 right-4 bg-black bg-opacity-60 text-white p-2 rounded-full transition-opacity ${
+					className={`absolute bottom-4 right-4 bg-black/60 text-white p-2 rounded-full transition-opacity ${
 						isZoomed ? 'opacity-100' : 'opacity-0'
 					}`}>
 					<svg
@@ -104,49 +113,101 @@ const ProductGallery = ({ images, productName }) => {
 						/>
 					</svg>
 				</div>
+
+				{/* Boutons de navigation */}
+				{images.length > 1 && (
+					<>
+						<button
+							onClick={(e) => {
+								e.stopPropagation();
+								prevImage();
+							}}
+							className='absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md opacity-0 group-hover:opacity-100 hover:bg-indigo-600 hover:text-white transition-all'>
+							<svg
+								className='h-5 w-5'
+								fill='none'
+								viewBox='0 0 24 24'
+								stroke='currentColor'>
+								<path
+									strokeLinecap='round'
+									strokeLinejoin='round'
+									strokeWidth={2}
+									d='M15 19l-7-7 7-7'
+								/>
+							</svg>
+						</button>
+						<button
+							onClick={(e) => {
+								e.stopPropagation();
+								nextImage();
+							}}
+							className='absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md opacity-0 group-hover:opacity-100 hover:bg-indigo-600 hover:text-white transition-all'>
+							<svg
+								className='h-5 w-5'
+								fill='none'
+								viewBox='0 0 24 24'
+								stroke='currentColor'>
+								<path
+									strokeLinecap='round'
+									strokeLinejoin='round'
+									strokeWidth={2}
+									d='M9 5l7 7-7 7'
+								/>
+							</svg>
+						</button>
+					</>
+				)}
 			</div>
 
 			{/* Miniatures */}
-			<div className='flex space-x-2 overflow-x-auto py-1 scrollbar-hide'>
-				{images.map((image, index) => (
-					<motion.button
-						key={image.id || index}
-						whileHover={{ y: -5 }}
-						whileTap={{ scale: 0.95 }}
-						onClick={() => setSelectedImageIndex(index)}
-						className={`relative rounded-lg overflow-hidden flex-shrink-0 w-20 h-20 border-2 transition-all duration-200 ${
-							selectedImageIndex === index
-								? 'border-indigo-600 shadow-md'
-								: 'border-transparent opacity-70'
-						}`}>
-						<Image
-							src={image.src}
-							alt={
-								image.alt ||
-								`${productName} - image ${index + 1}`
+			{images.length > 1 && (
+				<div className='flex space-x-2 overflow-x-auto pt-1 scrollbar-hide'>
+					{images.map((image, index) => (
+						<motion.button
+							key={`thumbnail-${index}`}
+							variants={thumbnailVariants}
+							initial='inactive'
+							animate={
+								selectedImageIndex === index
+									? 'active'
+									: 'inactive'
 							}
-							fill
-							sizes='80px'
-							className='object-cover'
-						/>
-					</motion.button>
-				))}
-			</div>
+							whileHover='hover'
+							onClick={() => setSelectedImageIndex(index)}
+							className={`relative overflow-hidden rounded-lg flex-shrink-0 w-20 h-20 border-2 transition-all ${
+								selectedImageIndex === index
+									? 'border-indigo-600 shadow-md'
+									: 'border-transparent'
+							}`}>
+							<Image
+								src={image.src}
+								alt={
+									image.alt ||
+									`${productName} - image ${index + 1}`
+								}
+								fill
+								sizes='80px'
+								className='object-cover'
+							/>
+						</motion.button>
+					))}
+				</div>
+			)}
 
 			{/* Lightbox */}
 			<AnimatePresence>
-				{lightboxOpen && (
+				{showLightbox && (
 					<motion.div
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
-						className='fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center p-4'
-						onClick={() => setLightboxOpen(false)}>
+						className='fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4'
+						onClick={() => setShowLightbox(false)}>
 						<button
-							className='absolute top-4 right-4 text-white p-2 rounded-full hover:bg-white hover:bg-opacity-20'
+							className='absolute top-4 right-4 text-white p-2 rounded-full hover:bg-white/20'
 							onClick={(e) => {
 								e.stopPropagation();
-								setLightboxOpen(false);
+								setShowLightbox(false);
 							}}>
 							<svg
 								className='h-6 w-6'
@@ -163,14 +224,10 @@ const ProductGallery = ({ images, productName }) => {
 						</button>
 
 						<button
-							className='absolute left-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-white hover:bg-opacity-20'
+							className='absolute left-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-white/20'
 							onClick={(e) => {
 								e.stopPropagation();
-								setSelectedImageIndex(
-									(prev) =>
-										(prev - 1 + images.length) %
-										images.length
-								);
+								prevImage();
 							}}>
 							<svg
 								className='h-8 w-8'
@@ -187,7 +244,7 @@ const ProductGallery = ({ images, productName }) => {
 						</button>
 
 						<motion.div
-							className='relative h-full max-h-[80vh] max-w-[80vw] flex items-center justify-center'
+							className='relative max-h-[80vh] max-w-[80vw] flex items-center justify-center'
 							onClick={(e) => e.stopPropagation()}
 							key={selectedImageIndex}
 							initial={{ opacity: 0, scale: 0.9 }}
@@ -207,12 +264,10 @@ const ProductGallery = ({ images, productName }) => {
 						</motion.div>
 
 						<button
-							className='absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-white hover:bg-opacity-20'
+							className='absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-2 rounded-full hover:bg-white/20'
 							onClick={(e) => {
 								e.stopPropagation();
-								setSelectedImageIndex(
-									(prev) => (prev + 1) % images.length
-								);
+								nextImage();
 							}}>
 							<svg
 								className='h-8 w-8'
@@ -231,7 +286,7 @@ const ProductGallery = ({ images, productName }) => {
 						<div className='absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2'>
 							{images.map((_, index) => (
 								<button
-									key={index}
+									key={`lightbox-indicator-${index}`}
 									onClick={(e) => {
 										e.stopPropagation();
 										setSelectedImageIndex(index);
@@ -247,8 +302,6 @@ const ProductGallery = ({ images, productName }) => {
 					</motion.div>
 				)}
 			</AnimatePresence>
-		</div>
+		</>
 	);
-};
-
-export default ProductGallery;
+}
