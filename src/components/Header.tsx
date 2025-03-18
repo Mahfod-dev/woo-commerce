@@ -2,15 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-	FaShoppingCart,
-	FaUser,
-	FaSearch,
-	FaBars,
-	FaTimes,
-} from 'react-icons/fa';
+import { FaUser, FaSearch, FaBars, FaTimes } from 'react-icons/fa';
 import { usePathname } from 'next/navigation';
 import { useCart } from './CartProvider';
 import MiniCart from './MiniCart';
@@ -82,10 +76,10 @@ export default function Header({ categories }) {
 
 	return (
 		<header
-			className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+			className={`fixed top-0 w-full z-50 transition-all duration-300 font-mono ${
 				scrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'
 			}`}>
-			<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+			<div className='max-w-7xl font-mono font-bold mx-auto px-4 sm:px-6 lg:px-8'>
 				<div className='flex items-center justify-between'>
 					{/* Logo */}
 					<Link
@@ -120,14 +114,6 @@ export default function Header({ categories }) {
 								{item.name}
 							</Link>
 						))}
-
-						{/* Méga-menu des catégories */}
-						<div className='relative z-50'>
-							<MegaMenu
-								categories={categories}
-								isDarkBg={!scrolled && pathname === '/'}
-							/>
-						</div>
 					</nav>
 
 					{/* Actions (recherche, panier, compte) */}
@@ -211,15 +197,14 @@ export default function Header({ categories }) {
 								<FaSearch size={18} />
 							</button>
 						</form>
-
 						{/* Suggestions de recherche (à implémenter) */}
-						{searchQuery.length > 2 && (
+						{/* {searchQuery.length > 2 && (
 							<div className='mt-4 max-w-3xl mx-auto bg-white rounded-md shadow-sm'>
 								<div className='p-2 text-center text-sm text-gray-500'>
 									Tapez pour rechercher...
 								</div>
 							</div>
-						)}
+						)} */}
 					</motion.div>
 				)}
 			</AnimatePresence>

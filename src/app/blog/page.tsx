@@ -12,7 +12,7 @@ export const metadata = {
 // Composant de chargement pour Suspense
 function BlogLoading() {
 	return (
-		<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16'>
+		<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 font-mono'>
 			<div className='animate-pulse mb-8'>
 				<div className='h-10 bg-gray-200 max-w-md mb-4 rounded'></div>
 				<div className='h-4 bg-gray-200 max-w-xl rounded'></div>

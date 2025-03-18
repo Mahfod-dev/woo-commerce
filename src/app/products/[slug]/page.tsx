@@ -1,13 +1,8 @@
 // app/products/[slug]/page.tsx
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import {
-	getProducts,
-	getRelatedProducts,
-	getProductsByCategory,
-} from '@/lib/woo';
-import ProductDetail from '@/components/ProductDetailContent';
-import ProductRecommendations from '@/components/PromoRecommandations';
+import { getProducts } from '@/lib/woo';
+import ProductDetailContent from '@/components/ProductDetailContent';
 
 // Composant de chargement
 function ProductDetailLoading() {
@@ -87,10 +82,11 @@ export async function generateMetadata({
 	}
 }
 
-// Génération des chemins statiques
+// Génération des chemins statiques - plus efficace avec un catalogue limité
 export async function generateStaticParams() {
 	try {
-		const products = await getProducts('?per_page=100');
+		// Avec un catalogue limité, on peut récupérer tous les produits sans paginer
+		const products = await getProducts();
 		return products.map((product) => ({
 			slug: product.slug,
 		}));
@@ -110,6 +106,7 @@ export default async function ProductPage({
 }) {
 	try {
 		const { slug } = await Promise.resolve(params);
+
 		// Récupération des données du produit
 		const products = await getProducts(`?slug=${slug}`);
 
@@ -119,51 +116,61 @@ export default async function ProductPage({
 
 		const product = products[0];
 
-		// Récupération des produits associés
-		const relatedProducts = await getRelatedProducts(
-			product.id.toString(),
-			4
-		);
+		// Récupérer tous les produits en une seule requête (efficace avec un catalogue limité)
+		const allProducts = await getProducts();
 
-		// Récupérer les accessoires (produits avec le tag "accessory")
-		const accessories = await getProducts('?tag=accessory&per_page=4');
+		// Filtrer les produits pour obtenir les accessoires (avec le tag "accessory")
+		const accessories = allProducts
+			.filter(
+				(p) => p.tags && p.tags.some((tag) => tag.name === 'accessory')
+			)
+			.slice(0, 4);
 
 		// Vérifier s'il existe une version premium
-		const premiumVariant = product.tags.some(
-			(tag) => tag.name === 'standard'
-		)
-			? await getProducts('?tag=premium&per_page=1')
-			: null;
+		let premiumVariant = null;
+		if (
+			product.tags &&
+			product.tags.some((tag) => tag.name === 'standard')
+		) {
+			const premiumProducts = allProducts.filter(
+				(p) => p.tags && p.tags.some((tag) => tag.name === 'premium')
+			);
+			if (premiumProducts.length > 0) {
+				premiumVariant = premiumProducts[0];
+			}
+		}
 
-		// Récupérer des produits complémentaires de la même catégorie
+		// Récupérer des produits similaires (même catégorie que le produit actuel)
 		let similarProducts = [];
 		if (product.categories && product.categories.length > 0) {
-			const categoryProducts = await getProductsByCategory(
-				product.categories[0].id,
-				3
-			);
-			similarProducts = categoryProducts
+			similarProducts = allProducts
+				.filter(
+					(p) =>
+						p.id !== product.id &&
+						p.categories &&
+						p.categories.some((cat) =>
+							product.categories.some(
+								(prodCat) => prodCat.id === cat.id
+							)
+						)
+				)
+				.slice(0, 3);
+		}
+
+		// Si on a très peu de produits, on peut simplement montrer les autres produits
+		if (similarProducts.length === 0 && allProducts.length <= 5) {
+			similarProducts = allProducts
 				.filter((p) => p.id !== product.id)
 				.slice(0, 3);
 		}
 
 		return (
 			<Suspense fallback={<ProductDetailLoading />}>
-				<ProductDetail
+				<ProductDetailContent
 					product={product}
 					accessories={accessories}
-					premiumVariant={
-						premiumVariant && premiumVariant.length > 0
-							? premiumVariant[0]
-							: null
-					}
+					premiumVariant={premiumVariant}
 					similarProducts={similarProducts}
-				/>
-
-				{/* Section de recommandations de produits */}
-				<ProductRecommendations
-					relatedProducts={relatedProducts}
-					currentProductId={product.id}
 				/>
 			</Suspense>
 		);

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { WooCategory, WooProduct } from '@/lib/woo';
-import ImprovedAnimatedProductsGrid from '@/components/AnimatedProductsGrid';
+import ImprovedAnimatedProductsGrid from '@/notuse/AnimatedProductsGrid';
 import { useCart } from '@/components/CartProvider';
 
 interface CategoryPageContentProps {
