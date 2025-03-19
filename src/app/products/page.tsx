@@ -1,7 +1,8 @@
 // app/products/page.tsx
 import React, { Suspense } from 'react';
-import { getProducts, getCategories } from '@/lib/woo';
+import { getProducts } from '@/lib/woo';
 import FocusedProductsPage from '@/components/FocusedProductPage';
+import { CATEGORY_IDS } from '@/lib/constants';
 
 // Métadonnées pour le SEO
 export const metadata = {
@@ -38,21 +39,29 @@ function ProductsLoading() {
 }
 
 export default async function ProductsPage() {
-	// Récupération des données - avec une approche différente pour une curation limitée
-	// On récupère seulement les produits principaux et les accessoires
+	// Récupérer les produits principaux en excluant la catégorie "Accessoires"
+	// Supposons que la catégorie Accessoires ait l'ID 15 (à remplacer par votre ID réel)
+	const allProducts = await getProducts();
 
-	// Récupérer les produits principaux (non-accessoires)
-	const mainProducts = await getProducts('?per_page=5&exclude_tag=accessory');
+	// Filtrer manuellement pour exclure les accessoires
+	const mainProducts = allProducts.filter(
+		(product) =>
+			!product.categories.some(
+				(cat) => cat.id === CATEGORY_IDS.ACCESSORIES
+			)
+	);
 
-	// Récupérer les accessoires
-	const accessories = await getProducts('?tag=accessory&per_page=10');
+	// Récupérer les accessoires séparément si nécessaire
+	// const accessories = await getProducts(
+	// 	`?category=${ACCESSORIES_CATEGORY_ID}&per_page=10`
+	// );
 
 	return (
 		<Suspense fallback={<ProductsLoading />}>
 			<div className='font-sans'>
 				<FocusedProductsPage
 					products={mainProducts}
-					accessories={accessories}
+					accessories={[]}
 				/>
 			</div>
 		</Suspense>

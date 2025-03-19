@@ -69,39 +69,6 @@ const FocusedProductShowcase = ({
 					</p>
 				</div>
 
-				{/* Tabs */}
-				<div className='flex justify-center mb-10'>
-					<div className='inline-flex rounded-md shadow-sm bg-gray-100 p-1'>
-						<button
-							onClick={() => setActiveTab('featured')}
-							className={`px-4 py-2 text-sm font-medium rounded-md ${
-								activeTab === 'featured'
-									? 'bg-indigo-600 text-white'
-									: 'text-gray-700 hover:bg-gray-200'
-							}`}>
-							Produits Phares
-						</button>
-						<button
-							onClick={() => setActiveTab('accessories')}
-							className={`px-4 py-2 text-sm font-medium rounded-md ${
-								activeTab === 'accessories'
-									? 'bg-indigo-600 text-white'
-									: 'text-gray-700 hover:bg-gray-200'
-							}`}>
-							Accessoires
-						</button>
-						<button
-							onClick={() => setActiveTab('premium')}
-							className={`px-4 py-2 text-sm font-medium rounded-md ${
-								activeTab === 'premium'
-									? 'bg-indigo-600 text-white'
-									: 'text-gray-700 hover:bg-gray-200'
-							}`}>
-							Versions Premium
-						</button>
-					</div>
-				</div>
-
 				{/* Product grid based on active tab */}
 				<motion.div
 					variants={containerVariants}
@@ -145,198 +112,222 @@ const FocusedProductShowcase = ({
 						))}
 				</motion.div>
 
-				{/* Featured product bundles */}
-				{activeTab === 'featured' && (
-					<div className='mt-16'>
-						<h3 className='text-2xl font-bold text-gray-900 mb-6 text-center'>
-							Nos Bundles Recommandés
-						</h3>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
-							<motion.div
-								whileHover={{ y: -5 }}
-								className='bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200'>
-								<div className='p-6'>
-									<div className='flex justify-between items-start'>
-										<div>
-											<span className='inline-block bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded-full mb-2'>
-												Populaire
-											</span>
-											<h4 className='text-xl font-bold text-gray-900 mb-2'>
-												Pack Essentiel
-											</h4>
-											<p className='text-gray-600 mb-4'>
-												Notre produit phare avec les
-												accessoires essentiels pour une
-												expérience complète.
-											</p>
-										</div>
-										<span className='text-2xl font-bold text-indigo-600'>
-											349€
+				{/* Notre approche de qualité */}
+				<div className='mt-16'>
+					<h3 className='text-2xl font-bold text-gray-900 mb-6 text-center'>
+						Notre Engagement Qualité
+					</h3>
+					<div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
+						<motion.div
+							whileHover={{ y: -5 }}
+							className='bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200'>
+							<div className='p-6'>
+								<div className='flex justify-between items-start'>
+									<div>
+										<span className='inline-block bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded-full mb-2'>
+											Notre approche
 										</span>
+										<h4 className='text-xl font-bold text-gray-900 mb-2'>
+											Sélection rigoureuse
+										</h4>
+										<p className='text-gray-600 mb-4'>
+											Nous ne proposons que des produits
+											soigneusement sélectionnés pour leur
+											qualité exceptionnelle et leur
+											durabilité.
+										</p>
 									</div>
-
-									<div className='border-t border-gray-200 my-4 pt-4'>
-										<ul className='space-y-2'>
-											<li className='flex items-center'>
-												<svg
-													className='w-4 h-4 text-indigo-500 mr-2'
-													fill='currentColor'
-													viewBox='0 0 20 20'>
-													<path
-														fillRule='evenodd'
-														d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-														clipRule='evenodd'
-													/>
-												</svg>
-												<span className='text-gray-700'>
-													Produit principal
-												</span>
-											</li>
-											<li className='flex items-center'>
-												<svg
-													className='w-4 h-4 text-indigo-500 mr-2'
-													fill='currentColor'
-													viewBox='0 0 20 20'>
-													<path
-														fillRule='evenodd'
-														d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-														clipRule='evenodd'
-													/>
-												</svg>
-												<span className='text-gray-700'>
-													Accessoire 1
-												</span>
-											</li>
-											<li className='flex items-center'>
-												<svg
-													className='w-4 h-4 text-indigo-500 mr-2'
-													fill='currentColor'
-													viewBox='0 0 20 20'>
-													<path
-														fillRule='evenodd'
-														d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-														clipRule='evenodd'
-													/>
-												</svg>
-												<span className='text-gray-700'>
-													Accessoire 2
-												</span>
-											</li>
-										</ul>
-									</div>
-
-									<button className='w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors'>
-										Ajouter au panier
-									</button>
+									<svg
+										className='h-10 w-10 text-indigo-600 flex-shrink-0'
+										fill='none'
+										viewBox='0 0 24 24'
+										stroke='currentColor'>
+										<path
+											strokeLinecap='round'
+											strokeLinejoin='round'
+											strokeWidth={2}
+											d='M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'
+										/>
+									</svg>
 								</div>
-							</motion.div>
 
-							<motion.div
-								whileHover={{ y: -5 }}
-								className='bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200'>
-								<div className='p-6'>
-									<div className='flex justify-between items-start'>
-										<div>
-											<span className='inline-block bg-purple-100 text-purple-800 text-xs font-semibold px-2.5 py-0.5 rounded-full mb-2'>
-												Premium
+								<div className='border-t border-gray-200 my-4 pt-4'>
+									<ul className='space-y-2'>
+										<li className='flex items-center'>
+											<svg
+												className='w-4 h-4 text-indigo-500 mr-2'
+												fill='currentColor'
+												viewBox='0 0 20 20'>
+												<path
+													fillRule='evenodd'
+													d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+													clipRule='evenodd'
+												/>
+											</svg>
+											<span className='text-gray-700'>
+												Tests rigoureux d'efficacité
 											</span>
-											<h4 className='text-xl font-bold text-gray-900 mb-2'>
-												Pack Complet
-											</h4>
-											<p className='text-gray-600 mb-4'>
-												L'expérience ultime avec tous
-												les accessoires et options
-												premium.
-											</p>
-										</div>
-										<span className='text-2xl font-bold text-indigo-600'>
-											549€
-										</span>
-									</div>
-
-									<div className='border-t border-gray-200 my-4 pt-4'>
-										<ul className='space-y-2'>
-											<li className='flex items-center'>
-												<svg
-													className='w-4 h-4 text-indigo-500 mr-2'
-													fill='currentColor'
-													viewBox='0 0 20 20'>
-													<path
-														fillRule='evenodd'
-														d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-														clipRule='evenodd'
-													/>
-												</svg>
-												<span className='text-gray-700'>
-													Version Premium
-												</span>
-											</li>
-											<li className='flex items-center'>
-												<svg
-													className='w-4 h-4 text-indigo-500 mr-2'
-													fill='currentColor'
-													viewBox='0 0 20 20'>
-													<path
-														fillRule='evenodd'
-														d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-														clipRule='evenodd'
-													/>
-												</svg>
-												<span className='text-gray-700'>
-													Tous les accessoires inclus
-												</span>
-											</li>
-											<li className='flex items-center'>
-												<svg
-													className='w-4 h-4 text-indigo-500 mr-2'
-													fill='currentColor'
-													viewBox='0 0 20 20'>
-													<path
-														fillRule='evenodd'
-														d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-														clipRule='evenodd'
-													/>
-												</svg>
-												<span className='text-gray-700'>
-													Extension de garantie (2
-													ans)
-												</span>
-											</li>
-											<li className='flex items-center'>
-												<svg
-													className='w-4 h-4 text-indigo-500 mr-2'
-													fill='currentColor'
-													viewBox='0 0 20 20'>
-													<path
-														fillRule='evenodd'
-														d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-														clipRule='evenodd'
-													/>
-												</svg>
-												<span className='text-gray-700'>
-													Service de personnalisation
-												</span>
-											</li>
-										</ul>
-									</div>
-
-									<button className='w-full py-3 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-lg transition-colors shadow-md'>
-										Ajouter au panier
-									</button>
+										</li>
+										<li className='flex items-center'>
+											<svg
+												className='w-4 h-4 text-indigo-500 mr-2'
+												fill='currentColor'
+												viewBox='0 0 20 20'>
+												<path
+													fillRule='evenodd'
+													d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+													clipRule='evenodd'
+												/>
+											</svg>
+											<span className='text-gray-700'>
+												Matériaux de haute qualité
+											</span>
+										</li>
+										<li className='flex items-center'>
+											<svg
+												className='w-4 h-4 text-indigo-500 mr-2'
+												fill='currentColor'
+												viewBox='0 0 20 20'>
+												<path
+													fillRule='evenodd'
+													d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+													clipRule='evenodd'
+												/>
+											</svg>
+											<span className='text-gray-700'>
+												Design ergonomique et
+												fonctionnel
+											</span>
+										</li>
+									</ul>
 								</div>
-							</motion.div>
-						</div>
+
+								<Link
+									href='/about-quality'
+									className='w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors block text-center'>
+									Notre philosophie de qualité
+								</Link>
+							</div>
+						</motion.div>
+
+						<motion.div
+							whileHover={{ y: -5 }}
+							className='bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200'>
+							<div className='p-6'>
+								<div className='flex justify-between items-start'>
+									<div>
+										<span className='inline-block bg-purple-100 text-purple-800 text-xs font-semibold px-2.5 py-0.5 rounded-full mb-2'>
+											Accessoires exclusifs
+										</span>
+										<h4 className='text-xl font-bold text-gray-900 mb-2'>
+											Expérience enrichie
+										</h4>
+										<p className='text-gray-600 mb-4'>
+											Des accessoires parfaitement
+											compatibles pour optimiser et
+											personnaliser l'utilisation de nos
+											produits.
+										</p>
+									</div>
+									<svg
+										className='h-10 w-10 text-purple-600 flex-shrink-0'
+										fill='none'
+										viewBox='0 0 24 24'
+										stroke='currentColor'>
+										<path
+											strokeLinecap='round'
+											strokeLinejoin='round'
+											strokeWidth={2}
+											d='M13 10V3L4 14h7v7l9-11h-7z'
+										/>
+									</svg>
+								</div>
+
+								<div className='border-t border-gray-200 my-4 pt-4'>
+									<ul className='space-y-2'>
+										<li className='flex items-center'>
+											<svg
+												className='w-4 h-4 text-indigo-500 mr-2'
+												fill='currentColor'
+												viewBox='0 0 20 20'>
+												<path
+													fillRule='evenodd'
+													d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+													clipRule='evenodd'
+												/>
+											</svg>
+											<span className='text-gray-700'>
+												Conçus spécifiquement pour nos
+												produits
+											</span>
+										</li>
+										<li className='flex items-center'>
+											<svg
+												className='w-4 h-4 text-indigo-500 mr-2'
+												fill='currentColor'
+												viewBox='0 0 20 20'>
+												<path
+													fillRule='evenodd'
+													d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+													clipRule='evenodd'
+												/>
+											</svg>
+											<span className='text-gray-700'>
+												Amélioration des fonctionnalités
+											</span>
+										</li>
+										<li className='flex items-center'>
+											<svg
+												className='w-4 h-4 text-indigo-500 mr-2'
+												fill='currentColor'
+												viewBox='0 0 20 20'>
+												<path
+													fillRule='evenodd'
+													d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+													clipRule='evenodd'
+												/>
+											</svg>
+											<span className='text-gray-700'>
+												Possibilité de personnalisation
+											</span>
+										</li>
+										<li className='flex items-center'>
+											<svg
+												className='w-4 h-4 text-indigo-500 mr-2'
+												fill='currentColor'
+												viewBox='0 0 20 20'>
+												<path
+													fillRule='evenodd'
+													d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+													clipRule='evenodd'
+												/>
+											</svg>
+											<span className='text-gray-700'>
+												Même niveau de qualité premium
+											</span>
+										</li>
+									</ul>
+								</div>
+
+								<Link
+									href='/accessories'
+									className='w-full py-3 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-lg transition-colors shadow-md block text-center'>
+									Découvrir nos accessoires
+								</Link>
+							</div>
+						</motion.div>
 					</div>
-				)}
+				</div>
 
-				{/* Guide d'achat */}
+				{/* Guide d'achat modifié */}
 				<div className='mt-16 bg-indigo-50 rounded-2xl p-8'>
 					<div className='text-center mb-8'>
 						<h3 className='text-2xl font-bold text-gray-900'>
-							Guide d'achat
+							Notre approche sélective
 						</h3>
 						<p className='text-gray-600 mt-2'>
-							Comment choisir le produit idéal pour vos besoins
+							Pourquoi nous proposons moins de produits, mais des
+							produits exceptionnels
 						</p>
 					</div>
 
@@ -352,16 +343,17 @@ const FocusedProductShowcase = ({
 										strokeLinecap='round'
 										strokeLinejoin='round'
 										strokeWidth='2'
-										d='M12 6v6m0 0v6m0-6h6m-6 0H6'></path>
+										d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'></path>
 								</svg>
 							</div>
 							<h4 className='text-lg font-semibold mb-2'>
-								Produits Phares
+								Sélection Rigoureuse
 							</h4>
 							<p className='text-gray-600'>
-								Idéal pour les débutants et utilisateurs
-								réguliers. Excellent rapport qualité-prix avec
-								toutes les fonctionnalités essentielles.
+								Contrairement aux magasins traditionnels, nous
+								ne proposons que des produits soigneusement
+								sélectionnés qui ont passé nos tests de qualité
+								exigeants.
 							</p>
 						</div>
 
@@ -376,16 +368,17 @@ const FocusedProductShowcase = ({
 										strokeLinecap='round'
 										strokeLinejoin='round'
 										strokeWidth='2'
-										d='M9 5l7 7-7 7'></path>
+										d='M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'></path>
 								</svg>
 							</div>
 							<h4 className='text-lg font-semibold mb-2'>
-								Accessoires
+								Expertise Produit
 							</h4>
 							<p className='text-gray-600'>
-								Améliorez votre expérience avec nos accessoires
-								complémentaires conçus spécifiquement pour nos
-								produits.
+								Nos experts connaissent parfaitement chaque
+								produit que nous vendons. Cela nous permet de
+								vous offrir des conseils personnalisés et un
+								support technique de qualité.
 							</p>
 						</div>
 
@@ -400,25 +393,26 @@ const FocusedProductShowcase = ({
 										strokeLinecap='round'
 										strokeLinejoin='round'
 										strokeWidth='2'
-										d='M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z'></path>
+										d='M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11'></path>
 								</svg>
 							</div>
 							<h4 className='text-lg font-semibold mb-2'>
-								Versions Premium
+								Personnalisation
 							</h4>
 							<p className='text-gray-600'>
-								Pour les utilisateurs exigeants recherchant des
-								fonctionnalités avancées et une qualité
-								supérieure.
+								Nos accessoires soigneusement choisis vous
+								permettent d'adapter parfaitement nos produits à
+								vos besoins spécifiques plutôt que de chercher
+								une solution universelle.
 							</p>
 						</div>
 					</div>
 
 					<div className='mt-8 text-center'>
 						<Link
-							href='/guide'
+							href='/our-philosophy'
 							className='inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium'>
-							Consulter notre guide complet
+							En savoir plus sur notre philosophie
 							<svg
 								className='ml-2 w-4 h-4'
 								fill='none'

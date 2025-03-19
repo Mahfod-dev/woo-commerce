@@ -4,6 +4,9 @@ import { notFound } from 'next/navigation';
 import { getProducts } from '@/lib/woo';
 import ProductDetailContent from '@/components/ProductDetailContent';
 
+// ID de la catégorie "Accessoires"
+const ACCESSORIES_CATEGORY_ID = 31;
+
 // Composant de chargement
 function ProductDetailLoading() {
 	return (
@@ -119,10 +122,10 @@ export default async function ProductPage({
 		// Récupérer tous les produits en une seule requête (efficace avec un catalogue limité)
 		const allProducts = await getProducts();
 
-		// Filtrer les produits pour obtenir les accessoires (avec le tag "accessory")
+		// Filtrer les produits pour obtenir les accessoires (produits de la catégorie "Accessoires")
 		const accessories = allProducts
-			.filter(
-				(p) => p.tags && p.tags.some((tag) => tag.name === 'accessory')
+			.filter((p) =>
+				p.categories.some((cat) => cat.id === ACCESSORIES_CATEGORY_ID)
 			)
 			.slice(0, 4);
 
@@ -141,6 +144,7 @@ export default async function ProductPage({
 		}
 
 		// Récupérer des produits similaires (même catégorie que le produit actuel)
+		// mais en excluant les accessoires
 		let similarProducts = [];
 		if (product.categories && product.categories.length > 0) {
 			similarProducts = allProducts
@@ -152,15 +156,26 @@ export default async function ProductPage({
 							product.categories.some(
 								(prodCat) => prodCat.id === cat.id
 							)
+						) &&
+						// Exclure les produits de la catégorie Accessoires des produits similaires
+						!p.categories.some(
+							(cat) => cat.id === ACCESSORIES_CATEGORY_ID
 						)
 				)
 				.slice(0, 3);
 		}
 
 		// Si on a très peu de produits, on peut simplement montrer les autres produits
+		// qui ne sont pas des accessoires
 		if (similarProducts.length === 0 && allProducts.length <= 5) {
 			similarProducts = allProducts
-				.filter((p) => p.id !== product.id)
+				.filter(
+					(p) =>
+						p.id !== product.id &&
+						!p.categories.some(
+							(cat) => cat.id === ACCESSORIES_CATEGORY_ID
+						)
+				)
 				.slice(0, 3);
 		}
 

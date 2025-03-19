@@ -93,7 +93,7 @@ export default function ImprovedFooter() {
 	};
 
 	return (
-		<footer className='bg-gradient-to-b from-gray-900 to-indigo-900 text-white relative overflow-hidden'>
+		<footer className='bg-gradient-to-b from-gray-900 to-indigo-900 text-white relative overflow-hidden font-sans'>
 			{/* Fond abstrait */}
 			<div className='absolute inset-0 opacity-5'>
 				<div className='absolute -top-20 -left-20 w-96 h-96 rounded-full bg-indigo-500'></div>

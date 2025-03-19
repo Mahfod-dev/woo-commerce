@@ -78,7 +78,7 @@ export default function BlogArticleContent({
 	};
 
 	return (
-		<div className='bg-gray-50 min-h-screen pb-16'>
+		<div className='bg-gray-50 min-h-screen pb-16 font-sans'>
 			{/* Hero section avec image de couverture */}
 			<div className='relative h-96 md:h-[500px] bg-gray-900'>
 				<Image

@@ -76,11 +76,11 @@ export default function Header({ categories }) {
 
 	return (
 		<header
-			className={`fixed top-0 w-full z-50 transition-all duration-300 font-mono ${
+			className={`fixed top-0 w-full z-50 transition-all duration-300 font-sans ${
 				scrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'
 			}`}>
 			<div className='max-w-7xl font-mono font-bold mx-auto px-4 sm:px-6 lg:px-8'>
-				<div className='flex items-center justify-between'>
+				<div className='flex items-center justify-between font-sans'>
 					{/* Logo */}
 					<Link
 						href='/'
@@ -98,7 +98,7 @@ export default function Header({ categories }) {
 					</Link>
 
 					{/* Navigation desktop */}
-					<nav className='hidden md:flex items-center space-x-1'>
+					<nav className='hidden md:flex items-center space-x-1 font-sans'>
 						{/* Navigation principale */}
 						{navigationItems.map((item) => (
 							<Link
