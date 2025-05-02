@@ -1,0 +1,296 @@
+/* Styles spécifiques pour la page à propos */
+
+/* Utiliser la police Geist définie dans le layout principal */
+.about-content {
+    font-family: var(--font-geist-sans);
+}
+
+.about-content code {
+    font-family: var(--font-geist-mono);
+}
+
+/* Styles d'impression */
+@media print {
+
+    header,
+    footer,
+    .about-nav,
+    .back-to-top,
+    button[aria-label="Retour en haut"] {
+        display: none !important;
+    }
+
+    .about-content {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .about-section {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    h1,
+    h2 {
+        page-break-after: avoid;
+        break-after: avoid;
+    }
+
+    p,
+    ul,
+    ol {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    a {
+        text-decoration: none !important;
+        color: #000 !important;
+    }
+
+    body {
+        font-size: 12pt;
+    }
+
+    /* Ajouter le logo et l'URL en tête de page */
+    .about-content::before {
+        content: "Votre Boutique - À propos de nous";
+        display: block;
+        text-align: center;
+        font-size: 14pt;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    /* Ajouter l'URL et la date en pied de page */
+    .about-content::after {
+        content: "https://votreboutique.com/about - Document imprimé le " attr(data-print-date);
+        display: block;
+        text-align: center;
+        font-size: 10pt;
+        margin-top: 20px;
+        border-top: 1px solid #ccc;
+        padding-top: 10px;
+    }
+}
+
+/* Amélioration des styles pour la navigation latérale */
+.about-nav {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.about-nav-item {
+    position: relative;
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.about-nav-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0;
+    background-color: rgba(79, 70, 229, 0.1);
+    transition: width 0.3s ease;
+}
+
+.about-nav-item:hover::before {
+    width: 100%;
+}
+
+.about-nav-item.active::before {
+    width: 100%;
+}
+
+/* Amélioration de l'apparence des sections */
+.about-section {
+    scroll-margin-top: 80px;
+    /* Pour le défilement fluide avec la navigation fixe */
+    transition: all 0.3s ease;
+    margin-bottom: 2rem;
+}
+
+.about-section:target {
+    animation: highlight 2s ease;
+}
+
+@keyframes highlight {
+    0% {
+        background-color: rgba(79, 70, 229, 0.05);
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}
+
+/* Style pour les liens dans le contenu */
+.about-content a {
+    color: #4f46e5;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    border-bottom: 1px solid rgba(79, 70, 229, 0.2);
+}
+
+.about-content a:hover {
+    color: #4338ca;
+    border-bottom-color: #4338ca;
+}
+
+/* Animations pour améliorer l'expérience utilisateur */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.about-section {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Animation lorsqu'on survole les cartes de l'équipe ou des valeurs */
+.team-card,
+.value-card {
+    transition: all 0.3s ease;
+}
+
+.team-card:hover,
+.value-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Animation pour les citations dans les témoignages */
+.testimonial-quote {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.testimonial-quote:before {
+    content: '"';
+    position: absolute;
+    top: -20px;
+    left: -10px;
+    font-size: 5rem;
+    color: rgba(79, 70, 229, 0.1);
+    font-family: Georgia, serif;
+}
+
+.testimonial-quote:hover {
+    transform: scale(1.02);
+}
+
+/* Animation du bouton de retour en haut */
+.back-to-top {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Amélioration pour l'accessibilité */
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid rgba(79, 70, 229, 0.5);
+    outline-offset: 2px;
+}
+
+/* Amélioration du style pour mobile */
+@media (max-width: 768px) {
+    .about-section h2 {
+        font-size: 1.5rem;
+    }
+
+    .about-nav {
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 1rem;
+    }
+
+    /* Style du processus de sélection sur mobile */
+    .selection-process-step {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .selection-process-step .number {
+        min-width: 2.5rem;
+        margin-right: 1rem;
+    }
+}
+
+/* Améliorations spécifiques pour le processus de sélection */
+.process-step {
+    position: relative;
+}
+
+.process-step::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    height: 30px;
+    width: 1px;
+    background: linear-gradient(to bottom, rgba(79, 70, 229, 0.5), transparent);
+}
+
+.process-step:last-child::after {
+    display: none;
+}
+
+/* Style pour la timeline de l'histoire */
+.history-timeline {
+    position: relative;
+}
+
+.history-timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 20px;
+    width: 2px;
+    background: linear-gradient(to bottom, #4f46e5, #a855f7);
+}
+
+.history-event {
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 2rem;
+}
+
+.history-event::before {
+    content: '';
+    position: absolute;
+    left: 13px;
+    top: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #4f46e5;
+    border: 2px solid white;
+}
+
+/* Amélioration visuelle des cartes de valeurs */
+.value-icon {
+    transition: all 0.3s ease;
+}
+
+.value-card:hover .value-icon {
+    transform: scale(1.1);
+    color: #4f46e5;
+}

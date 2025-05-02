@@ -1,0 +1,232 @@
+/* Styles spécifiques pour la page contact */
+
+/* Utiliser la police Geist définie dans le layout principal */
+.contact-content {
+    font-family: var(--font-geist-sans);
+}
+
+.contact-content code {
+    font-family: var(--font-geist-mono);
+}
+
+/* Styles d'impression */
+@media print {
+
+    header,
+    footer,
+    .back-to-top,
+    button[aria-label="Retour en haut"],
+    .contact-map {
+        display: none !important;
+    }
+
+    .contact-content {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    form {
+        display: none !important;
+    }
+
+    a {
+        text-decoration: none !important;
+        color: #000 !important;
+    }
+
+    body {
+        font-size: 12pt;
+    }
+
+    /* Ajouter le logo et l'URL en tête de page */
+    .contact-content::before {
+        content: "Votre Boutique - Contact";
+        display: block;
+        text-align: center;
+        font-size: 14pt;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    /* Ajouter l'URL et la date en pied de page */
+    .contact-content::after {
+        content: "https://votreboutique.com/contact - Document imprimé le " attr(data-print-date);
+        display: block;
+        text-align: center;
+        font-size: 10pt;
+        margin-top: 20px;
+        border-top: 1px solid #ccc;
+        padding-top: 10px;
+    }
+}
+
+/* Amélioration de la carte */
+.contact-map {
+    filter: grayscale(0.2) contrast(1.2);
+    transition: all 0.5s ease;
+}
+
+.contact-map:hover {
+    filter: grayscale(0) contrast(1);
+}
+
+/* Amélioration des boutons sociaux */
+.social-icon {
+    transform: scale(1);
+    transition: transform 0.3s ease;
+}
+
+.social-icon:hover {
+    transform: scale(1.2);
+}
+
+/* Amélioration du formulaire */
+.form-input:focus {
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+/* Animation lorsque le message est envoyé */
+.form-success {
+    animation: successPulse 2s ease;
+}
+
+@keyframes successPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 15px rgba(16, 185, 129, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
+/* Style pour les boîtes d'information de contact */
+.contact-box {
+    transition: all 0.3s ease;
+}
+
+.contact-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1);
+}
+
+.contact-icon-wrapper {
+    transition: all 0.3s ease;
+}
+
+.contact-box:hover .contact-icon-wrapper {
+    background-color: #4f46e5;
+}
+
+.contact-box:hover .contact-icon {
+    color: white;
+}
+
+/* Animation pour le accordion des FAQ */
+.faq-accordion {
+    overflow: hidden;
+}
+
+.faq-accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.faq-accordion.open .faq-accordion-content {
+    max-height: 500px;
+}
+
+.faq-arrow {
+    transition: transform 0.3s ease;
+}
+
+.faq-accordion.open .faq-arrow {
+    transform: rotate(180deg);
+}
+
+/* Animation du bouton de retour en haut */
+.back-to-top {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Amélioration pour l'accessibilité */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: 2px solid rgba(79, 70, 229, 0.5);
+    outline-offset: 2px;
+}
+
+/* Animation d'entrée pour le formulaire */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-animation {
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+/* Effet 3D subtil sur les boutons */
+.button-3d {
+    transform: translateY(0);
+    transition: transform 0.2s ease;
+}
+
+.button-3d:hover {
+    transform: translateY(-2px);
+}
+
+.button-3d:active {
+    transform: translateY(1px);
+}
+
+/* Style spécial pour les notifications dans le formulaire */
+.form-notification {
+    transform: translateX(0);
+    animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Animation des étiquettes de formulaire */
+.form-label {
+    transition: all 0.3s ease;
+}
+
+.form-input:focus+.form-label,
+.form-input:not(:placeholder-shown)+.form-label {
+    transform: translateY(-1.5rem) scale(0.85);
+    color: #4f46e5;
+}

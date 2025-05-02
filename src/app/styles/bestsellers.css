@@ -1,0 +1,305 @@
+/* Styles spécifiques pour la page best-sellers */
+
+/* Utiliser la police Geist définie dans le layout principal */
+.bestsellers-content {
+    font-family: var(--font-geist-sans);
+}
+
+.bestsellers-content code {
+    font-family: var(--font-geist-mono);
+}
+
+/* Styles d'impression */
+@media print {
+
+    header,
+    footer,
+    .back-to-top,
+    button[aria-label="Retour en haut"] {
+        display: none !important;
+    }
+
+    .bestsellers-content {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .product-card {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    h1,
+    h2 {
+        page-break-after: avoid;
+        break-after: avoid;
+    }
+
+    p,
+    ul,
+    ol {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    a {
+        text-decoration: none !important;
+        color: #000 !important;
+    }
+
+    body {
+        font-size: 12pt;
+    }
+
+    /* Ajouter le logo et l'URL en tête de page */
+    .bestsellers-content::before {
+        content: "Votre Boutique - Best-Sellers";
+        display: block;
+        text-align: center;
+        font-size: 14pt;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    /* Ajouter l'URL et la date en pied de page */
+    .bestsellers-content::after {
+        content: "https://votreboutique.com/best-sellers - Document imprimé le " attr(data-print-date);
+        display: block;
+        text-align: center;
+        font-size: 10pt;
+        margin-top: 20px;
+        border-top: 1px solid #ccc;
+        padding-top: 10px;
+    }
+}
+
+/* Effet de survol sur les cartes produits */
+.product-card {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Effet sur les images des produits */
+.product-card .image-container {
+    overflow: hidden;
+}
+
+.product-card:hover img {
+    transform: scale(1.05);
+    transition: transform 0.5s ease;
+}
+
+/* Badge sur les produits */
+.product-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+    transform: translateY(0);
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-badge {
+    transform: translateY(-3px) rotate(-3deg);
+}
+
+/* Animation pour les témoignages */
+.testimonial-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.testimonial-card::before {
+    content: '"';
+    position: absolute;
+    top: 0;
+    left: 10px;
+    font-size: 8rem;
+    color: rgba(79, 70, 229, 0.1);
+    font-family: Georgia, serif;
+    line-height: 1;
+}
+
+/* Style pour les statistiques */
+.stat-value {
+    background: linear-gradient(to right, #6366f1, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Animation du bouton de retour en haut */
+.back-to-top {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Amélioration pour l'accessibilité */
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid rgba(79, 70, 229, 0.5);
+    outline-offset: 2px;
+}
+
+/* Animation pour les étoiles de notation */
+.star-rating .star {
+    transform: scale(1);
+    transition: transform 0.2s ease;
+}
+
+.product-card:hover .star-rating .star {
+    transform: scale(1.1);
+    transition-delay: 0.1s;
+}
+
+/* Animation d'entrée */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeInUp {
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+/* Animation pour les icônes des fonctionnalités */
+.feature-icon-container {
+    transition: all 0.3s ease;
+}
+
+.feature-icon-container:hover {
+    transform: translateY(-5px);
+}
+
+.feature-icon-container:hover .feature-icon {
+    transform: scale(1.2);
+    transition: transform 0.3s ease;
+}
+
+/* Animation pour les sections FAQ */
+.faq-question {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.faq-question::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #6366f1;
+    transition: width 0.3s ease;
+}
+
+.faq-question:hover::after {
+    width: 100%;
+}
+
+.faq-arrow {
+    transition: transform 0.3s ease;
+}
+
+.faq-question.active .faq-arrow {
+    transform: rotate(180deg);
+}
+
+/* Effet sur le CTA final */
+.cta-button {
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.2) 50%,
+            rgba(255, 255, 255, 0) 100%);
+    transition: left 0.5s ease;
+}
+
+.cta-button:hover::before {
+    left: 100%;
+}
+
+/* Ombrage des sections sur mobile */
+@media (max-width: 768px) {
+    .product-card {
+        margin-bottom: 2rem;
+    }
+
+    .stat-container {
+        margin-bottom: 2rem;
+    }
+
+    .feature-container {
+        padding: 1.5rem;
+    }
+}
+
+/* Animation pour la notification d'ajout au panier */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.cart-notification {
+    animation: slideInRight 0.3s ease forwards;
+}
+
+/* Style pour le bouton d'appel à l'action */
+.hero-cta {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-cta::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.hero-cta:hover::after {
+    opacity: 1;
+}
