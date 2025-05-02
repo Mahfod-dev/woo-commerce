@@ -1,0 +1,156 @@
+/* Styles spécifiques pour la page FAQ */
+
+/* Utiliser la police Geist définie dans le layout principal */
+.faq-content {
+    font-family: var(--font-geist-sans);
+}
+
+.faq-content code {
+    font-family: var(--font-geist-mono);
+}
+
+.faq-question-container {
+    transition: box-shadow 0.3s ease;
+}
+
+.faq-question-container:hover {
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+}
+
+.faq-answer {
+    overflow: hidden;
+    transition: height 0.3s ease, opacity 0.2s ease;
+}
+
+.faq-category-button {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.faq-category-button::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(79, 70, 229, 0.1);
+    height: 0;
+    transition: height 0.3s ease;
+}
+
+.faq-category-button:hover::before {
+    height: 100%;
+}
+
+.faq-category-button.active::before {
+    height: 100%;
+    background-color: rgba(79, 70, 229, 0.2);
+}
+
+/* Animation lorsque les questions apparaissent */
+.question-appear {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.question-appear-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+/* Amélioration de l'apparence des champs de recherche */
+.search-input {
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.search-input:focus {
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Animation du bouton d'expansion */
+.expansion-icon {
+    transition: transform 0.3s ease;
+}
+
+.expansion-icon.expanded {
+    transform: rotate(180deg);
+}
+
+/* Animation des icônes de contact */
+.contact-icon-container {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contact-icon-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(79, 70, 229, 0.1);
+}
+
+/* Animation des tags de questions populaires */
+.popular-question-tag {
+    transition: all 0.3s ease;
+}
+
+.popular-question-tag:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(79, 70, 229, 0.1);
+}
+
+/* Animation du texte qui apparaît */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeInUp {
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+/* Délais d'animation pour les éléments séquentiels */
+.delay-100 {
+    animation-delay: 0.1s;
+}
+
+.delay-200 {
+    animation-delay: 0.2s;
+}
+
+.delay-300 {
+    animation-delay: 0.3s;
+}
+
+.delay-400 {
+    animation-delay: 0.4s;
+}
+
+.delay-500 {
+    animation-delay: 0.5s;
+}
+
+/* Style pour améliorer l'accessibilité des boutons */
+button:focus-visible {
+    outline: 2px solid rgba(79, 70, 229, 0.5);
+    outline-offset: 2px;
+}
+
+/* Amélioration de l'apparence sur mobile */
+@media (max-width: 640px) {
+    .faq-mobile-select {
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+}

@@ -1,0 +1,244 @@
+/* Styles spécifiques pour la page des conditions générales */
+
+/* Utiliser la police Geist définie dans le layout principal */
+.terms-content {
+    font-family: var(--font-geist-sans);
+}
+
+.terms-content code {
+    font-family: var(--font-geist-mono);
+}
+
+/* Styles d'impression */
+@media print {
+
+    header,
+    footer,
+    .terms-nav,
+    .back-to-top,
+    button[aria-label="Retour en haut"] {
+        display: none !important;
+    }
+
+    .terms-content {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .terms-content-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .terms-section {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    h1,
+    h2 {
+        page-break-after: avoid;
+        break-after: avoid;
+    }
+
+    p,
+    ul,
+    ol {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    a {
+        text-decoration: none !important;
+        color: #000 !important;
+    }
+
+    body {
+        font-size: 12pt;
+    }
+
+    /* Ajouter le logo et l'URL en tête de page */
+    .terms-content::before {
+        content: "Votre Boutique - Conditions Générales";
+        display: block;
+        text-align: center;
+        font-size: 14pt;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    /* Ajouter l'URL et la date en pied de page */
+    .terms-content::after {
+        content: "https://votreboutique.com/terms - Document imprimé le " attr(data-print-date);
+        display: block;
+        text-align: center;
+        font-size: 10pt;
+        margin-top: 20px;
+        border-top: 1px solid #ccc;
+        padding-top: 10px;
+    }
+}
+
+/* Amélioration des styles pour la navigation latérale */
+.terms-nav {
+    position: relative;
+}
+
+.terms-nav-item {
+    position: relative;
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.terms-nav-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0;
+    background-color: rgba(79, 70, 229, 0.1);
+    transition: width 0.3s ease;
+}
+
+.terms-nav-item:hover::before {
+    width: 100%;
+}
+
+.terms-nav-item.active::before {
+    width: 100%;
+}
+
+/* Amélioration de l'apparence des sections */
+.terms-section {
+    scroll-margin-top: 80px;
+    /* Pour le défilement fluide avec la navigation fixe */
+    transition: all 0.3s ease;
+}
+
+.terms-section:target {
+    animation: highlight 2s ease;
+}
+
+@keyframes highlight {
+    0% {
+        background-color: rgba(79, 70, 229, 0.05);
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}
+
+/* Style pour les liens dans le contenu */
+.terms-content a {
+    color: #4f46e5;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    border-bottom: 1px solid rgba(79, 70, 229, 0.2);
+}
+
+.terms-content a:hover {
+    color: #4338ca;
+    border-bottom-color: #4338ca;
+}
+
+/* Améliorations pour les listes dans le contenu */
+.terms-content-container ul,
+.terms-content-container ol {
+    margin-bottom: 1.5rem;
+}
+
+.terms-content-container ul li,
+.terms-content-container ol li {
+    margin-bottom: 0.5rem;
+    position: relative;
+}
+
+.terms-content-container ul {
+    list-style-type: none;
+    padding-left: 1.5rem;
+}
+
+.terms-content-container ul li::before {
+    content: '•';
+    position: absolute;
+    left: -1.5rem;
+    color: #4f46e5;
+    font-weight: bold;
+}
+
+.terms-content-container ol {
+    list-style-position: inside;
+    padding-left: 1rem;
+}
+
+/* Style pour les sections de texte important */
+.terms-content-container strong {
+    color: #1f2937;
+    font-weight: 600;
+}
+
+/* Mise en évidence des sections importantes */
+.terms-content-container blockquote {
+    border-left: 4px solid #4f46e5;
+    background-color: rgba(79, 70, 229, 0.05);
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+    border-radius: 0 0.375rem 0.375rem 0;
+}
+
+.terms-content-container blockquote p {
+    margin: 0;
+    color: #4b5563;
+}
+
+/* Animations pour améliorer l'expérience utilisateur */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.terms-section {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Amélioration du style pour mobile */
+@media (max-width: 768px) {
+    .terms-content-container h2 {
+        font-size: 1.5rem;
+    }
+
+    .terms-nav {
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 1rem;
+    }
+}
+
+/* Style pour le bouton de retour en haut */
+.back-to-top {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Amélioration pour l'accessibilité */
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid rgba(79, 70, 229, 0.5);
+    outline-offset: 2px;
+}

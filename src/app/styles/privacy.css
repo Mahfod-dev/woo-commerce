@@ -1,0 +1,276 @@
+/* Styles spécifiques pour la page de politique de confidentialité */
+
+/* Utiliser la police Geist définie dans le layout principal */
+.privacy-content {
+    font-family: var(--font-geist-sans);
+}
+
+.privacy-content code {
+    font-family: var(--font-geist-mono);
+}
+
+/* Styles d'impression */
+@media print {
+
+    header,
+    footer,
+    .privacy-nav,
+    .back-to-top,
+    button[aria-label="Retour en haut"] {
+        display: none !important;
+    }
+
+    .privacy-content {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .privacy-content-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .privacy-section {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    h1,
+    h2 {
+        page-break-after: avoid;
+        break-after: avoid;
+    }
+
+    p,
+    ul,
+    ol {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    a {
+        text-decoration: none !important;
+        color: #000 !important;
+    }
+
+    body {
+        font-size: 12pt;
+    }
+
+    /* Ajouter le logo et l'URL en tête de page */
+    .privacy-content::before {
+        content: "Votre Boutique - Politique de Confidentialité";
+        display: block;
+        text-align: center;
+        font-size: 14pt;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    /* Ajouter l'URL et la date en pied de page */
+    .privacy-content::after {
+        content: "https://votreboutique.com/privacy - Document imprimé le " attr(data-print-date);
+        display: block;
+        text-align: center;
+        font-size: 10pt;
+        margin-top: 20px;
+        border-top: 1px solid #ccc;
+        padding-top: 10px;
+    }
+}
+
+/* Amélioration des styles pour la navigation latérale */
+.privacy-nav {
+    position: relative;
+}
+
+.privacy-nav-item {
+    position: relative;
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.privacy-nav-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0;
+    background-color: rgba(79, 70, 229, 0.1);
+    transition: width 0.3s ease;
+}
+
+.privacy-nav-item:hover::before {
+    width: 100%;
+}
+
+.privacy-nav-item.active::before {
+    width: 100%;
+}
+
+/* Amélioration de l'apparence des sections */
+.privacy-section {
+    scroll-margin-top: 80px;
+    /* Pour le défilement fluide avec la navigation fixe */
+    transition: all 0.3s ease;
+}
+
+.privacy-section:target {
+    animation: highlight 2s ease;
+}
+
+@keyframes highlight {
+    0% {
+        background-color: rgba(79, 70, 229, 0.05);
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}
+
+/* Style pour les liens dans le contenu */
+.privacy-content-container a {
+    color: #4f46e5;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    border-bottom: 1px solid rgba(79, 70, 229, 0.2);
+}
+
+.privacy-content-container a:hover {
+    color: #4338ca;
+    border-bottom-color: #4338ca;
+}
+
+/* Améliorations pour les listes dans le contenu */
+.privacy-content-container ul,
+.privacy-content-container ol {
+    margin-bottom: 1.5rem;
+}
+
+.privacy-content-container ul li,
+.privacy-content-container ol li {
+    margin-bottom: 0.5rem;
+    position: relative;
+}
+
+.privacy-content-container ul {
+    list-style-type: none;
+    padding-left: 1.5rem;
+}
+
+.privacy-content-container ul li::before {
+    content: '•';
+    position: absolute;
+    left: -1.5rem;
+    color: #4f46e5;
+    font-weight: bold;
+}
+
+.privacy-content-container ol {
+    list-style-position: inside;
+    padding-left: 1rem;
+}
+
+/* Style pour les sous-titres */
+.privacy-content-container h3 {
+    color: #4f46e5;
+    font-size: 1.25rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+/* Style pour les sections de mise en valeur des informations importantes */
+.privacy-content-container blockquote {
+    border-left: 4px solid #4f46e5;
+    background-color: rgba(79, 70, 229, 0.05);
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+    border-radius: 0 0.375rem 0.375rem 0;
+}
+
+.privacy-content-container blockquote p {
+    margin: 0;
+    color: #4b5563;
+}
+
+/* Mise en valeur des définitions importantes */
+.privacy-content-container strong {
+    color: #1f2937;
+    font-weight: 600;
+}
+
+/* Style pour les FAQ */
+.privacy-faq {
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.privacy-faq:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Animations pour améliorer l'expérience utilisateur */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.privacy-section {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Amélioration du style pour mobile */
+@media (max-width: 768px) {
+    .privacy-content-container h2 {
+        font-size: 1.5rem;
+    }
+
+    .privacy-nav {
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 1rem;
+    }
+}
+
+/* Style pour le bouton de retour en haut */
+.back-to-top {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Amélioration pour l'accessibilité */
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid rgba(79, 70, 229, 0.5);
+    outline-offset: 2px;
+}
+
+/* Mise en évidence des sections sur les droits des utilisateurs */
+#user-rights .privacy-content-container ul li::before {
+    color: #10b981;
+    /* Couleur verte pour les droits */
+}
+
+/* Mise en évidence spéciale pour la section sur la sécurité */
+#data-security .privacy-content-container ul li::before {
+    color: #f59e0b;
+    /* Couleur ambre pour la sécurité */
+}
