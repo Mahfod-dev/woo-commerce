@@ -1,0 +1,462 @@
+/* Styles spécifiques pour la page à propos de notre qualité */
+
+/* Utiliser la police Geist définie dans le layout principal */
+.quality-content {
+    font-family: var(--font-geist-sans);
+}
+
+.quality-content code {
+    font-family: var(--font-geist-mono);
+}
+
+/* Styles d'impression */
+@media print {
+
+    header,
+    footer,
+    .quality-nav,
+    .back-to-top,
+    button[aria-label="Retour en haut"] {
+        display: none !important;
+    }
+
+    .quality-content {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .quality-section {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    h1,
+    h2 {
+        page-break-after: avoid;
+        break-after: avoid;
+    }
+
+    p,
+    ul,
+    ol {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    a {
+        text-decoration: none !important;
+        color: #000 !important;
+    }
+
+    body {
+        font-size: 12pt;
+    }
+
+    /* Ajouter le logo et l'URL en tête de page */
+    .quality-content::before {
+        content: "Votre Boutique - Notre Approche Qualité";
+        display: block;
+        text-align: center;
+        font-size: 14pt;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    /* Ajouter l'URL et la date en pied de page */
+    .quality-content::after {
+        content: "https://votreboutique.com/about-quality - Document imprimé le " attr(data-print-date);
+        display: block;
+        text-align: center;
+        font-size: 10pt;
+        margin-top: 20px;
+        border-top: 1px solid #ccc;
+        padding-top: 10px;
+    }
+}
+
+/* Amélioration des styles pour la navigation latérale */
+.quality-nav {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.quality-nav-item {
+    position: relative;
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.quality-nav-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0;
+    background-color: rgba(79, 70, 229, 0.1);
+    transition: width 0.3s ease;
+}
+
+.quality-nav-item:hover::before {
+    width: 100%;
+}
+
+.quality-nav-item.active::before {
+    width: 100%;
+}
+
+/* Amélioration de l'apparence des sections */
+.quality-section {
+    scroll-margin-top: 80px;
+    /* Pour le défilement fluide avec la navigation fixe */
+    transition: all 0.3s ease;
+    margin-bottom: 2rem;
+}
+
+.quality-section:target {
+    animation: highlight 2s ease;
+}
+
+@keyframes highlight {
+    0% {
+        background-color: rgba(79, 70, 229, 0.05);
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}
+
+/* Style pour les liens dans le contenu */
+.quality-content a {
+    color: #4f46e5;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    border-bottom: 1px solid rgba(79, 70, 229, 0.2);
+}
+
+.quality-content a:hover {
+    color: #4338ca;
+    border-bottom-color: #4338ca;
+}
+
+/* Animations pour améliorer l'expérience utilisateur */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.quality-section {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Style spécifique pour le processus de sélection */
+.process-step {
+    position: relative;
+    padding-bottom: 2rem;
+}
+
+.process-step:last-child {
+    padding-bottom: 0;
+}
+
+.process-step-number {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: linear-gradient(to right, #4f46e5, #7c3aed);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.25rem;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.process-step:hover .process-step-number {
+    transform: scale(1.1);
+    box-shadow: 0 6px 15px rgba(79, 70, 229, 0.4);
+}
+
+/* Animation lorsqu'on survole les cartes des critères */
+.criteria-card {
+    transition: all 0.3s ease;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+}
+
+.criteria-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border-color: #c7d2fe;
+}
+
+.criteria-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background-color: rgba(79, 70, 229, 0.1);
+    color: #4f46e5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.criteria-card:hover .criteria-icon {
+    background-color: #4f46e5;
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Style pour la section laboratoire */
+.lab-image-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.lab-image-container:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.lab-image-container img {
+    transition: transform 0.5s ease;
+}
+
+.lab-image-container:hover img {
+    transform: scale(1.05);
+}
+
+/* Animation du bouton de retour en haut */
+.back-to-top {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Animation pour les membres de l'équipe */
+.team-card {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.team-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.team-card-image {
+    position: relative;
+    height: 280px;
+    overflow: hidden;
+}
+
+.team-card-image img {
+    transition: transform 0.5s ease;
+}
+
+.team-card:hover .team-card-image img {
+    transform: scale(1.05);
+}
+
+.team-card-content {
+    padding: 1.5rem;
+}
+
+.team-card-name {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.team-card-role {
+    color: #4f46e5;
+    font-size: 0.875rem;
+    font-weight: medium;
+    margin-bottom: 0.75rem;
+}
+
+.team-card-bio {
+    color: #6b7280;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+/* Styles pour la section de garantie */
+.guarantee-card {
+    background-image: linear-gradient(135deg, rgba(244, 244, 255, 0.8) 0%, rgba(237, 233, 254, 0.8) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.guarantee-card:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+    transform: translateY(-3px);
+}
+
+/* Animation pour les témoignages */
+.testimonial-card {
+    position: relative;
+    padding: 1.5rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.testimonial-card::before {
+    content: '\201C';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 4rem;
+    color: rgba(79, 70, 229, 0.1);
+    line-height: 1;
+    font-family: Georgia, serif;
+}
+
+.testimonial-card:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+}
+
+.testimonial-text {
+    position: relative;
+    z-index: 1;
+    font-style: italic;
+    color: #4b5563;
+    margin-bottom: 1rem;
+}
+
+.testimonial-author {
+    text-align: right;
+    font-weight: 500;
+    color: #4f46e5;
+}
+
+/* Style pour la section FAQ */
+.faq-item {
+    border-bottom: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.faq-item:last-child {
+    border-bottom: none;
+}
+
+.faq-question {
+    cursor: pointer;
+    padding: 1.25rem;
+    font-weight: 500;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #1f2937;
+    transition: all 0.3s ease;
+}
+
+.faq-question:hover {
+    color: #4f46e5;
+}
+
+.faq-answer {
+    padding: 0 1.25rem 1.25rem;
+    color: #6b7280;
+}
+
+.faq-icon {
+    transition: transform 0.3s ease;
+}
+
+.faq-item.active .faq-icon {
+    transform: rotate(180deg);
+}
+
+/* Style pour le CTA */
+.cta-section {
+    background-image: linear-gradient(to right, #4f46e5, #7c3aed);
+    padding: 3rem 0;
+    color: white;
+    text-align: center;
+    border-radius: 0.5rem;
+    margin-top: 3rem;
+}
+
+.cta-button {
+    background-color: white;
+    color: #4f46e5;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.cta-button svg {
+    margin-left: 0.5rem;
+}
+
+/* Amélioration pour l'accessibilité */
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid rgba(79, 70, 229, 0.5);
+    outline-offset: 2px;
+}
+
+/* Améliorations pour mobile */
+@media (max-width: 768px) {
+    .quality-section h2 {
+        font-size: 1.5rem;
+    }
+
+    .quality-nav {
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 1rem;
+    }
+
+    .process-step {
+        padding-left: 3rem;
+        position: relative;
+    }
+
+    .process-step-number {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 1rem;
+    }
+}

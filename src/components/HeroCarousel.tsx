@@ -49,7 +49,7 @@ const HeroCarousel = () => {
 
 	// Gestion de l'autoplay
 	useEffect(() => {
-		let interval;
+		let interval: NodeJS.Timeout | undefined;
 
 		if (autoplay) {
 			interval = setInterval(() => {
@@ -81,7 +81,7 @@ const HeroCarousel = () => {
 	};
 
 	// Sélectionner un slide spécifique
-	const goToSlide = (index) => {
+	const goToSlide = (index: number) => {
 		setCurrentSlide(index);
 		setAutoplay(false);
 		setTimeout(() => setAutoplay(true), 10000);

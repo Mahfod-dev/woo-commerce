@@ -1,6 +1,7 @@
 // app/page.jsx
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import HeroCarousel from '@/components/HeroCarousel';
 import FocusedProductShowcase from '@/components/FocusedProductShowcase';
 import ImprovedCategoriesSection from '@/components/CategoriesSection';
@@ -85,7 +86,8 @@ export default async function OptimizedHomePage() {
 								Satisfait ou remboursé
 							</h3>
 							<p className='text-indigo-100'>
-								30 jours pour changer d'avis, sans condition
+								30 jours pour changer d&apos;avis, sans
+								condition
 							</p>
 						</div>
 
@@ -173,7 +175,7 @@ export default async function OptimizedHomePage() {
 											Choix plus simple
 										</strong>{' '}
 										- Fini la paralysie de la décision face
-										à trop d'options
+										à trop d&apos;options
 									</p>
 								</li>
 								<li className='flex items-start'>
@@ -233,10 +235,13 @@ export default async function OptimizedHomePage() {
 						</div>
 						<div className='mt-10 lg:mt-0'>
 							<div className='aspect-w-3 aspect-h-2 rounded-lg overflow-hidden'>
-								<img
+								<Image
 									src='/img/quality-focus.jpg'
 									alt='Sélection de qualité'
 									className='w-full h-full object-cover'
+									width={500}
+									height={300}
+									priority
 								/>
 							</div>
 						</div>
@@ -258,7 +263,8 @@ export default async function OptimizedHomePage() {
 							Votre achat en toute simplicité
 						</h2>
 						<p className='mt-3 max-w-2xl mx-auto text-xl text-indigo-100 sm:mt-4'>
-							Notre processus d'achat simplifié en trois étapes
+							Notre processus d&apos;achat simplifié en trois
+							étapes
 						</p>
 					</div>
 
@@ -300,7 +306,7 @@ export default async function OptimizedHomePage() {
 								</span>
 							</div>
 							<h3 className='text-lg font-medium text-white'>
-								Finaliser l'achat
+								Finaliser l&apos;achat
 							</h3>
 							<p className='mt-2 text-base text-indigo-100'>
 								Paiement sécurisé et livraison rapide à votre
