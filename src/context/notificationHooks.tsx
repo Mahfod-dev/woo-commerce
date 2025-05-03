@@ -1,10 +1,13 @@
 'use client';
-import { useNotification } from './notificationContext';
+import { useNotification, NotificationInput } from './notificationContext';
+
+// Type pour les options de notification
+type NotificationOptions = Omit<NotificationInput, 'message' | 'type'>;
 
 // Hooks d'utilité pour les différents types de notifications
 export const useSuccessNotification = () => {
 	const { addNotification } = useNotification();
-	return (message, options = {}) => {
+	return (message: string, options: NotificationOptions = {}) => {
 		return addNotification({
 			message,
 			type: 'success',
@@ -15,7 +18,7 @@ export const useSuccessNotification = () => {
 
 export const useErrorNotification = () => {
 	const { addNotification } = useNotification();
-	return (message, options = {}) => {
+	return (message: string, options: NotificationOptions = {}) => {
 		return addNotification({
 			message,
 			type: 'error',
@@ -26,7 +29,7 @@ export const useErrorNotification = () => {
 
 export const useWarningNotification = () => {
 	const { addNotification } = useNotification();
-	return (message, options = {}) => {
+	return (message: string, options: NotificationOptions = {}) => {
 		return addNotification({
 			message,
 			type: 'warning',
@@ -37,7 +40,7 @@ export const useWarningNotification = () => {
 
 export const useInfoNotification = () => {
 	const { addNotification } = useNotification();
-	return (message, options = {}) => {
+	return (message: string, options: NotificationOptions = {}) => {
 		return addNotification({
 			message,
 			type: 'info',

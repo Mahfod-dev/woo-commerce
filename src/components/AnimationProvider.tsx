@@ -1,12 +1,13 @@
 'use client';
 
 import React, { createContext, useContext, ReactNode } from 'react';
-import { motion, useReducedMotion, Variant } from 'framer-motion';
+import { motion, useReducedMotion, Variant, Variants } from 'framer-motion';
 
 // Types pour les animations
 export interface AnimationVariants {
 	hidden: Variant;
 	visible: Variant;
+	[key: string]: Variant; // Ajout d'un index signature pour rendre compatible avec Variants
 }
 
 export interface AnimationContextType {
@@ -183,7 +184,7 @@ export function FadeUpAnimation({
 		<motion.div
 			initial='hidden'
 			whileInView='visible'
-			viewport={{ once, threshold }}
+			viewport={{ once, amount: threshold }}
 			variants={fadeUpVariants}
 			transition={{ delay }}
 			className={className}>
@@ -205,7 +206,7 @@ export function FadeInAnimation({
 		<motion.div
 			initial='hidden'
 			whileInView='visible'
-			viewport={{ once, threshold }}
+			viewport={{ once, amount: threshold }}
 			variants={fadeInVariants}
 			transition={{ delay }}
 			className={className}>
@@ -227,7 +228,7 @@ export function StaggerContainer({
 		<motion.div
 			initial='hidden'
 			whileInView='visible'
-			viewport={{ once, threshold }}
+			viewport={{ once, amount: threshold }}
 			variants={staggerContainerVariants}
 			transition={{ delay }}
 			className={className}>
@@ -267,7 +268,7 @@ export function ZoomInAnimation({
 		<motion.div
 			initial='hidden'
 			whileInView='visible'
-			viewport={{ once, threshold }}
+			viewport={{ once, amount: threshold }}
 			variants={zoomInVariants}
 			transition={{ delay }}
 			className={className}>

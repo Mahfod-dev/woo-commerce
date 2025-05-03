@@ -1,4 +1,4 @@
-// app/page.jsx
+// app/page.tsx
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -7,6 +7,36 @@ import FocusedProductShowcase from '@/components/FocusedProductShowcase';
 import ImprovedCategoriesSection from '@/components/CategoriesSection';
 import ImprovedTestimonials from '@/components/Testimonials';
 import NewsletterSection from '@/components/NewsletterSection';
+import { WooProduct } from '@/lib/woo';
+
+// Interface pour le type Product utilisé dans FocusedProductShowcase
+interface Product {
+  id: number;
+  name: string;
+  slug: string;
+  price: string;
+  regular_price?: string;
+  sale_price?: string;
+  on_sale?: boolean;
+  stock_status: 'instock' | 'outofstock' | 'onbackorder';
+  stock_quantity?: number;
+  short_description: string;
+  description: string;
+  images: { src: string; alt: string }[];
+  categories: { id: number; name: string; slug: string }[];
+  average_rating?: string;
+  rating_count?: number;
+  featured?: boolean;
+  tags: { id: number; name: string; slug: string }[];
+}
+
+// Fonction pour convertir WooProduct en Product
+function convertToProduct(wooProduct: WooProduct): Product {
+  return {
+    ...wooProduct,
+    stock_quantity: wooProduct.stock_quantity ?? undefined
+  };
+}
 
 export default async function OptimizedHomePage() {
 	// Ici, nous ferons une requête plus ciblée
@@ -27,6 +57,11 @@ export default async function OptimizedHomePage() {
 
 	console.log('Featured Products:', categories);
 
+	// Convertir les produits WooProduct en Product
+	const convertedFeaturedProducts = featuredProducts.map(convertToProduct);
+	const convertedAccessories = accessories.map(convertToProduct);
+	const convertedPremiumProducts = premiumProducts.map(convertToProduct);
+
 	return (
 		<main className='font-sans text-gray-800'>
 			{/* Hero Carousel */}
@@ -34,9 +69,9 @@ export default async function OptimizedHomePage() {
 
 			{/* Produits Phares Focalisés */}
 			<FocusedProductShowcase
-				featuredProducts={featuredProducts}
-				accessories={accessories}
-				premiumOptions={premiumProducts}
+				featuredProducts={convertedFeaturedProducts}
+				accessories={convertedAccessories}
+				premiumOptions={convertedPremiumProducts}
 			/>
 
 			{/* Bannière informative */}

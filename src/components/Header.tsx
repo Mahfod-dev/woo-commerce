@@ -10,13 +10,30 @@ import { useCart } from './CartProvider';
 import MiniCart from './MiniCart';
 import MegaMenu from './MegaMenu';
 
-export default function Header({ categories }) {
+// Interface pour les catégories
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  count?: number;
+  image?: {
+    id?: number;
+    src: string;
+    alt?: string;
+  } | null;
+}
+
+interface HeaderProps {
+  categories: Category[];
+}
+
+export default function Header({ categories }: HeaderProps) {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [isSearchOpen, setIsSearchOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [scrolled, setScrolled] = useState(false);
 	const pathname = usePathname();
-	const searchRef = useRef(null);
+	const searchRef = useRef<HTMLDivElement>(null);
 	const { itemCount } = useCart();
 
 	// Détection du scroll pour changer l'apparence du header
@@ -40,9 +57,10 @@ export default function Header({ categories }) {
 
 	// Fermer la recherche quand on clique en dehors
 	useEffect(() => {
-		const handleClickOutside = (event) => {
+		const handleClickOutside = (event: MouseEvent) => {
 			if (
 				searchRef.current &&
+				event.target instanceof Node &&
 				!searchRef.current.contains(event.target)
 			) {
 				setIsSearchOpen(false);
@@ -54,7 +72,7 @@ export default function Header({ categories }) {
 			document.removeEventListener('mousedown', handleClickOutside);
 	}, []);
 
-	const handleSearch = (e) => {
+	const handleSearch = (e: React.FormEvent) => {
 		e.preventDefault();
 		if (searchQuery.trim()) {
 			window.location.href = `/search?q=${encodeURIComponent(
@@ -114,6 +132,14 @@ export default function Header({ categories }) {
 								{item.name}
 							</Link>
 						))}
+						
+						{/* MegaMenu pour les catégories */}
+						<div className="ml-2">
+							<MegaMenu 
+								categories={categories} 
+								isDarkBg={!scrolled && pathname === '/'} 
+							/>
+						</div>
 					</nav>
 
 					{/* Actions (recherche, panier, compte) */}
@@ -132,9 +158,7 @@ export default function Header({ categories }) {
 
 						{/* Mini-panier */}
 						<div className='relative z-50'>
-							<MiniCart
-								isDarkBg={!scrolled && pathname === '/'}
-							/>
+							<MiniCart />
 						</div>
 
 						{/* Compte utilisateur */}

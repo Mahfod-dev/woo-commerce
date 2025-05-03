@@ -93,7 +93,7 @@ export const getCart = async (): Promise<Cart> => {
 			shipping: null,
 			fees: [],
 			totals: {
-				total_items: '0',
+				total_items: 0, // Corrigé ici: number au lieu de string
 				total_items_tax: '0',
 				total_fees: '0',
 				total_fees_tax: '0',

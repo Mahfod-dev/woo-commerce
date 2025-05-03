@@ -178,7 +178,7 @@ export default function AppleStyleProductDetail({
 	}, []);
 
 	// Fonction pour naviguer vers une section
-	const scrollToSection = (sectionRef: React.RefObject<HTMLDivElement>) => {
+	const scrollToSection = (sectionRef: React.RefObject<HTMLDivElement | null>) => {
 		if (sectionRef.current) {
 			window.scrollTo({
 				top: sectionRef.current.offsetTop - 80, // Offset pour le header fixe

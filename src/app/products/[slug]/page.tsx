@@ -1,8 +1,37 @@
 // app/products/[slug]/page.tsx
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import { getProducts } from '@/lib/woo';
+import { getProducts, WooProduct } from '@/lib/woo';
 import ProductDetailContent from '@/components/ProductDetailContent';
+
+// Interface pour le type Product défini dans ProductDetailContent
+interface Product {
+  id: number;
+  name: string;
+  slug: string;
+  price: string;
+  regular_price?: string;
+  sale_price?: string;
+  on_sale?: boolean;
+  stock_status: 'instock' | 'outofstock' | 'onbackorder';
+  stock_quantity?: number;
+  short_description: string;
+  description: string;
+  images: { src: string; alt: string }[];
+  categories: { id: number; name: string; slug: string }[];
+  average_rating?: string;
+  rating_count?: number;
+  featured?: boolean;
+  tags: { id: number; name: string; slug: string }[];
+}
+
+// Fonction pour convertir WooProduct en Product
+function convertToProduct(wooProduct: WooProduct): Product {
+  return {
+    ...wooProduct,
+    stock_quantity: wooProduct.stock_quantity ?? undefined
+  };
+}
 
 // ID de la catégorie "Accessoires"
 const ACCESSORIES_CATEGORY_ID = 31;
@@ -145,9 +174,9 @@ export default async function ProductPage({
 
 		// Récupérer des produits similaires (même catégorie que le produit actuel)
 		// mais en excluant les accessoires
-		let similarProducts = [];
+		const similarProducts: WooProduct[] = [];
 		if (product.categories && product.categories.length > 0) {
-			similarProducts = allProducts
+			const filteredProducts = allProducts
 				.filter(
 					(p) =>
 						p.id !== product.id &&
@@ -163,12 +192,14 @@ export default async function ProductPage({
 						)
 				)
 				.slice(0, 3);
+			
+			similarProducts.push(...filteredProducts);
 		}
 
 		// Si on a très peu de produits, on peut simplement montrer les autres produits
 		// qui ne sont pas des accessoires
 		if (similarProducts.length === 0 && allProducts.length <= 5) {
-			similarProducts = allProducts
+			const filteredProducts = allProducts
 				.filter(
 					(p) =>
 						p.id !== product.id &&
@@ -177,15 +208,23 @@ export default async function ProductPage({
 						)
 				)
 				.slice(0, 3);
+			
+			similarProducts.push(...filteredProducts);
 		}
+
+		// Convertir les produits WooProduct en Product
+		const productConverted = convertToProduct(product);
+		const accessoriesConverted = accessories.map(convertToProduct);
+		const premiumVariantConverted = premiumVariant ? convertToProduct(premiumVariant) : null;
+		const similarProductsConverted = similarProducts.map(convertToProduct);
 
 		return (
 			<Suspense fallback={<ProductDetailLoading />}>
 				<ProductDetailContent
-					product={product}
-					accessories={accessories}
-					premiumVariant={premiumVariant}
-					similarProducts={similarProducts}
+					product={productConverted}
+					accessories={accessoriesConverted}
+					premiumVariant={premiumVariantConverted}
+					similarProducts={similarProductsConverted}
 				/>
 			</Suspense>
 		);

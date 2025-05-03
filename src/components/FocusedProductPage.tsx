@@ -7,21 +7,47 @@ import { motion } from 'framer-motion';
 import { formatPrice } from '@/lib/wooClient';
 import { useCart } from '@/components/CartProvider';
 
-const FocusedProductsPage = ({ products, accessories }) => {
+// Interface pour les produits
+interface Product {
+  id: number;
+  name: string;
+  slug: string;
+  price: string;
+  regular_price?: string;
+  sale_price?: string;
+  on_sale?: boolean;
+  stock_status: 'instock' | 'outofstock' | 'onbackorder';
+  stock_quantity?: number;
+  short_description: string;
+  description: string;
+  images: { src: string; alt: string }[];
+  categories: { id: number; name: string; slug: string }[];
+  average_rating?: string;
+  rating_count?: number;
+  featured?: boolean;
+  tags: { id: number; name: string; slug: string }[];
+}
+
+interface FocusedProductsPageProps {
+  products: Product[];
+  accessories: Product[];
+}
+
+const FocusedProductsPage = ({ products, accessories }: FocusedProductsPageProps) => {
 	const [selectedProduct, setSelectedProduct] = useState(products[0]);
 	const [isAddingToCart, setIsAddingToCart] = useState(false);
-	const [selectedAccessories, setSelectedAccessories] = useState([]);
+	const [selectedAccessories, setSelectedAccessories] = useState<number[]>([]);
 	const [quantity, setQuantity] = useState(1);
 	const [showNotification, setShowNotification] = useState(false);
 	const { addToCart } = useCart();
-	const productRef = useRef(null);
+	const productRef = useRef<HTMLDivElement>(null);
 
 	// Calculer le prix total (produit + accessoires)
 	const calculateTotalPrice = () => {
 		let total = parseFloat(selectedProduct.price) * quantity;
 
 		selectedAccessories.forEach((accessoryId) => {
-			const accessory = accessories.find((acc) => acc.id === accessoryId);
+			const accessory = accessories.find((acc: Product) => acc.id === accessoryId);
 			if (accessory) {
 				total += parseFloat(accessory.price);
 			}
@@ -31,15 +57,15 @@ const FocusedProductsPage = ({ products, accessories }) => {
 	};
 
 	// Filtrer les accessoires compatibles avec le produit sélectionné
-	const compatibleAccessories = accessories.filter((accessory) =>
+	const compatibleAccessories = accessories.filter((accessory: Product) =>
 		accessory.categories.some((cat) =>
 			selectedProduct.categories.some((prodCat) => prodCat.id === cat.id)
 		)
 	);
 
 	// Gérer la sélection d'accessoires
-	const toggleAccessory = (accessoryId) => {
-		setSelectedAccessories((prev) => {
+	const toggleAccessory = (accessoryId: number) => {
+		setSelectedAccessories((prev: number[]) => {
 			if (prev.includes(accessoryId)) {
 				return prev.filter((id) => id !== accessoryId);
 			} else {

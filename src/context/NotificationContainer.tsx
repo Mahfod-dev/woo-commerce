@@ -1,12 +1,17 @@
 'use client';
 import React, { useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { NotificationContext } from './notificationContext';
+import { NotificationContext, Notification } from './notificationContext';
 
 // Composant qui affiche les notifications
 export const NotificationContainer: React.FC = () => {
-	const { notifications, removeNotification } =
-		useContext(NotificationContext);
+	const contextValue = useContext(NotificationContext);
+	
+	if (!contextValue) {
+		throw new Error('NotificationContainer must be used within a NotificationProvider');
+	}
+	
+	const { notifications, removeNotification } = contextValue;
 
 	// Variantes pour les animations
 	const notificationVariants = {
@@ -25,7 +30,7 @@ export const NotificationContainer: React.FC = () => {
 	};
 
 	// Récupérer l'icône en fonction du type de notification
-	const getNotificationIcon = (type) => {
+	const getNotificationIcon = (type: Notification['type']) => {
 		switch (type) {
 			case 'success':
 				return (
@@ -100,7 +105,7 @@ export const NotificationContainer: React.FC = () => {
 	};
 
 	// Récupérer la couleur de progression en fonction du type
-	const getProgressColor = (type) => {
+	const getProgressColor = (type: Notification['type']) => {
 		switch (type) {
 			case 'success':
 				return 'bg-green-500';
@@ -141,14 +146,11 @@ export const NotificationContainer: React.FC = () => {
 								{notification.action && (
 									<button
 										onClick={() => {
-											notification.action.onClick();
-											if (
-												notification.action
-													.closeOnClick !== false
-											) {
-												removeNotification(
-													notification.id
-												);
+											if (notification.action) {
+												notification.action.onClick();
+												if (notification.action.closeOnClick !== false) {
+													removeNotification(notification.id);
+												}
 											}
 										}}
 										className='mt-1 text-sm font-medium text-indigo-600 hover:text-indigo-500'>

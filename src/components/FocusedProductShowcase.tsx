@@ -7,14 +7,41 @@ import { motion } from 'framer-motion';
 import { formatPrice } from '@/lib/wooClient';
 import { useCart } from '@/components/CartProvider';
 
+// Interface pour les produits
+interface Product {
+  id: number;
+  name: string;
+  slug: string;
+  price: string;
+  regular_price?: string;
+  sale_price?: string;
+  on_sale?: boolean;
+  stock_status: 'instock' | 'outofstock' | 'onbackorder';
+  stock_quantity?: number;
+  short_description: string;
+  description: string;
+  images: { src: string; alt: string }[];
+  categories: { id: number; name: string; slug: string }[];
+  average_rating?: string;
+  rating_count?: number;
+  featured?: boolean;
+  tags: { id: number; name: string; slug: string }[];
+}
+
+interface FocusedProductShowcaseProps {
+  featuredProducts: Product[];
+  accessories: Product[];
+  premiumOptions: Product[];
+}
+
 const FocusedProductShowcase = ({
 	featuredProducts,
 	accessories,
 	premiumOptions,
-}) => {
+}: FocusedProductShowcaseProps) => {
 	const [activeTab, setActiveTab] = useState('featured');
 	const { addToCart, isLoading } = useCart();
-	const [selectedProduct, setSelectedProduct] = useState(null);
+	const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
 
 	// Animation variants
 	const containerVariants = {
@@ -41,7 +68,7 @@ const FocusedProductShowcase = ({
 	};
 
 	// Handle adding product to cart
-	const handleAddToCart = async (e, product) => {
+	const handleAddToCart = async (e: React.MouseEvent, product: Product) => {
 		e.preventDefault();
 		setSelectedProduct(product.id);
 
@@ -454,6 +481,15 @@ const FocusedProductShowcase = ({
 	);
 };
 
+// Interface pour le composant ProductCard
+interface ProductCardProps {
+  product: Product;
+  variants: any;
+  handleAddToCart: (e: React.MouseEvent, product: Product) => void;
+  isLoading: boolean;
+  isSelected: boolean;
+}
+
 // ProductCard component
 const ProductCard = ({
 	product,
@@ -461,7 +497,7 @@ const ProductCard = ({
 	handleAddToCart,
 	isLoading,
 	isSelected,
-}) => {
+}: ProductCardProps) => {
 	return (
 		<motion.div
 			variants={variants}
