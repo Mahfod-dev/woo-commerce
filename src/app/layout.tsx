@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import { CartProvider } from '@/components/CartProvider';
 import { NotificationProvider } from '@/context/notificationContext';
 import { AnimationProvider } from '@/components/AnimationProvider';
+import { getCategories } from '@/lib/woo';
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -25,20 +26,14 @@ export const metadata: Metadata = {
 	keywords: 'boutique, e-commerce, produits, shopping, en ligne',
 };
 
-// Exemple de catégories pour le header (dans une implémentation réelle, ces données viendraient d'une API)
-const mockCategories = [
-	{ id: 1, name: 'Électronique', slug: 'electronique' },
-	{ id: 2, name: 'Mode', slug: 'mode' },
-	{ id: 3, name: 'Maison', slug: 'maison' },
-	{ id: 4, name: 'Sports', slug: 'sports' },
-	{ id: 5, name: 'Beauté', slug: 'beaute' },
-];
-
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
+	// Récupération des catégories depuis l'API WooCommerce
+	const categories = await getCategories();
+
 	return (
 		<html lang='fr'>
 			<head />
@@ -47,7 +42,7 @@ export default function RootLayout({
 				<AnimationProvider>
 					<NotificationProvider>
 						<CartProvider>
-							<Header categories={mockCategories} />
+							<Header categories={categories} />
 							<main className='flex-grow min-h-screen pt-16 md:pt-20'>
 								{children}
 							</main>

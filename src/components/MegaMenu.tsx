@@ -4,77 +4,114 @@ import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+import { type WooCategory, type WooProduct, getFeaturedProducts, getProductsByCategory } from '@/lib/woo';
 
-const MegaMenu = ({ categories, isDarkBg = false }) => {
+// Interface pour les catégories
+// Cette interface utilise la même structure que WooCategory de l'API WooCommerce
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  count?: number;
+  image?: {
+    id?: number;
+    src: string;
+    alt?: string;
+  } | null;
+}
+
+// Interface pour les sous-catégories
+interface SubCategory {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+// Interface pour les produits populaires
+interface PopularProduct {
+  id: number;
+  name: string;
+  slug: string;
+  image: string;
+}
+
+// Interface pour les détails de catégorie
+interface CategoryDetail {
+  subCategories: SubCategory[];
+  popularProducts: PopularProduct[];
+}
+
+// Type pour le dictionnaire des détails de catégorie
+type CategoryDetailsType = {
+  [key: number]: CategoryDetail;
+};
+
+interface MegaMenuProps {
+  categories: Category[];
+  isDarkBg?: boolean;
+}
+
+const MegaMenu = ({ categories, isDarkBg = false }: MegaMenuProps) => {
 	const [isOpen, setIsOpen] = useState(false);
-	const [selectedCategory, setSelectedCategory] = useState(null);
-	const menuRef = useRef(null);
-
-	// Exemple de structure de sous-catégories et de produits populaires (à adapter selon vos données)
-	// Dans une implémentation réelle, ces données viendraient de votre API
-	const categoryDetails = {
-		1: {
-			subCategories: [
+	const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+	const [categoryDetails, setCategoryDetails] = useState<CategoryDetailsType>({});
+	const [isLoading, setIsLoading] = useState(false);
+	const menuRef = useRef<HTMLDivElement>(null);
+	
+	// Fonction pour charger les détails d'une catégorie
+	const loadCategoryDetails = async (categoryId: number) => {
+		if (categoryDetails[categoryId]) return; // Déjà chargé
+		
+		setIsLoading(true);
+		try {
+			// Simuler le chargement des sous-catégories (à remplacer par l'API réelle)
+			// Dans une version réelle, vous feriez un appel à l'API ici
+			// par exemple: const subCategories = await getSubCategories(categoryId);
+			
+			// Pour l'instant, on utilise des données fictives
+			const subCategories: SubCategory[] = [
 				{
-					id: 101,
-					name: 'Sous-catégorie 1.1',
-					slug: 'sub-category-1-1',
+					id: categoryId * 100 + 1,
+					name: `Sous-catégorie ${categoryId}.1`,
+					slug: `sub-category-${categoryId}-1`,
 				},
 				{
-					id: 102,
-					name: 'Sous-catégorie 1.2',
-					slug: 'sub-category-1-2',
+					id: categoryId * 100 + 2,
+					name: `Sous-catégorie ${categoryId}.2`,
+					slug: `sub-category-${categoryId}-2`,
 				},
 				{
-					id: 103,
-					name: 'Sous-catégorie 1.3',
-					slug: 'sub-category-1-3',
+					id: categoryId * 100 + 3,
+					name: `Sous-catégorie ${categoryId}.3`,
+					slug: `sub-category-${categoryId}-3`,
 				},
-			],
-			popularProducts: [
-				{
-					id: 1001,
-					name: 'Produit populaire 1.1',
-					slug: 'popular-product-1-1',
-					image: '/placeholder.jpg',
-				},
-				{
-					id: 1002,
-					name: 'Produit populaire 1.2',
-					slug: 'popular-product-1-2',
-					image: '/placeholder.jpg',
-				},
-			],
-		},
-		2: {
-			subCategories: [
-				{
-					id: 201,
-					name: 'Sous-catégorie 2.1',
-					slug: 'sub-category-2-1',
-				},
-				{
-					id: 202,
-					name: 'Sous-catégorie 2.2',
-					slug: 'sub-category-2-2',
-				},
-			],
-			popularProducts: [
-				{
-					id: 2001,
-					name: 'Produit populaire 2.1',
-					slug: 'popular-product-2-1',
-					image: '/placeholder.jpg',
-				},
-				{
-					id: 2002,
-					name: 'Produit populaire 2.2',
-					slug: 'popular-product-2-2',
-					image: '/placeholder.jpg',
-				},
-			],
-		},
-		// Ajoutez d'autres catégories au besoin
+			];
+			
+			// Récupérer des produits populaires pour cette catégorie
+			// Dans une version finale, vous utiliseriez getProductsByCategory
+			const products = await getFeaturedProducts(2);
+			
+			// Transformer les produits dans le format attendu
+			const popularProducts: PopularProduct[] = products.map(product => ({
+				id: product.id,
+				name: product.name,
+				slug: product.slug,
+				image: product.images[0]?.src || '/images/placeholder.jpg'
+			}));
+			
+			// Mettre à jour les détails
+			setCategoryDetails(prev => ({
+				...prev,
+				[categoryId]: {
+					subCategories,
+					popularProducts
+				}
+			}));
+		} catch (error) {
+			console.error('Erreur lors du chargement des détails de catégorie:', error);
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	// Si pas de catégories, générer quelques fausses données pour la démo
@@ -88,8 +125,8 @@ const MegaMenu = ({ categories, isDarkBg = false }) => {
 
 	// Fermer le menu quand on clique en dehors
 	useEffect(() => {
-		const handleClickOutside = (event) => {
-			if (menuRef.current && !menuRef.current.contains(event.target)) {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (menuRef.current && event.target instanceof Node && !menuRef.current.contains(event.target)) {
 				setIsOpen(false);
 			}
 		};
@@ -105,6 +142,13 @@ const MegaMenu = ({ categories, isDarkBg = false }) => {
 			setSelectedCategory(categories[0].id);
 		}
 	}, [isOpen, selectedCategory, categories]);
+
+	// Charger les détails de la catégorie quand elle est sélectionnée
+	useEffect(() => {
+		if (selectedCategory) {
+			loadCategoryDetails(selectedCategory);
+		}
+	}, [selectedCategory]);
 
 	// Animation variants
 	const menuVariants = {
@@ -230,8 +274,14 @@ const MegaMenu = ({ categories, isDarkBg = false }) => {
 
 							{/* Détails de la catégorie sélectionnée */}
 							<div className='col-span-3 p-6'>
-								{selectedCategory &&
-								categoryDetails[selectedCategory] ? (
+								{isLoading ? (
+									// Indicateur de chargement
+									<div className='h-64 flex flex-col items-center justify-center text-center p-8'>
+										<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
+										<p className="text-gray-500">Chargement des informations...</p>
+									</div>
+								) : selectedCategory &&
+								  categoryDetails[selectedCategory] ? (
 									<div className='grid grid-cols-3 gap-8'>
 										{/* Sous-catégories */}
 										<div className='col-span-1'>
