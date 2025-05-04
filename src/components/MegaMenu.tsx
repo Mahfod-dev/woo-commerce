@@ -20,13 +20,6 @@ interface Category {
   } | null;
 }
 
-// Interface pour les sous-catégories
-interface SubCategory {
-  id: number;
-  name: string;
-  slug: string;
-}
-
 // Interface pour les produits populaires
 interface PopularProduct {
   id: number;
@@ -37,7 +30,6 @@ interface PopularProduct {
 
 // Interface pour les détails de catégorie
 interface CategoryDetail {
-  subCategories: SubCategory[];
   popularProducts: PopularProduct[];
 }
 
@@ -64,46 +56,22 @@ const MegaMenu = ({ categories, isDarkBg = false }: MegaMenuProps) => {
 		
 		setIsLoading(true);
 		try {
-			// Simuler le chargement des sous-catégories (à remplacer par l'API réelle)
-			// Dans une version réelle, vous feriez un appel à l'API ici
-			// par exemple: const subCategories = await getSubCategories(categoryId);
-			
-			// Pour l'instant, on utilise des données fictives
-			const subCategories: SubCategory[] = [
-				{
-					id: categoryId * 100 + 1,
-					name: `Sous-catégorie ${categoryId}.1`,
-					slug: `sub-category-${categoryId}-1`,
-				},
-				{
-					id: categoryId * 100 + 2,
-					name: `Sous-catégorie ${categoryId}.2`,
-					slug: `sub-category-${categoryId}-2`,
-				},
-				{
-					id: categoryId * 100 + 3,
-					name: `Sous-catégorie ${categoryId}.3`,
-					slug: `sub-category-${categoryId}-3`,
-				},
-			];
-			
 			// Récupérer des produits populaires pour cette catégorie
-						// Récupérer des produits pour cette catégorie
 			let products = [];
 			try {
 				// Essayer d'abord de récupérer les produits par catégorie
 				products = await getProductsByCategory(categoryId);
 				// Si pas de produits spécifiques, utiliser les produits en vedette
 				if (products.length === 0) {
-					products = await getFeaturedProducts(2);
+					products = await getFeaturedProducts(4);
 				} else {
-					// Limiter à 2 produits
-					products = products.slice(0, 2);
+					// Augmenter le nombre de produits affichés à 4
+					products = products.slice(0, 4);
 				}
 			} catch (error) {
 				console.error('Erreur lors de la récupération des produits:', error);
 				// Fallback: utiliser les produits en vedette
-				products = await getFeaturedProducts(2);
+				products = await getFeaturedProducts(4);
 			}
 			
 			// Transformer les produits dans le format attendu
@@ -116,11 +84,10 @@ const MegaMenu = ({ categories, isDarkBg = false }: MegaMenuProps) => {
 					: '/images/placeholder.jpg'
 			}));
 			
-			// Mettre à jour les détails
+			// Mettre à jour les détails (sans sous-catégories)
 			setCategoryDetails(prev => ({
 				...prev,
 				[categoryId]: {
-					subCategories,
 					popularProducts
 				}
 			}));
@@ -300,90 +267,41 @@ const MegaMenu = ({ categories, isDarkBg = false }: MegaMenuProps) => {
 									</div>
 								) : selectedCategory &&
 								  categoryDetails[selectedCategory] ? (
-									<div className='grid grid-cols-3 gap-8'>
-										{/* Sous-catégories */}
-										<div className='col-span-1'>
-											<h3 className='text-lg font-semibold text-gray-900 mb-4'>
-												Sous-catégories
-											</h3>
-											<ul className='space-y-2'>
-												{categoryDetails[
-													selectedCategory
-												].subCategories.map(
-													(subCat) => (
-														<motion.li
-															key={subCat.id}
-															variants={
-																itemVariants
-															}>
-															<Link
-																href={`/categories/${subCat.slug}`}
-																className='text-gray-600 hover:text-indigo-600 transition-colors flex items-center'
-																onClick={() =>
-																	setIsOpen(
-																		false
-																	)
-																}>
-																<svg
-																	className='h-4 w-4 mr-2 text-gray-400'
-																	fill='none'
-																	viewBox='0 0 24 24'
-																	stroke='currentColor'>
-																	<path
-																		strokeLinecap='round'
-																		strokeLinejoin='round'
-																		strokeWidth={
-																			2
-																		}
-																		d='M9 5l7 7-7 7'
-																	/>
-																</svg>
-																{subCat.name}
-															</Link>
-														</motion.li>
-													)
-												)}
-
-												<motion.li
-													variants={itemVariants}
-													className='pt-2'>
-													<Link
-														href={`/categories/${
-															categories.find(
-																(cat) =>
-																	cat.id ===
-																	selectedCategory
-															)?.slug
-														}`}
-														className='text-indigo-600 font-medium hover:text-indigo-800 transition-colors flex items-center'
-														onClick={() =>
-															setIsOpen(false)
-														}>
-														Voir toutes les
-														sous-catégories
-														<svg
-															className='h-4 w-4 ml-1'
-															fill='none'
-															viewBox='0 0 24 24'
-															stroke='currentColor'>
-															<path
-																strokeLinecap='round'
-																strokeLinejoin='round'
-																strokeWidth={2}
-																d='M14 5l7 7m0 0l-7 7m7-7H3'
-															/>
-														</svg>
-													</Link>
-												</motion.li>
-											</ul>
-										</div>
-
-										{/* Produits populaires */}
-										<div className='col-span-2'>
-											<h3 className='text-lg font-semibold text-gray-900 mb-4'>
-												Produits populaires
-											</h3>
-											<div className='grid grid-cols-2 gap-4'>
+									<div>
+										{/* Produits populaires - maintenant en pleine largeur */}
+										<div>
+											<div className="flex justify-between items-center mb-4">
+												<h3 className='text-lg font-semibold text-gray-900'>
+													Produits populaires
+												</h3>
+												<Link
+													href={`/categories/${
+														categories.find(
+															(cat) =>
+																cat.id ===
+																selectedCategory
+														)?.slug
+													}`}
+													className='text-indigo-600 font-medium hover:text-indigo-800 transition-colors flex items-center'
+													onClick={() =>
+														setIsOpen(false)
+													}>
+													Voir tous les produits
+													<svg
+														className='h-4 w-4 ml-1'
+														fill='none'
+														viewBox='0 0 24 24'
+														stroke='currentColor'>
+														<path
+															strokeLinecap='round'
+															strokeLinejoin='round'
+															strokeWidth={2}
+															d='M14 5l7 7m0 0l-7 7m7-7H3'
+														/>
+													</svg>
+												</Link>
+											</div>
+											<div className='grid grid-cols-4 gap-4'>
 												{categoryDetails[
 													selectedCategory
 												].popularProducts.map(
