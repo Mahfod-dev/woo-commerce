@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { searchProducts, WooProduct, formatPrice } from '@/lib/woo';
+import { searchProducts, WooProduct } from '@/lib/woo';
+import { formatPrice } from '@/lib/wooClient';
 import { FaSearch, FaSpinner, FaTimes } from 'react-icons/fa';
 
 export default function Search() {
