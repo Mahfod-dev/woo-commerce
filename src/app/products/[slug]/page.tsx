@@ -4,6 +4,13 @@ import { notFound } from 'next/navigation';
 import { getProducts, WooProduct } from '@/lib/woo';
 import ProductDetailContent from '@/components/ProductDetailContent';
 
+// Interface pour les propriétés de la page
+interface PageProps {
+  params: Promise<{
+    slug: string;
+  }>;
+}
+
 // Interface pour le type Product défini dans ProductDetailContent
 interface Product {
   id: number;
@@ -73,13 +80,9 @@ function ProductDetailLoading() {
 }
 
 // Métadonnées dynamiques pour SEO
-export async function generateMetadata({
-	params,
-}: {
-	params: { slug: string };
-}) {
+export async function generateMetadata({ params }: PageProps) {
 	try {
-		const { slug } = await Promise.resolve(params);
+		const { slug } = await params;
 		const products = await getProducts(`?slug=${slug}`);
 
 		if (!products || products.length === 0) {
@@ -131,13 +134,9 @@ export async function generateStaticParams() {
 	}
 }
 
-export default async function ProductPage({
-	params,
-}: {
-	params: { slug: string };
-}) {
+export default async function ProductPage({ params }: PageProps) {
 	try {
-		const { slug } = await Promise.resolve(params);
+		const { slug } = await params;
 
 		// Récupération des données du produit
 		const products = await getProducts(`?slug=${slug}`);

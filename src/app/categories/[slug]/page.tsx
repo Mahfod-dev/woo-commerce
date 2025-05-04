@@ -4,6 +4,13 @@ import { notFound } from 'next/navigation';
 import { getCategories, getProductsByCategory } from '@/lib/woo';
 import CategoryPageContent from '@/components/CategoryPageContent';
 
+// Interface pour les propriétés de la page
+interface PageProps {
+  params: Promise<{
+    slug: string;
+  }>;
+}
+
 // Composant de chargement
 function CategoryLoading() {
 	return (
@@ -32,12 +39,8 @@ function CategoryLoading() {
 }
 
 // Génération des métadonnées dynamiques pour SEO
-export async function generateMetadata({
-	params,
-}: {
-	params: { slug: string };
-}) {
-	const { slug } = params;
+export async function generateMetadata({ params }: PageProps) {
+	const { slug } = await params;
 	const categories = await getCategories(`?slug=${slug}`);
 
 	if (!categories || categories.length === 0) {
@@ -73,12 +76,8 @@ export async function generateStaticParams() {
 	}
 }
 
-export default async function CategoryPage({
-	params,
-}: {
-	params: { slug: string };
-}) {
-	const { slug } = params;
+export default async function CategoryPage({ params }: PageProps) {
+	const { slug } = await params;
 
 	// Récupération des données de la catégorie
 	const categories = await getCategories(`?slug=${slug}`);
