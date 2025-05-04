@@ -5,8 +5,9 @@ import BlogArticleContent from '@/components/BlogArticleContent';
 
 // Interface pour les propriétés de la page
 interface PageProps {
-	params: { slug: string };
-	searchParams: Record<string, string | string[] | undefined>;
+  params: Promise<{
+    slug: string;
+  }>;
 }
 
 // Composant de chargement
@@ -33,7 +34,7 @@ function ArticleLoading() {
 // Métadonnées dynamiques pour SEO
 export async function generateMetadata({ params }: PageProps) {
 	// Résoudre le slug avant de l'utiliser
-	const slug = await Promise.resolve(params.slug);
+	const { slug } = await params;
 
 	const article = await getArticleBySlug(slug);
 
@@ -133,7 +134,7 @@ La règle d'or pour accessoiriser est de maintenir un équilibre visuel. Si votr
 export default async function ArticlePage({ params }: PageProps) {
 	try {
 		// Résoudre le slug avant de l'utiliser
-		const slug = await Promise.resolve(params.slug);
+		const { slug } = await params;
 
 		const article = await getArticleBySlug(slug);
 
