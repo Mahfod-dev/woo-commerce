@@ -118,7 +118,39 @@ export default function Header({ categories }: HeaderProps) {
 					{/* Navigation desktop */}
 					<nav className='hidden md:flex items-center space-x-1 font-sans'>
 						{/* Navigation principale */}
-						{navigationItems.map((item) => (
+						<Link
+							href='/'
+							className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 ${
+								pathname === '/'
+									? 'text-indigo-600'
+									: scrolled || pathname !== '/'
+									? 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
+									: 'text-white hover:text-white hover:bg-white/20'
+							}`}>
+							Accueil
+						</Link>
+						
+						{/* Produits avec MegaMenu à côté */}
+						<div className="flex items-center">
+							<Link
+								href='/products'
+								className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 ${
+									pathname === '/products'
+										? 'text-indigo-600'
+										: scrolled || pathname !== '/'
+										? 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
+										: 'text-white hover:text-white hover:bg-white/20'
+								}`}>
+								Produits
+							</Link>
+							<MegaMenu 
+								categories={categories} 
+								isDarkBg={!scrolled && pathname === '/'} 
+							/>
+						</div>
+						
+						{/* Autres items de navigation */}
+						{navigationItems.slice(2).map((item) => (
 							<Link
 								key={item.name}
 								href={item.href}
@@ -132,14 +164,6 @@ export default function Header({ categories }: HeaderProps) {
 								{item.name}
 							</Link>
 						))}
-						
-						{/* MegaMenu pour les catégories */}
-						<div className="ml-2">
-							<MegaMenu 
-								categories={categories} 
-								isDarkBg={!scrolled && pathname === '/'} 
-							/>
-						</div>
 					</nav>
 
 					{/* Actions (recherche, panier, compte) */}
