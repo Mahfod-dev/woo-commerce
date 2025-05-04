@@ -88,15 +88,32 @@ const MegaMenu = ({ categories, isDarkBg = false }: MegaMenuProps) => {
 			];
 			
 			// Récupérer des produits populaires pour cette catégorie
-			// Dans une version finale, vous utiliseriez getProductsByCategory
-			const products = await getFeaturedProducts(2);
+						// Récupérer des produits pour cette catégorie
+			let products = [];
+			try {
+				// Essayer d'abord de récupérer les produits par catégorie
+				products = await getProductsByCategory(categoryId);
+				// Si pas de produits spécifiques, utiliser les produits en vedette
+				if (products.length === 0) {
+					products = await getFeaturedProducts(2);
+				} else {
+					// Limiter à 2 produits
+					products = products.slice(0, 2);
+				}
+			} catch (error) {
+				console.error('Erreur lors de la récupération des produits:', error);
+				// Fallback: utiliser les produits en vedette
+				products = await getFeaturedProducts(2);
+			}
 			
 			// Transformer les produits dans le format attendu
 			const popularProducts: PopularProduct[] = products.map(product => ({
 				id: product.id,
 				name: product.name,
 				slug: product.slug,
-				image: product.images[0]?.src || '/images/placeholder.jpg'
+				image: product.images && product.images.length > 0 
+					? product.images[0].src 
+					: '/images/placeholder.jpg'
 			}));
 			
 			// Mettre à jour les détails
@@ -197,10 +214,10 @@ const MegaMenu = ({ categories, isDarkBg = false }: MegaMenuProps) => {
 					isOpen
 						? isDarkBg
 							? 'bg-white/20 text-white'
-							: 'bg-gray-50 text-indigo-600'
+							: 'bg-indigo-50 text-indigo-600'
 						: isDarkBg
 						? 'text-white hover:bg-white/20'
-						: 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
+						: 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50'
 				}`}>
 				<span className='mr-1'>Catégories</span>
 				<svg
@@ -227,7 +244,7 @@ const MegaMenu = ({ categories, isDarkBg = false }: MegaMenuProps) => {
 						initial='hidden'
 						animate='visible'
 						exit='exit'
-						className='absolute left-0 z-50 mt-2 w-screen max-w-screen-xl bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden'
+						className='absolute left-0 z-50 mt-2 w-screen max-w-screen-lg bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden'
 						onMouseLeave={() => setIsOpen(false)}>
 						<div className='grid grid-cols-4 gap-0'>
 							{/* Liste des catégories principales */}
@@ -274,7 +291,7 @@ const MegaMenu = ({ categories, isDarkBg = false }: MegaMenuProps) => {
 							</div>
 
 							{/* Détails de la catégorie sélectionnée */}
-							<div className='col-span-3 p-6'>
+							<div className='col-span-3 p-6 bg-white'>
 								{isLoading ? (
 									// Indicateur de chargement
 									<div className='h-64 flex flex-col items-center justify-center text-center p-8'>
@@ -454,7 +471,7 @@ const MegaMenu = ({ categories, isDarkBg = false }: MegaMenuProps) => {
 								</div>
 								<Link
 									href='/promotions'
-									className='inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition-colors'
+									className='inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-sm'
 									onClick={() => setIsOpen(false)}>
 									Voir les offres
 									<svg
