@@ -3,6 +3,12 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import BlogArticleContent from '@/components/BlogArticleContent';
 
+// Interface pour les propriétés de la page
+interface PageProps {
+	params: { slug: string };
+	searchParams: Record<string, string | string[] | undefined>;
+}
+
 // Composant de chargement
 function ArticleLoading() {
 	return (
@@ -25,11 +31,7 @@ function ArticleLoading() {
 }
 
 // Métadonnées dynamiques pour SEO
-export async function generateMetadata({
-	params,
-}: {
-	params: { slug: string };
-}) {
+export async function generateMetadata({ params }: PageProps) {
 	// Résoudre le slug avant de l'utiliser
 	const slug = await Promise.resolve(params.slug);
 
@@ -128,11 +130,7 @@ La règle d'or pour accessoiriser est de maintenir un équilibre visuel. Si votr
 	return mockBlogPosts.find((post) => post.slug === slug);
 }
 
-export default async function ArticlePage({
-	params,
-}: {
-	params: { slug: string };
-}) {
+export default async function ArticlePage({ params }: PageProps) {
 	try {
 		// Résoudre le slug avant de l'utiliser
 		const slug = await Promise.resolve(params.slug);
