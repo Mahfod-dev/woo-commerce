@@ -48,6 +48,7 @@ export default function ImprovedTestimonials() {
 	];
 
 	// Observer d'intersection pour détecter quand la section est visible
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	useEffect(() => {
 		const observer = new IntersectionObserver(
 			(entries) => {

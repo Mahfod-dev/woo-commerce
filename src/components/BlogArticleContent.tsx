@@ -45,6 +45,7 @@ export default function BlogArticleContent({
 				year: 'numeric',
 			});
 		} catch (error) {
+			console.error('Erreur de formatage de la date:', error);
 			return dateString;
 		}
 	};
@@ -283,7 +284,7 @@ export default function BlogArticleContent({
 						<button
 							onClick={() => setIsSubscribeModalOpen(true)}
 							className='px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors'>
-							S'inscrire à la newsletter
+							S&apos;inscrire à la newsletter
 						</button>
 					</div>
 				</div>
@@ -350,8 +351,8 @@ export default function BlogArticleContent({
 								<label
 									htmlFor='privacy'
 									className='ml-2 block text-sm text-gray-500'>
-									J'accepte de recevoir la newsletter et j'ai
-									lu la{' '}
+									J&apos;accepte de recevoir la newsletter et
+									j&apos;ai lu la{' '}
 									<a
 										href='/privacy-policy'
 										className='text-indigo-600 hover:text-indigo-500'>

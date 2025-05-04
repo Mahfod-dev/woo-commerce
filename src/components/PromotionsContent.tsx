@@ -60,6 +60,7 @@ export default function PromotionsContent({
 	};
 
 	// Filtrer les produits
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	useEffect(() => {
 		let filtered = [...products];
 

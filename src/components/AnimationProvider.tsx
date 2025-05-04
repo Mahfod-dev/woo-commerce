@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, ReactNode } from 'react';
-import { motion, useReducedMotion, Variant, Variants } from 'framer-motion';
+import { motion, useReducedMotion, Variant } from 'framer-motion';
 
 // Types pour les animations
 export interface AnimationVariants {

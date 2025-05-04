@@ -23,26 +23,6 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
 	const [isZoomed, setIsZoomed] = useState(false);
 	const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-	// Si pas d'images, afficher un placeholder
-	if (!images || images.length === 0) {
-		return (
-			<div className='bg-gray-100 rounded-2xl aspect-square flex items-center justify-center'>
-				<svg
-					className='h-24 w-24 text-gray-300'
-					fill='none'
-					viewBox='0 0 24 24'
-					stroke='currentColor'>
-					<path
-						strokeLinecap='round'
-						strokeLinejoin='round'
-						strokeWidth={2}
-						d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
-					/>
-				</svg>
-			</div>
-		);
-	}
-
 	const nextImage = () => {
 		setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
 	};
@@ -66,7 +46,27 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
 		setMousePosition({ x, y });
 	};
 
+	const renderPlaceholder = () => {
+		return (
+			<div className='bg-gray-100 rounded-2xl aspect-square flex items-center justify-center'>
+				<svg
+					className='h-24 w-24 text-gray-300'
+					fill='none'
+					viewBox='0 0 24 24'
+					stroke='currentColor'>
+					<path
+						strokeLinecap='round'
+						strokeLinejoin='round'
+						strokeWidth={2}
+						d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
+					/>
+				</svg>
+			</div>
+		);
+	};
+
 	// Auto slideshow with pause on hover
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	useEffect(() => {
 		if (showFullscreen) return;
 
@@ -76,6 +76,11 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
 
 		return () => clearInterval(interval);
 	}, [showFullscreen]);
+
+	// Si pas d'images, afficher un placeholder
+	if (!images || images.length === 0) {
+		return renderPlaceholder();
+	}
 
 	return (
 		<div className='space-y-4'>

@@ -144,6 +144,7 @@ const MegaMenu = ({ categories, isDarkBg = false }: MegaMenuProps) => {
 	}, [isOpen, selectedCategory, categories]);
 
 	// Charger les détails de la catégorie quand elle est sélectionnée
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	useEffect(() => {
 		if (selectedCategory) {
 			loadCategoryDetails(selectedCategory);

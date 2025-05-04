@@ -1,7 +1,5 @@
 // app/blog/[slug]/page.tsx
 import { Suspense } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import BlogArticleContent from '@/components/BlogArticleContent';
 
