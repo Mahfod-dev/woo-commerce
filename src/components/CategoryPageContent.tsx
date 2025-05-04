@@ -11,11 +11,13 @@ import { useCart } from '@/components/CartProvider';
 interface CategoryPageContentProps {
 	category: WooCategory;
 	products: WooProduct[];
+	subcategories?: WooCategory[];
 }
 
 export default function CategoryPageContent({
 	category,
 	products,
+	subcategories = [],
 }: CategoryPageContentProps) {
 	const [sortBy, setSortBy] = useState('popularity');
 	const [filteredProducts, setFilteredProducts] = useState<WooProduct[]>([]);
@@ -118,18 +120,6 @@ export default function CategoryPageContent({
 		},
 	};
 
-	// Détermine les catégories connexes basées sur des heuristiques simples
-	const getRelatedCategories = () => {
-		// Dans un scénario réel, ces catégories seraient dynamiques
-		// Basées sur les relations entre catégories dans votre base de données
-		return [
-			{ name: 'Nouveautés', slug: 'nouveautes' },
-			{ name: 'Promotions', slug: 'promotions' },
-			{ name: 'Tendances', slug: 'tendances' },
-			{ name: 'Exclusivités', slug: 'exclusivites' },
-		];
-	};
-
 	return (
 		<div className='bg-gray-50 min-h-screen'>
 			{/* Header de la catégorie */}
@@ -173,6 +163,11 @@ export default function CategoryPageContent({
 								{category.count} produits pour sublimer votre
 								quotidien
 							</p>
+							{subcategories && subcategories.length > 0 && (
+								<p className='text-indigo-100 text-sm mt-2'>
+									Incluant {subcategories.length} sous-catégories pour un total de {products.length} produits
+								</p>
+							)}
 						</motion.div>
 					</div>
 				</div>
@@ -506,31 +501,37 @@ export default function CategoryPageContent({
 					</div>
 				</div>
 
-				{/* Section de catégories connexes */}
-				<div className='mt-16 pt-8 border-t border-gray-200'>
-					<h2 className='text-2xl font-bold text-gray-900 mb-6'>
-						Catégories connexes
-					</h2>
-					<div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4'>
-						{getRelatedCategories().map((relatedCat, index) => (
-							<motion.div
-								key={index}
-								whileHover={{ y: -5 }}
-								transition={{
-									type: 'spring',
-									stiffness: 300,
-									damping: 10,
-								}}
-								className='bg-white rounded-lg shadow-sm p-4 text-center hover:shadow-md transition-all duration-300'>
-								<Link
-									href={`/categories/${relatedCat.slug}`}
-									className='text-gray-900 hover:text-indigo-600 font-medium transition-colors block py-2'>
-									{relatedCat.name}
-								</Link>
-							</motion.div>
-						))}
+				{/* Section des sous-catégories */}
+				{subcategories && subcategories.length > 0 && (
+					<div className='mt-16 pt-8 border-t border-gray-200'>
+						<h2 className='text-2xl font-bold text-gray-900 mb-6'>
+							Sous-catégories
+						</h2>
+						<div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4'>
+							{subcategories.map((subcat) => (
+								<motion.div
+									key={subcat.id}
+									whileHover={{ y: -5 }}
+									transition={{
+										type: 'spring',
+										stiffness: 300,
+										damping: 10,
+									}}
+									className='bg-white rounded-lg shadow-sm p-4 text-center hover:shadow-md transition-all duration-300'>
+									<Link
+										href={`/categories/${subcat.slug}`}
+										className='text-gray-900 hover:text-indigo-600 font-medium transition-colors block py-2'>
+										{subcat.name}
+										<span className="block text-sm text-gray-500 mt-1">{subcat.count} produits</span>
+									</Link>
+								</motion.div>
+							))}
+						</div>
+						<div className="mt-6 text-center">
+							<p className="text-gray-600 mb-4">Tous les produits de cette catégorie et ses sous-catégories sont affichés ci-dessus.</p>
+						</div>
 					</div>
-				</div>
+				)}
 
 				{/* Call to action */}
 				<div className='mt-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-8 md:p-12 text-center text-white'>

@@ -197,6 +197,7 @@ export default function CategoriesPageContent({
 											className='relative h-80 rounded-xl overflow-hidden shadow-lg transition-shadow duration-300 hover:shadow-xl'>
 											<Link
 												href={`/categories/${category.slug}`}
+												title="Voir tous les produits de cette catégorie"
 												className='block h-full'>
 												{/* Image de fond */}
 												<div className='absolute inset-0 bg-gradient-to-b from-transparent to-black/70'>
@@ -225,7 +226,7 @@ export default function CategoriesPageContent({
 														</span>
 														<div className='flex items-center text-indigo-300 hover:text-white transition-colors'>
 															<span className='text-sm font-medium'>
-																Explorer
+																Voir tous les produits
 															</span>
 															<svg
 																className='ml-1 w-5 h-5'
@@ -262,6 +263,7 @@ export default function CategoriesPageContent({
 									className='bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group'>
 									<Link
 										href={`/categories/${category.slug}`}
+										title="Voir tous les produits de cette catégorie"
 										className='block'>
 										<div className='relative h-48 overflow-hidden'>
 											<Image
@@ -286,7 +288,7 @@ export default function CategoriesPageContent({
 													{category.count} produits
 												</span>
 												<span className='text-indigo-600 flex items-center text-sm font-medium group-hover:translate-x-1 transition-transform'>
-													Découvrir
+													Voir tous les produits
 													<svg
 														className='ml-1 w-4 h-4'
 														fill='none'

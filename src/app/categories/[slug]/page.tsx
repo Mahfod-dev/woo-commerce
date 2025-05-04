@@ -1,7 +1,7 @@
 // app/categories/[slug]/page.tsx
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import { getCategories, getProductsByCategory } from '@/lib/woo';
+import { getCategories, getProductsByCategory, getSubcategories } from '@/lib/woo';
 import CategoryPageContent from '@/components/CategoryPageContent';
 
 // Interface pour les propriétés de la page
@@ -88,14 +88,18 @@ export default async function CategoryPage({ params }: PageProps) {
 
 	const category = categories[0];
 
-	// Récupération des produits de la catégorie
-	const products = await getProductsByCategory(category.id);
+	// Récupération des sous-catégories
+	const subcategories = await getSubcategories(category.id);
+	
+	// Récupération des produits de la catégorie et de ses sous-catégories
+	const products = await getProductsByCategory(category.id, true);
 
 	return (
 		<Suspense fallback={<CategoryLoading />}>
 			<CategoryPageContent
 				category={category}
 				products={products}
+				subcategories={subcategories}
 			/>
 		</Suspense>
 	);

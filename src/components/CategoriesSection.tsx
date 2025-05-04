@@ -191,6 +191,7 @@ export default function ImprovedCategoriesSection({
 									className='snap-center block flex-shrink-0 focus:outline-none'>
 									<Link
 										href={`/categories/${cat.slug}`}
+										title="Voir tous les produits de cette catégorie"
 										onMouseEnter={() =>
 											setActiveCategory(cat.id)
 										}
@@ -259,7 +260,7 @@ export default function ImprovedCategoriesSection({
 															: 'opacity-0 translate-y-4'
 													}`}>
 													<span className='text-white text-sm font-medium'>
-														Découvrir
+														Voir tous les produits
 													</span>
 												</motion.div>
 											</div>

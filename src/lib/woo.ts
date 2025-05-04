@@ -39,6 +39,7 @@ export interface WooCategory {
 		alt?: string;
 	} | null;
 	count?: number;
+	parent?: number;
 }
 
 export interface WooTag {
@@ -293,15 +294,63 @@ export const getCategories = cache(
 );
 
 /**
+ * Récupérer les sous-catégories d'une catégorie
+ */
+export const getSubcategories = cache(
+	async (parentId: number): Promise<WooCategory[]> => {
+		try {
+			const categories = await wooInstance.fetch<WooCategory[]>(
+				`products/categories?parent=${parentId}`
+			);
+			return categories;
+		} catch (error) {
+			console.error(`[woo] Error fetching subcategories for parent ${parentId}:`, error);
+			return [];
+		}
+	}
+);
+
+/**
  * Récupérer les produits d'une catégorie
  */
 export const getProductsByCategory = cache(
-	async (categoryId: number): Promise<WooProduct[]> => {
+	async (categoryId: number, includeSubcategories: boolean = false): Promise<WooProduct[]> => {
 		try {
-			const products = await wooInstance.fetch<WooProduct[]>(
-				`products?category=${categoryId}`
-			);
-			return products;
+			if (!includeSubcategories) {
+				// Comportement original - uniquement les produits de cette catégorie
+				const products = await wooInstance.fetch<WooProduct[]>(
+					`products?category=${categoryId}`
+				);
+				return products;
+			} else {
+				// Récupérer les sous-catégories
+				const subcategories = await getSubcategories(categoryId);
+				const categoryIds = [categoryId, ...subcategories.map(cat => cat.id)];
+				
+				// Construire une requête pour récupérer les produits de toutes les catégories
+				if (categoryIds.length === 1) {
+					// Cas où il n'y a pas de sous-catégories
+					const products = await wooInstance.fetch<WooProduct[]>(
+						`products?category=${categoryId}`
+					);
+					return products;
+				} else {
+					// Cas où il y a des sous-catégories
+					// Utiliser plusieurs requêtes pour éviter les limites d'URL trop longues
+					const productPromises = categoryIds.map(id => 
+						wooInstance.fetch<WooProduct[]>(`products?category=${id}`)
+					);
+					const productsArrays = await Promise.all(productPromises);
+					
+					// Fusionner tous les tableaux de produits et supprimer les doublons
+					const allProducts = productsArrays.flat();
+					const uniqueProducts = [...new Map(allProducts.map(product => 
+						[product.id, product]
+					)).values()];
+					
+					return uniqueProducts;
+				}
+			}
 		} catch (error) {
 			console.error(
 				`[woo] Error fetching products for category ${categoryId}:`,
