@@ -46,13 +46,17 @@ export interface Cart {
 	errors: any[];
 }
 
-// Utiliser les variables d'environnement publiques
-const baseUrl = process.env.NEXT_PUBLIC_URL_WORDPRESS || '';
+// Utiliser les variables d'environnement publiques ou une valeur par défaut
+const defaultUrl = 'https://white-ostrich-747526.hostingersite.com';
+const baseUrl = process.env.NEXT_PUBLIC_URL_WORDPRESS || defaultUrl;
 const isTestMode = process.env.NEXT_PUBLIC_TEST_MODE === 'true';
 
 // Log pour débogage
-if (isTestMode) {
-	console.log('[WooClient] Initialisation avec baseUrl:', baseUrl);
+console.log('[WooClient] Initialisation avec baseUrl:', baseUrl);
+
+// Vérification de la présence de l'URL
+if (baseUrl === defaultUrl) {
+  console.log('URL_WORDPRESS par défaut utilisée. Assurez-vous de définir NEXT_PUBLIC_URL_WORDPRESS dans votre .env.local pour la production.');
 }
 
 /**
