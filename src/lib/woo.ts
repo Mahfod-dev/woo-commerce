@@ -233,8 +233,11 @@ const wooInstance = new WooCommerceAPI();
 export const getProducts = cache(
 	async (queryParams: string = ''): Promise<WooProduct[]> => {
 		try {
+			// Vérifier si queryParams commence déjà par un point d'interrogation
+			// pour éviter le double point d'interrogation dans l'URL
+			const separator = queryParams.startsWith('?') ? '' : '?';
 			const products = await wooInstance.fetch<WooProduct[]>(
-				`products${queryParams ? `?${queryParams}` : ''}`
+				`products${queryParams ? `${separator}${queryParams}` : ''}`
 			);
 			return products;
 		} catch (error) {
@@ -282,8 +285,9 @@ export const getProductsByIds = cache(
 export const getCategories = cache(
 	async (queryParams: string = ''): Promise<WooCategory[]> => {
 		try {
+			const separator = queryParams.startsWith('?') ? '' : '?';
 			const categories = await wooInstance.fetch<WooCategory[]>(
-				`products/categories${queryParams ? `?${queryParams}` : ''}`
+				`products/categories${queryParams ? `${separator}${queryParams}` : ''}`
 			);
 			return categories;
 		} catch (error) {
@@ -472,8 +476,9 @@ export const getRelatedProducts = cache(
 export const getProductTags = cache(
 	async (queryParams: string = ''): Promise<WooTag[]> => {
 		try {
+			const separator = queryParams.startsWith('?') ? '' : '?';
 			const tags = await wooInstance.fetch<WooTag[]>(
-				`products/tags${queryParams ? `?${queryParams}` : ''}`
+				`products/tags${queryParams ? `${separator}${queryParams}` : ''}`
 			);
 			return tags;
 		} catch (error) {
@@ -600,8 +605,9 @@ export const searchProducts = cache(
 export const getCustomers = cache(
 	async (queryParams: string = ''): Promise<WooCustomer[]> => {
 		try {
+			const separator = queryParams.startsWith('?') ? '' : '?';
 			const customers = await wooInstance.fetch<WooCustomer[]>(
-				`customers${queryParams ? `?${queryParams}` : ''}`
+				`customers${queryParams ? `${separator}${queryParams}` : ''}`
 			);
 			return customers;
 		} catch (error) {
@@ -632,8 +638,9 @@ export const getCustomerById = cache(
 export const getOrders = cache(
 	async (queryParams: string = ''): Promise<WooOrder[]> => {
 		try {
+			const separator = queryParams.startsWith('?') ? '' : '?';
 			const orders = await wooInstance.fetch<WooOrder[]>(
-				`orders${queryParams ? `?${queryParams}` : ''}`
+				`orders${queryParams ? `${separator}${queryParams}` : ''}`
 			);
 			return orders;
 		} catch (error) {
