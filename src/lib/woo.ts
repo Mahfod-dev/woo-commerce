@@ -108,6 +108,25 @@ export interface WooOrder {
 	line_items: WooOrderItem[];
 }
 
+export interface CreateOrderData {
+	payment_method: string;
+	payment_method_title: string;
+	set_paid?: boolean;
+	customer_id?: number;
+	billing: Partial<WooAddress>;
+	shipping: Partial<WooAddress>;
+	line_items: Array<{
+		product_id: number;
+		quantity: number;
+		variation_id?: number;
+	}>;
+	shipping_lines?: Array<{
+		method_id: string;
+		method_title: string;
+		total: string;
+	}>;
+}
+
 export interface WooOrderItem {
 	id: number;
 	name: string;
@@ -664,3 +683,22 @@ export const getOrderById = cache(
 		}
 	}
 );
+
+/**
+ * Créer une nouvelle commande dans WooCommerce
+ */
+export const createOrder = async (orderData: CreateOrderData): Promise<WooOrder | null> => {
+	try {
+		const order = await wooInstance.fetch<WooOrder>('orders', {
+			method: 'POST',
+			body: JSON.stringify(orderData),
+			cacheTime: 0, // Pas de cache pour les créations
+		});
+		
+		console.log('[woo] Order created successfully:', order.id);
+		return order;
+	} catch (error) {
+		console.error('[woo] Error creating order:', error);
+		return null;
+	}
+};

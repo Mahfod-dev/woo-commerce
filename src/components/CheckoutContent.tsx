@@ -4,12 +4,16 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import '@/app/styles/checkout.css';
 import { formatPrice } from '@/lib/wooClient';
+import { createOrder } from '@/lib/woo';
 import { useCart } from './CartProvider';
+import { useNotification } from '@/context/notificationContext';
 
 const CheckoutContent = () => {
 	const router = useRouter();
 	const { items, clearCart } = useCart();
+	const { addNotification } = useNotification();
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [orderError, setOrderError] = useState('');
 	const [formData, setFormData] = useState({
 		firstName: '',
 		lastName: '',
@@ -49,19 +53,83 @@ const CheckoutContent = () => {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setIsSubmitting(true);
+		setOrderError('');
 
 		try {
-			// Here you would normally send the order to your backend
-			// Simulate API call with timeout
-			await new Promise((resolve) => setTimeout(resolve, 1500));
+			// Préparer les données de la commande pour WooCommerce
+			const orderData = {
+				payment_method: formData.paymentMethod,
+				payment_method_title: formData.paymentMethod === 'card' ? 'Credit Card' : 'PayPal',
+				set_paid: false, // Le paiement sera confirmé séparément
+				billing: {
+					first_name: formData.firstName,
+					last_name: formData.lastName,
+					address_1: formData.address,
+					city: formData.city,
+					state: '', // Optionnel
+					postcode: formData.postalCode,
+					country: formData.country,
+					email: formData.email,
+					phone: formData.phone
+				},
+				shipping: {
+					first_name: formData.firstName,
+					last_name: formData.lastName,
+					address_1: formData.address,
+					city: formData.city,
+					state: '', // Optionnel
+					postcode: formData.postalCode,
+					country: formData.country
+				},
+				line_items: items.map(item => ({
+					product_id: item.id,
+					quantity: item.quantity
+				})),
+				shipping_lines: [
+					{
+						method_id: 'flat_rate',
+						method_title: subtotal > 100 ? 'Free shipping' : 'Flat rate',
+						total: shippingCost.toString()
+					}
+				]
+			};
+
+			// Envoyer la commande à WooCommerce
+			const order = await createOrder(orderData);
+			
+			if (!order) {
+				throw new Error('Failed to create order');
+			}
+
+			// Afficher une notification de succès
+			addNotification({
+				type: 'success',
+				message: `Order #${order.id} created successfully!`,
+				duration: 5000
+			});
+
+			// Stocker les détails de la commande dans localStorage pour la page de confirmation
+			localStorage.setItem('lastOrder', JSON.stringify({
+				orderId: order.id,
+				orderNumber: order.id.toString(),
+				orderDate: new Date().toISOString(),
+				total: order.total
+			}));
 
 			// Clear cart after successful order
 			clearCart();
 
-			// Redirect to success page (we'll create this later)
+			// Redirect to success page
 			router.push('/order-confirmation');
 		} catch (error) {
 			console.error('Error processing order:', error);
+			setOrderError('An error occurred while processing your order. Please try again.');
+			
+			addNotification({
+				type: 'error',
+				message: 'Failed to create order. Please try again.',
+				duration: 7000
+			});
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -273,6 +341,12 @@ const CheckoutContent = () => {
 								</label>
 							</div>
 						</div>
+						
+						{orderError && (
+							<div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+								{orderError}
+							</div>
+						)}
 
 						<button
 							type='submit'
