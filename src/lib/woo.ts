@@ -689,6 +689,9 @@ export const getOrderById = cache(
  */
 export const createOrder = async (orderData: CreateOrderData): Promise<WooOrder | null> => {
 	try {
+		// Log pour débogage
+		console.log('[woo] Creating order with data:', JSON.stringify(orderData, null, 2));
+		
 		const order = await wooInstance.fetch<WooOrder>('orders', {
 			method: 'POST',
 			body: JSON.stringify(orderData),
@@ -699,6 +702,26 @@ export const createOrder = async (orderData: CreateOrderData): Promise<WooOrder 
 		return order;
 	} catch (error) {
 		console.error('[woo] Error creating order:', error);
+		return null;
+	}
+};
+
+/**
+ * Récupérer le lien de paiement pour une commande
+ */
+export const getPaymentLink = async (orderId: number): Promise<string | null> => {
+	try {
+		const response = await wooInstance.fetch<{payment_url: string}>(`orders/${orderId}`, {
+			cacheTime: 0, // Pas de cache pour les informations de paiement
+		});
+		
+		if (response && response.payment_url) {
+			return response.payment_url;
+		}
+		
+		return null;
+	} catch (error) {
+		console.error(`[woo] Error getting payment URL for order ${orderId}:`, error);
 		return null;
 	}
 };

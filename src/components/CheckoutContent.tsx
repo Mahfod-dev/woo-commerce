@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import '@/app/styles/checkout.css';
 import { formatPrice } from '@/lib/wooClient';
-import { createOrder } from '@/lib/woo';
+import { createOrder, getPaymentLink } from '@/lib/woo';
 import { useCart } from './CartProvider';
 import { useNotification } from '@/context/notificationContext';
 
@@ -70,7 +70,8 @@ const CheckoutContent = () => {
 					postcode: formData.postalCode,
 					country: formData.country,
 					email: formData.email,
-					phone: formData.phone
+					phone: formData.phone,
+					company: '' // Champ potentiellement requis par WooCommerce
 				},
 				shipping: {
 					first_name: formData.firstName,
@@ -79,7 +80,8 @@ const CheckoutContent = () => {
 					city: formData.city,
 					state: '', // Optionnel
 					postcode: formData.postalCode,
-					country: formData.country
+					country: formData.country,
+					company: '' // Champ potentiellement requis par WooCommerce
 				},
 				line_items: items.map(item => ({
 					product_id: item.id,
@@ -101,13 +103,6 @@ const CheckoutContent = () => {
 				throw new Error('Failed to create order');
 			}
 
-			// Afficher une notification de succès
-			addNotification({
-				type: 'success',
-				message: `Order #${order.id} created successfully!`,
-				duration: 5000
-			});
-
 			// Stocker les détails de la commande dans localStorage pour la page de confirmation
 			localStorage.setItem('lastOrder', JSON.stringify({
 				orderId: order.id,
@@ -116,11 +111,26 @@ const CheckoutContent = () => {
 				total: order.total
 			}));
 
+			// Récupérer le lien de paiement WooCommerce
+			const paymentUrl = await getPaymentLink(order.id);
+			
+			// Afficher une notification de succès
+			addNotification({
+				type: 'success',
+				message: `Order #${order.id} created. Redirecting to payment...`,
+				duration: 3000
+			});
+
 			// Clear cart after successful order
 			clearCart();
 
-			// Redirect to success page
-			router.push('/order-confirmation');
+			if (paymentUrl) {
+				// Rediriger vers la page de paiement WooCommerce avec Stripe
+				window.location.href = paymentUrl; // Utiliser window.location pour rediriger vers un domaine externe
+			} else {
+				// Si aucun lien de paiement n'est disponible, rediriger vers la page de confirmation
+				router.push('/order-confirmation');
+			}
 		} catch (error) {
 			console.error('Error processing order:', error);
 			setOrderError('An error occurred while processing your order. Please try again.');
