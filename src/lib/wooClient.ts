@@ -47,7 +47,7 @@ export interface Cart {
 }
 
 // Utiliser les variables d'environnement publiques ou une valeur par défaut
-const defaultUrl = 'https://white-ostrich-747526.hostingersite.com';
+const defaultUrl = 'https://selectura.shop';
 const baseUrl = process.env.NEXT_PUBLIC_URL_WORDPRESS || defaultUrl;
 const isTestMode = process.env.NEXT_PUBLIC_TEST_MODE === 'true';
 
@@ -56,7 +56,9 @@ console.log('[WooClient] Initialisation avec baseUrl:', baseUrl);
 
 // Vérification de la présence de l'URL
 if (baseUrl === defaultUrl) {
-  console.log('URL_WORDPRESS par défaut utilisée. Assurez-vous de définir NEXT_PUBLIC_URL_WORDPRESS dans votre .env.local pour la production.');
+	console.log(
+		'URL_WORDPRESS par défaut utilisée. Assurez-vous de définir NEXT_PUBLIC_URL_WORDPRESS dans votre .env.local pour la production.'
+	);
 }
 
 /**

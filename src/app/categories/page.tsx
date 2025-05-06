@@ -2,6 +2,7 @@
 import { Suspense } from 'react';
 import { getCategories } from '@/lib/woo';
 import CategoriesPageContent from '@/components/CategoriesPageContent';
+import '../styles/categories.css';
 
 // Métadonnées pour le SEO
 export const metadata = {

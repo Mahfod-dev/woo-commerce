@@ -158,15 +158,21 @@ class WooCommerceAPI {
 	private cache: Map<string, { data: any; timestamp: number }>;
 
 	constructor() {
-		const defaultUrl = 'https://white-ostrich-747526.hostingersite.com';
+		const defaultUrl = 'https://selectura.shop	';
 		this.baseUrl = process.env.URL_WORDPRESS || defaultUrl;
-		this.consumerKey = process.env.WOOCOMMERCE_CONSUMER_KEY || 'ck_57120178580c5210e18439965e0ed3bba5003573';
-		this.consumerSecret = process.env.WOOCOMMERCE_CONSUMER_SECRET || 'cs_04a583bcbe220c50f6eaf7012aa4cc2f2c284211';
+		this.consumerKey =
+			process.env.WOOCOMMERCE_CONSUMER_KEY ||
+			'ck_57120178580c5210e18439965e0ed3bba5003573';
+		this.consumerSecret =
+			process.env.WOOCOMMERCE_CONSUMER_SECRET ||
+			'cs_04a583bcbe220c50f6eaf7012aa4cc2f2c284211';
 		this.cache = new Map();
 
 		// Avertissement si on utilise les valeurs par défaut
 		if (this.baseUrl === defaultUrl) {
-			console.log('URL_WORDPRESS par défaut utilisée. Assurez-vous de définir URL_WORDPRESS dans votre .env.local pour la production.');
+			console.log(
+				'URL_WORDPRESS par défaut utilisée. Assurez-vous de définir URL_WORDPRESS dans votre .env.local pour la production.'
+			);
 		}
 
 		console.log(
@@ -269,15 +275,19 @@ export const getProducts = cache(
 /**
  * Récupérer un produit par ID avec cache
  */
-export const getProductById = cache(async (id: number): Promise<WooProduct | null> => {
-	try {
-		const product = await wooInstance.fetch<WooProduct>(`products/${id}`);
-		return product;
-	} catch (error) {
-		console.error(`[woo] Error fetching product with id ${id}:`, error);
-		return null;
+export const getProductById = cache(
+	async (id: number): Promise<WooProduct | null> => {
+		try {
+			const product = await wooInstance.fetch<WooProduct>(
+				`products/${id}`
+			);
+			return product;
+		} catch (error) {
+			console.error(`[woo] Error fetching product with id ${id}:`, error);
+			return null;
+		}
 	}
-});
+);
 
 /**
  * Récupérer des produits par IDs
@@ -292,7 +302,10 @@ export const getProductsByIds = cache(
 			);
 			return products;
 		} catch (error) {
-			console.error(`[woo] Error fetching products with ids ${ids}:`, error);
+			console.error(
+				`[woo] Error fetching products with ids ${ids}:`,
+				error
+			);
 			return [];
 		}
 	}
@@ -306,7 +319,9 @@ export const getCategories = cache(
 		try {
 			const separator = queryParams.startsWith('?') ? '' : '?';
 			const categories = await wooInstance.fetch<WooCategory[]>(
-				`products/categories${queryParams ? `${separator}${queryParams}` : ''}`
+				`products/categories${
+					queryParams ? `${separator}${queryParams}` : ''
+				}`
 			);
 			return categories;
 		} catch (error) {
@@ -327,7 +342,10 @@ export const getSubcategories = cache(
 			);
 			return categories;
 		} catch (error) {
-			console.error(`[woo] Error fetching subcategories for parent ${parentId}:`, error);
+			console.error(
+				`[woo] Error fetching subcategories for parent ${parentId}:`,
+				error
+			);
 			return [];
 		}
 	}
@@ -337,7 +355,10 @@ export const getSubcategories = cache(
  * Récupérer les produits d'une catégorie
  */
 export const getProductsByCategory = cache(
-	async (categoryId: number, includeSubcategories: boolean = false): Promise<WooProduct[]> => {
+	async (
+		categoryId: number,
+		includeSubcategories: boolean = false
+	): Promise<WooProduct[]> => {
 		try {
 			if (!includeSubcategories) {
 				// Comportement original - uniquement les produits de cette catégorie
@@ -348,8 +369,11 @@ export const getProductsByCategory = cache(
 			} else {
 				// Récupérer les sous-catégories
 				const subcategories = await getSubcategories(categoryId);
-				const categoryIds = [categoryId, ...subcategories.map(cat => cat.id)];
-				
+				const categoryIds = [
+					categoryId,
+					...subcategories.map((cat) => cat.id),
+				];
+
 				// Construire une requête pour récupérer les produits de toutes les catégories
 				if (categoryIds.length === 1) {
 					// Cas où il n'y a pas de sous-catégories
@@ -360,17 +384,21 @@ export const getProductsByCategory = cache(
 				} else {
 					// Cas où il y a des sous-catégories
 					// Utiliser plusieurs requêtes pour éviter les limites d'URL trop longues
-					const productPromises = categoryIds.map(id => 
-						wooInstance.fetch<WooProduct[]>(`products?category=${id}`)
+					const productPromises = categoryIds.map((id) =>
+						wooInstance.fetch<WooProduct[]>(
+							`products?category=${id}`
+						)
 					);
 					const productsArrays = await Promise.all(productPromises);
-					
+
 					// Fusionner tous les tableaux de produits et supprimer les doublons
 					const allProducts = productsArrays.flat();
-					const uniqueProducts = [...new Map(allProducts.map(product => 
-						[product.id, product]
-					)).values()];
-					
+					const uniqueProducts = [
+						...new Map(
+							allProducts.map((product) => [product.id, product])
+						).values(),
+					];
+
 					return uniqueProducts;
 				}
 			}
@@ -497,7 +525,9 @@ export const getProductTags = cache(
 		try {
 			const separator = queryParams.startsWith('?') ? '' : '?';
 			const tags = await wooInstance.fetch<WooTag[]>(
-				`products/tags${queryParams ? `${separator}${queryParams}` : ''}`
+				`products/tags${
+					queryParams ? `${separator}${queryParams}` : ''
+				}`
 			);
 			return tags;
 		} catch (error) {
@@ -518,7 +548,10 @@ export const getProductsByTag = cache(
 			);
 			return products;
 		} catch (error) {
-			console.error(`[woo] Error fetching products for tag ${tagId}:`, error);
+			console.error(
+				`[woo] Error fetching products for tag ${tagId}:`,
+				error
+			);
 			return [];
 		}
 	}
@@ -527,19 +560,17 @@ export const getProductsByTag = cache(
 /**
  * Récupérer les attributs de produit
  */
-export const getProductAttributes = cache(
-	async (): Promise<WooAttribute[]> => {
-		try {
-			const attributes = await wooInstance.fetch<WooAttribute[]>(
-				'products/attributes'
-			);
-			return attributes;
-		} catch (error) {
-			console.error('[woo] Error fetching product attributes:', error);
-			return [];
-		}
+export const getProductAttributes = cache(async (): Promise<WooAttribute[]> => {
+	try {
+		const attributes = await wooInstance.fetch<WooAttribute[]>(
+			'products/attributes'
+		);
+		return attributes;
+	} catch (error) {
+		console.error('[woo] Error fetching product attributes:', error);
+		return [];
 	}
-);
+});
 
 /**
  * Récupérer les termes d'un attribut
@@ -612,7 +643,10 @@ export const searchProducts = cache(
 			);
 			return products;
 		} catch (error) {
-			console.error(`[woo] Error searching products for "${query}":`, error);
+			console.error(
+				`[woo] Error searching products for "${query}":`,
+				error
+			);
 			return [];
 		}
 	}
@@ -642,10 +676,15 @@ export const getCustomers = cache(
 export const getCustomerById = cache(
 	async (id: number): Promise<WooCustomer | null> => {
 		try {
-			const customer = await wooInstance.fetch<WooCustomer>(`customers/${id}`);
+			const customer = await wooInstance.fetch<WooCustomer>(
+				`customers/${id}`
+			);
 			return customer;
 		} catch (error) {
-			console.error(`[woo] Error fetching customer with id ${id}:`, error);
+			console.error(
+				`[woo] Error fetching customer with id ${id}:`,
+				error
+			);
 			return null;
 		}
 	}
@@ -687,17 +726,22 @@ export const getOrderById = cache(
 /**
  * Créer une nouvelle commande dans WooCommerce
  */
-export const createOrder = async (orderData: CreateOrderData): Promise<WooOrder | null> => {
+export const createOrder = async (
+	orderData: CreateOrderData
+): Promise<WooOrder | null> => {
 	try {
 		// Log pour débogage
-		console.log('[woo] Creating order with data:', JSON.stringify(orderData, null, 2));
-		
+		console.log(
+			'[woo] Creating order with data:',
+			JSON.stringify(orderData, null, 2)
+		);
+
 		const order = await wooInstance.fetch<WooOrder>('orders', {
 			method: 'POST',
 			body: JSON.stringify(orderData),
 			cacheTime: 0, // Pas de cache pour les créations
 		});
-		
+
 		console.log('[woo] Order created successfully:', order.id);
 		return order;
 	} catch (error) {
@@ -709,19 +753,27 @@ export const createOrder = async (orderData: CreateOrderData): Promise<WooOrder 
 /**
  * Récupérer le lien de paiement pour une commande
  */
-export const getPaymentLink = async (orderId: number): Promise<string | null> => {
+export const getPaymentLink = async (
+	orderId: number
+): Promise<string | null> => {
 	try {
-		const response = await wooInstance.fetch<{payment_url: string}>(`orders/${orderId}`, {
-			cacheTime: 0, // Pas de cache pour les informations de paiement
-		});
-		
+		const response = await wooInstance.fetch<{ payment_url: string }>(
+			`orders/${orderId}`,
+			{
+				cacheTime: 0, // Pas de cache pour les informations de paiement
+			}
+		);
+
 		if (response && response.payment_url) {
 			return response.payment_url;
 		}
-		
+
 		return null;
 	} catch (error) {
-		console.error(`[woo] Error getting payment URL for order ${orderId}:`, error);
+		console.error(
+			`[woo] Error getting payment URL for order ${orderId}:`,
+			error
+		);
 		return null;
 	}
 };

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { WooCategory, WooProduct } from '@/lib/woo';
-import ImprovedAnimatedProductsGrid from '@/notuse/AnimatedProductsGrid';
+import ProductsGrid from '@/components/ProductsGrid';
 import { useCart } from '@/components/CartProvider';
 
 interface CategoryPageContentProps {
@@ -121,7 +121,7 @@ export default function CategoryPageContent({
 	};
 
 	return (
-		<div className='bg-gray-50 min-h-screen'>
+		<div className='bg-gray-50 min-h-screen category-content' data-print-date={new Date().toLocaleDateString()}>
 			{/* Header de la catégorie */}
 			<div
 				className='relative bg-gradient-to-r from-indigo-700 to-purple-700 text-white'
@@ -182,7 +182,7 @@ export default function CategoryPageContent({
 			{/* Contenu principal */}
 			<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
 				{/* Barre de filtres et tri */}
-				<div className='bg-white rounded-lg shadow-sm mb-8 p-4'>
+				<div className='bg-white rounded-lg shadow-sm mb-8 p-4 filters-section'>
 					<div className='flex flex-col sm:flex-row justify-between items-start sm:items-center'>
 						<div className='flex items-center mb-4 sm:mb-0'>
 							<span className='text-gray-700 font-medium'>
@@ -268,7 +268,7 @@ export default function CategoryPageContent({
 											null
 										)
 									}
-									className='w-full'
+									className='w-full price-slider'
 								/>
 								<input
 									type='range'
@@ -285,7 +285,7 @@ export default function CategoryPageContent({
 											parseInt(e.target.value)
 										)
 									}
-									className='w-full'
+									className='w-full price-slider'
 								/>
 								<button
 									onClick={resetFilters}
@@ -299,7 +299,7 @@ export default function CategoryPageContent({
 
 				<div className='flex flex-col md:flex-row gap-8'>
 					{/* Sidebar avec filtres (desktop) */}
-					<div className='hidden md:block w-64 flex-shrink-0'>
+					<div className='hidden md:block w-64 flex-shrink-0 filters-section'>
 						<div className='bg-white rounded-lg shadow-sm p-6 sticky top-24'>
 							<h3 className='text-lg font-medium text-gray-900 mb-4'>
 								Filtres
@@ -334,7 +334,7 @@ export default function CategoryPageContent({
 												null
 											)
 										}
-										className='w-full'
+										className='w-full price-slider'
 									/>
 									<input
 										type='range'
@@ -351,7 +351,7 @@ export default function CategoryPageContent({
 												parseInt(e.target.value)
 											)
 										}
-										className='w-full'
+										className='w-full price-slider'
 									/>
 								</div>
 							</div>
@@ -421,7 +421,7 @@ export default function CategoryPageContent({
 								</button>
 							</div>
 						) : (
-							<ImprovedAnimatedProductsGrid
+							<ProductsGrid
 								products={filteredProducts}
 							/>
 						)}
@@ -517,7 +517,7 @@ export default function CategoryPageContent({
 										stiffness: 300,
 										damping: 10,
 									}}
-									className='bg-white rounded-lg shadow-sm p-4 text-center hover:shadow-md transition-all duration-300'>
+									className='bg-white rounded-lg shadow-sm p-4 text-center hover:shadow-md transition-all duration-300 subcategory-card'>
 									<Link
 										href={`/categories/${subcat.slug}`}
 										className='text-gray-900 hover:text-indigo-600 font-medium transition-colors block py-2'>

@@ -4,56 +4,65 @@ import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { type WooCategory, type WooProduct, getFeaturedProducts, getProductsByCategory } from '@/lib/woo';
+import {
+	type WooCategory,
+	type WooProduct,
+	getFeaturedProducts,
+	getProductsByCategory,
+} from '@/lib/woo';
 
 // Interface pour les catégories
 // Cette interface utilise la même structure que WooCategory de l'API WooCommerce
 interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  count?: number;
-  image?: {
-    id?: number;
-    src: string;
-    alt?: string;
-  } | null;
+	id: number;
+	name: string;
+	slug: string;
+	count?: number;
+	image?: {
+		id?: number;
+		src: string;
+		alt?: string;
+	} | null;
 }
 
 // Interface pour les produits populaires
 interface PopularProduct {
-  id: number;
-  name: string;
-  slug: string;
-  image: string;
+	id: number;
+	name: string;
+	slug: string;
+	image: string;
 }
 
 // Interface pour les détails de catégorie
 interface CategoryDetail {
-  popularProducts: PopularProduct[];
+	popularProducts: PopularProduct[];
 }
 
 // Type pour le dictionnaire des détails de catégorie
 type CategoryDetailsType = {
-  [key: number]: CategoryDetail;
+	[key: number]: CategoryDetail;
 };
 
 interface MegaMenuProps {
-  categories: Category[];
-  isDarkBg?: boolean;
+	categories: Category[];
+	isDarkBg?: boolean;
 }
 
 const MegaMenu = ({ categories, isDarkBg = false }: MegaMenuProps) => {
 	const [isOpen, setIsOpen] = useState(false);
-	const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-	const [categoryDetails, setCategoryDetails] = useState<CategoryDetailsType>({});
+	const [selectedCategory, setSelectedCategory] = useState<number | null>(
+		null
+	);
+	const [categoryDetails, setCategoryDetails] = useState<CategoryDetailsType>(
+		{}
+	);
 	const [isLoading, setIsLoading] = useState(false);
 	const menuRef = useRef<HTMLDivElement>(null);
-	
+
 	// Fonction pour charger les détails d'une catégorie
 	const loadCategoryDetails = async (categoryId: number) => {
 		if (categoryDetails[categoryId]) return; // Déjà chargé
-		
+
 		setIsLoading(true);
 		try {
 			// Récupérer des produits populaires pour cette catégorie
@@ -62,6 +71,8 @@ const MegaMenu = ({ categories, isDarkBg = false }: MegaMenuProps) => {
 				// Essayer d'abord de récupérer les produits par catégorie
 				products = await getProductsByCategory(categoryId);
 				// Si pas de produits spécifiques, utiliser les produits en vedette
+				console.log('Produits récupérés:', products);
+
 				if (products.length === 0) {
 					products = await getFeaturedProducts(4);
 				} else {
@@ -69,30 +80,39 @@ const MegaMenu = ({ categories, isDarkBg = false }: MegaMenuProps) => {
 					products = products.slice(0, 4);
 				}
 			} catch (error) {
-				console.error('Erreur lors de la récupération des produits:', error);
+				console.error(
+					'Erreur lors de la récupération des produits:',
+					error
+				);
 				// Fallback: utiliser les produits en vedette
 				products = await getFeaturedProducts(4);
 			}
-			
+
 			// Transformer les produits dans le format attendu
-			const popularProducts: PopularProduct[] = products.map(product => ({
-				id: product.id,
-				name: product.name,
-				slug: product.slug,
-				image: product.images && product.images.length > 0 
-					? product.images[0].src 
-					: '/images/placeholder.jpg'
-			}));
-			
+			const popularProducts: PopularProduct[] = products.map(
+				(product) => ({
+					id: product.id,
+					name: product.name,
+					slug: product.slug,
+					image:
+						product.images && product.images.length > 0
+							? product.images[0].src
+							: '/images/placeholder.jpg',
+				})
+			);
+
 			// Mettre à jour les détails (sans sous-catégories)
-			setCategoryDetails(prev => ({
+			setCategoryDetails((prev) => ({
 				...prev,
 				[categoryId]: {
-					popularProducts
-				}
+					popularProducts,
+				},
 			}));
 		} catch (error) {
-			console.error('Erreur lors du chargement des détails de catégorie:', error);
+			console.error(
+				'Erreur lors du chargement des détails de catégorie:',
+				error
+			);
 		} finally {
 			setIsLoading(false);
 		}
@@ -110,7 +130,11 @@ const MegaMenu = ({ categories, isDarkBg = false }: MegaMenuProps) => {
 	// Fermer le menu quand on clique en dehors
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (menuRef.current && event.target instanceof Node && !menuRef.current.contains(event.target)) {
+			if (
+				menuRef.current &&
+				event.target instanceof Node &&
+				!menuRef.current.contains(event.target)
+			) {
 				setIsOpen(false);
 			}
 		};
@@ -262,15 +286,17 @@ const MegaMenu = ({ categories, isDarkBg = false }: MegaMenuProps) => {
 								{isLoading ? (
 									// Indicateur de chargement
 									<div className='h-64 flex flex-col items-center justify-center text-center p-8'>
-										<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
-										<p className="text-gray-500">Chargement des informations...</p>
+										<div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4'></div>
+										<p className='text-gray-500'>
+											Chargement des informations...
+										</p>
 									</div>
 								) : selectedCategory &&
 								  categoryDetails[selectedCategory] ? (
 									<div>
 										{/* Produits populaires - maintenant en pleine largeur */}
 										<div>
-											<div className="flex justify-between items-center mb-4">
+											<div className='flex justify-between items-center mb-4'>
 												<h3 className='text-lg font-semibold text-gray-900'>
 													Produits populaires
 												</h3>

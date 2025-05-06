@@ -70,7 +70,7 @@ export default function CategoriesPageContent({
 	};
 
 	return (
-		<div className='bg-gradient-to-b from-gray-50 to-white min-h-screen'>
+		<div className='bg-gradient-to-b from-gray-50 to-white min-h-screen categories-content' data-print-date={new Date().toLocaleDateString()}>
 			{/* Header Banner */}
 			<div className='relative bg-gradient-to-r from-indigo-700 to-purple-700 text-white'>
 				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 relative z-10'>

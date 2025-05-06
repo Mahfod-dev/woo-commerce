@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { getCategories, getProductsByCategory, getSubcategories } from '@/lib/woo';
 import CategoryPageContent from '@/components/CategoryPageContent';
+import '../../styles/categories.css';
 
 // Interface pour les propriétés de la page
 interface PageProps {
