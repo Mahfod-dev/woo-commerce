@@ -1,21 +1,15 @@
-// src/app/account/orders/[id]/invoice/page.tsx
+// src/app/account/orders/invoice/page.tsx
 import React from 'react';
 import OrderInvoice from '@/components/OrderInvoice';
 import type { Metadata } from 'next';
 
-interface OrderInvoicePageProps {
-	params: {
-		id: string;
-	};
-}
-
 export const metadata: Metadata = {
-	title: 'Invoice - Selectura',
-	description: 'View and print your order invoice',
+	title: 'Facture - Selectura',
+	description: 'Visualisez et imprimez votre facture de commande',
 };
 
-export default function OrderInvoicePage({ params }: OrderInvoicePageProps) {
-	const orderId = parseInt(params.id, 10);
+export default function OrderInvoicePage({ searchParams }: { searchParams: { id?: string } }) {
+	const orderId = searchParams.id ? parseInt(searchParams.id, 10) : 0;
 
 	return <OrderInvoice orderId={orderId} />;
 }

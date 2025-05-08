@@ -4,8 +4,8 @@ import LoginPage from '@/components/LoginPage';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Login - Selectura',
-  description: 'Sign in to your account or create a new account',
+  title: 'Connexion - Selectura',
+  description: 'Connectez-vous à votre compte ou créez un nouveau compte',
 };
 
 export default function LoginRoute() {

@@ -25,10 +25,10 @@ const CheckoutContent = () => {
 		city: '',
 		postalCode: '',
 		country: 'France',
-		paymentMethod: 'card-direct', // Only direct card payment is supported
+		paymentMethod: 'card-direct', // Seul le paiement par carte direct est supporté
 	});
   
-	// New state for order tracking
+	// État pour le suivi de commande
 	const [orderCreated, setOrderCreated] = useState(false);
 	const [orderDetails, setOrderDetails] = useState<{
 		orderId: number;
@@ -43,7 +43,7 @@ const CheckoutContent = () => {
 	const total = subtotal + shippingCost;
 
 	useEffect(() => {
-		// Redirect to homepage if cart is empty
+		// Redirection vers la page d'accueil si le panier est vide
 		if (items.length === 0 && !orderCreated) {
 			router.push('/');
 		}
@@ -65,32 +65,32 @@ const CheckoutContent = () => {
 		setOrderError('');
 
 		try {
-			// Prepare the order data for WooCommerce
+			// Préparation des données de commande pour WooCommerce
 			const orderData = {
 				payment_method: 'stripe',
-				payment_method_title: 'Credit Card (Direct)',
-				set_paid: false, // The payment will be confirmed separately
+				payment_method_title: 'Carte de crédit (Direct)',
+				set_paid: false, // Le paiement sera confirmé séparément
 				billing: {
 					first_name: formData.firstName,
 					last_name: formData.lastName,
 					address_1: formData.address,
 					city: formData.city,
-					state: '', // Optional
+					state: '', // Optionnel
 					postcode: formData.postalCode,
 					country: formData.country,
 					email: formData.email,
 					phone: formData.phone,
-					company: '' // Field potentially required by WooCommerce
+					company: '' // Champ potentiellement requis par WooCommerce
 				},
 				shipping: {
 					first_name: formData.firstName,
 					last_name: formData.lastName,
 					address_1: formData.address,
 					city: formData.city,
-					state: '', // Optional
+					state: '', // Optionnel
 					postcode: formData.postalCode,
 					country: formData.country,
-					company: '' // Field potentially required by WooCommerce
+					company: '' // Champ potentiellement requis par WooCommerce
 				},
 				line_items: items.map(item => ({
 					product_id: item.id,
@@ -99,26 +99,26 @@ const CheckoutContent = () => {
 				shipping_lines: [
 					{
 						method_id: 'flat_rate',
-						method_title: subtotal > 100 ? 'Free shipping' : 'Flat rate',
+						method_title: subtotal > 100 ? 'Livraison gratuite' : 'Tarif forfaitaire',
 						total: shippingCost.toString()
 					}
 				]
 			};
 
-			// Create the order in WooCommerce
+			// Création de la commande dans WooCommerce
 			const order = await createOrder(orderData);
 			
 			if (!order) {
-				throw new Error('Failed to create order');
+				throw new Error('Échec de création de la commande');
 			}
 
-			// Store order details for payment processing
+			// Stockage des détails de commande pour le traitement du paiement
 			setOrderDetails({
 				orderId: order.id,
 				total: order.total
 			});
 			
-			// Store the order info for confirmation page
+			// Stockage des informations de commande pour la page de confirmation
 			localStorage.setItem('lastOrder', JSON.stringify({
 				orderId: order.id,
 				orderNumber: order.id.toString(),
@@ -128,30 +128,30 @@ const CheckoutContent = () => {
 			
 			setOrderCreated(true);
 			
-			// Success notification
+			// Notification de succès
 			addNotification({
 				type: 'success',
-				message: `Order #${order.id} created. Please complete payment.`,
+				message: `Commande #${order.id} créée. Veuillez compléter le paiement.`,
 				duration: 3000
 			});
 			
 		} catch (error) {
-			console.error('Error processing order:', error);
-			setOrderError('An error occurred while processing your order. Please try again.');
+			console.error('Erreur lors du traitement de la commande:', error);
+			setOrderError('Une erreur est survenue lors du traitement de votre commande. Veuillez réessayer.');
 			
 			addNotification({
 				type: 'error',
-				message: 'Failed to create order. Please try again.',
+				message: 'Échec de création de la commande. Veuillez réessayer.',
 				duration: 7000
 			});
 			setIsSubmitting(false);
 		}
 	};
 	
-	// Handle successful payment
+	// Gestion du succès du paiement
 	const handlePaymentSuccess = async (paymentIntentId: string) => {
 		try {
-			// Update order status in WooCommerce
+			// Mise à jour du statut de la commande dans WooCommerce
 			const response = await fetch('/api/update-order-payment', {
 				method: 'POST',
 				headers: {
@@ -165,42 +165,42 @@ const CheckoutContent = () => {
 			});
 			
 			if (!response.ok) {
-				throw new Error('Failed to update order payment status');
+				throw new Error('Échec de mise à jour du statut de paiement');
 			}
 			
-			// Clear the cart after successful payment
+			// Vidage du panier après paiement réussi
 			clearCart();
 			
-			// Show success notification
+			// Affichage de la notification de succès
 			addNotification({
 				type: 'success',
-				message: 'Payment successful! Redirecting to order confirmation...',
+				message: 'Paiement réussi ! Redirection vers la confirmation de commande...',
 				duration: 3000
 			});
 			
-			// Redirect to order confirmation page
+			// Redirection vers la page de confirmation de commande
 			setTimeout(() => {
 				router.push('/order-confirmation');
 			}, 1500);
 			
 		} catch (error) {
-			console.error('Error updating payment status:', error);
+			console.error('Erreur lors de la mise à jour du statut de paiement:', error);
 			addNotification({
 				type: 'error',
-				message: 'Payment completed, but we had trouble updating your order. Please contact support.',
+				message: 'Paiement effectué, mais nous avons rencontré un problème lors de la mise à jour de votre commande. Veuillez contacter le support.',
 				duration: 7000
 			});
 			
-			// Still redirect to confirmation since payment was successful
+			// Redirection vers la confirmation puisque le paiement a réussi
 			router.push('/order-confirmation');
 		}
 	};
 	
-	// Handle payment error
+	// Gestion des erreurs de paiement
 	const handlePaymentError = (errorMessage: string) => {
 		addNotification({
 			type: 'error',
-			message: `Payment failed: ${errorMessage}`,
+			message: `Échec du paiement: ${errorMessage}`,
 			duration: 7000
 		});
 	};
@@ -219,15 +219,15 @@ const CheckoutContent = () => {
 		);
 	};
 	
-	// Render payment form if order is created, otherwise show checkout form
+	// Afficher le formulaire de paiement si la commande est créée, sinon afficher le formulaire de commande
 	if (orderCreated && orderDetails) {
 		return (
 			<div className='checkout-container'>
-				<h1 className='text-3xl font-bold mb-6'>Complete Your Payment</h1>
+				<h1 className='text-3xl font-bold mb-6'>Finaliser votre paiement</h1>
 				
 				<div className='max-w-xl mx-auto bg-white p-8 rounded-lg shadow-md'>
-					<h2 className='text-xl font-medium mb-4'>Order #{orderDetails.orderId}</h2>
-					<p className='mb-6'>Please complete your payment to confirm your order.</p>
+					<h2 className='text-xl font-medium mb-4'>Commande #{orderDetails.orderId}</h2>
+					<p className='mb-6'>Veuillez compléter votre paiement pour confirmer votre commande.</p>
 					
 					<StripePaymentForm 
 						orderId={orderDetails.orderId}
@@ -243,12 +243,12 @@ const CheckoutContent = () => {
 
 	return (
 		<div className='checkout-container'>
-			<h1 className='text-3xl font-bold mb-6'>Checkout</h1>
+			<h1 className='text-3xl font-bold mb-6'>Paiement</h1>
 
 			<div className='checkout-grid'>
 				<div className='checkout-form'>
 					<h2 className='text-xl font-semibold mb-4'>
-						Billing Details
+						Informations de facturation
 					</h2>
 
 					<form onSubmit={handleSubmit}>
@@ -257,7 +257,7 @@ const CheckoutContent = () => {
 								<label
 									htmlFor='firstName'
 									className='form-label'>
-									First Name
+									Prénom
 								</label>
 								<input
 									type='text'
@@ -274,7 +274,7 @@ const CheckoutContent = () => {
 								<label
 									htmlFor='lastName'
 									className='form-label'>
-									Last Name
+									Nom
 								</label>
 								<input
 									type='text'
@@ -310,7 +310,7 @@ const CheckoutContent = () => {
 								<label
 									htmlFor='phone'
 									className='form-label'>
-									Phone
+									Téléphone
 								</label>
 								<input
 									type='tel'
@@ -328,7 +328,7 @@ const CheckoutContent = () => {
 							<label
 								htmlFor='address'
 								className='form-label'>
-								Address
+								Adresse
 							</label>
 							<input
 								type='text'
@@ -346,7 +346,7 @@ const CheckoutContent = () => {
 								<label
 									htmlFor='city'
 									className='form-label'>
-									City
+									Ville
 								</label>
 								<input
 									type='text'
@@ -363,7 +363,7 @@ const CheckoutContent = () => {
 								<label
 									htmlFor='postalCode'
 									className='form-label'>
-									Postal Code
+									Code postal
 								</label>
 								<input
 									type='text'
@@ -381,7 +381,7 @@ const CheckoutContent = () => {
 							<label
 								htmlFor='country'
 								className='form-label'>
-								Country
+								Pays
 							</label>
 							<select
 								id='country'
@@ -391,21 +391,21 @@ const CheckoutContent = () => {
 								className='form-input'
 								required>
 								<option value='France'>France</option>
-								<option value='Belgium'>Belgium</option>
-								<option value='Switzerland'>Switzerland</option>
-								<option value='Germany'>Germany</option>
-								<option value='Italy'>Italy</option>
-								<option value='Spain'>Spain</option>
+								<option value='Belgium'>Belgique</option>
+								<option value='Switzerland'>Suisse</option>
+								<option value='Germany'>Allemagne</option>
+								<option value='Italy'>Italie</option>
+								<option value='Spain'>Espagne</option>
 							</select>
 						</div>
 
 						<div className='form-group'>
 							<h3 className='text-lg font-semibold mb-2'>
-								Payment Method
+								Mode de paiement
 							</h3>
 							<div className='p-3 border rounded-md bg-gray-50'>
-								<div className='font-medium'>Credit Card</div>
-								<div className='text-xs text-gray-500'>Pay securely with your credit card on this site</div>
+								<div className='font-medium'>Carte de crédit</div>
+								<div className='text-xs text-gray-500'>Payez en toute sécurité avec votre carte de crédit sur ce site</div>
 							</div>
 							<input 
 								type='hidden' 
@@ -425,15 +425,15 @@ const CheckoutContent = () => {
 							className='checkout-btn mt-4'
 							disabled={isSubmitting || !isFormValid()}>
 							{isSubmitting
-								? 'Processing...'
-								: `Continue to Payment - ${formatPrice(total)}`}
+								? 'Traitement en cours...'
+								: `Continuer vers le paiement - ${formatPrice(total)}`}
 						</button>
 					</form>
 				</div>
 
 				<div className='checkout-summary'>
 					<h2 className='text-xl font-semibold mb-4'>
-						Order Summary
+						Récapitulatif de commande
 					</h2>
 
 					<div className='mb-4'>
@@ -460,7 +460,7 @@ const CheckoutContent = () => {
 										{formatPrice(parseFloat(item.price))}
 									</span>
 									<span className='cart-item-quantity'>
-										Qty: {item.quantity}
+										Qté: {item.quantity}
 									</span>
 								</div>
 							</div>
@@ -468,15 +468,15 @@ const CheckoutContent = () => {
 					</div>
 
 					<div className='summary-item'>
-						<span>Subtotal</span>
+						<span>Sous-total</span>
 						<span>{formatPrice(subtotal)}</span>
 					</div>
 
 					<div className='summary-item'>
-						<span>Shipping</span>
+						<span>Livraison</span>
 						<span>
 							{shippingCost === 0
-								? 'Free'
+								? 'Gratuite'
 								: formatPrice(shippingCost)}
 						</span>
 					</div>

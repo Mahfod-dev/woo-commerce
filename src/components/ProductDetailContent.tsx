@@ -13,6 +13,38 @@ import { useCart } from '@/components/CartProvider';
 import { formatPrice } from '@/lib/wooClient';
 import ProductGallery from './ProductGalleryComponent';
 
+// Function to extract features from HTML description
+const extractFeaturesFromHTML = (htmlContent) => {
+  if (typeof document === 'undefined') return [];
+
+  // Parse the HTML description to extract key points
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlContent;
+  
+  // Look for bullet lists (ul/li) or paragraphs
+  const listItems = tempDiv.querySelectorAll('li');
+  const paragraphs = tempDiv.querySelectorAll('p');
+  
+  // Build a feature array from the content
+  let features = [];
+  
+  // If we find list items, use them first
+  if (listItems.length > 0) {
+    features = Array.from(listItems).map(item => item.textContent.trim()).filter(text => text.length > 10);
+  } 
+  // Otherwise use short paragraphs as features
+  else if (paragraphs.length > 0) {
+    features = Array.from(paragraphs)
+      .map(p => p.textContent.trim())
+      .filter(text => text.length > 10 && text.length < 200);
+  }
+  
+  // Limit to 6 features maximum
+  features = features.slice(0, 6);
+  
+  return features;
+};
+
 // Type pour les produits
 interface Product {
 	id: number;
@@ -32,6 +64,21 @@ interface Product {
 	rating_count?: number;
 	featured?: boolean;
 	tags: { id: number; name: string; slug: string }[];
+	// Attributs techniques
+	weight?: string;
+	dimensions?: {
+		length: string;
+		width: string;
+		height: string;
+	};
+	attributes?: {
+		id: number;
+		name: string;
+		position: number;
+		visible: boolean;
+		variation: boolean;
+		options: string[];
+	}[];
 }
 
 interface AppleStyleProductDetailProps {
@@ -826,17 +873,96 @@ export default function AppleStyleProductDetail({
 				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
 					<div className='max-w-3xl mx-auto text-center mb-16'>
 						<h2 className='text-3xl font-bold text-gray-900 mb-4'>
-							Caractéristiques principales
+							Caractéristiques techniques
 						</h2>
 						<p className='text-xl text-gray-500'>
-							Découvrez toutes les fonctionnalités qui font de ce
-							produit un choix exceptionnel
+							Fonctionnalités essentielles extraites de la description du produit
 						</p>
 					</div>
 
 					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
-						{[...Array(6)].map((_, index) => (
-							<motion.div
+						{/* Utiliser le contenu de la description pour extraire les fonctionnalités */}
+						{(() => {
+							// Caractéristiques par défaut dans tous les cas
+							const defaultFeatures = [
+								'Qualité premium garantie',
+								'Conception ergonomique',
+								'Matériaux durables',
+								'Performance optimale',
+								'Design élégant',
+								'Fonctionnalités innovantes'
+							];
+							
+							// On est côté serveur, utiliser des données statiques
+							if (typeof window === 'undefined') {
+								return defaultFeatures.map((feature, index) => (
+									<motion.div
+										key={index}
+										initial={{ opacity: 0, y: 30 }}
+										whileInView={{ opacity: 1, y: 0 }}
+										viewport={{ once: true, margin: '-100px' }}
+										transition={{
+											duration: 0.5,
+											delay: index * 0.1,
+										}}
+										className='bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow'>
+										<div className='w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4'>
+											<svg
+												className='h-6 w-6 text-indigo-600'
+												fill='none'
+												viewBox='0 0 24 24'
+												stroke='currentColor'>
+												{index % 6 === 0 && (
+													<path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 13l4 4L19 7' />
+												)}
+												{index % 6 === 1 && (
+													<path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M13 10V3L4 14h7v7l9-11h-7z' />
+												)}
+												{index % 6 === 2 && (
+													<path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' />
+												)}
+												{index % 6 === 3 && (
+													<path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' />
+												)}
+												{index % 6 === 4 && (
+													<path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z' />
+												)}
+												{index % 6 === 5 && (
+													<path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' />
+												)}
+											</svg>
+										</div>
+										<h3 className='text-lg font-medium text-gray-900 mb-2'>
+											{feature.split(' ').slice(0, 3).join(' ')}
+											{feature.split(' ').length > 3 ? '...' : ''}
+										</h3>
+										<p className='text-gray-600'>
+											{feature}
+										</p>
+									</motion.div>
+								));
+							}
+							
+							
+							// Tenter d'extraire les caractéristiques à partir de la description du produit
+							let features = defaultFeatures;
+							
+							try {
+								// Extraire les caractéristiques de la description HTML si possible
+								const extractedFeatures = extractFeaturesFromHTML(product.description);
+								
+								// Si on a trouvé des caractéristiques dans la description, les utiliser
+								// Sinon, conserver les caractéristiques par défaut
+								if (extractedFeatures && extractedFeatures.length > 0) {
+									features = extractedFeatures;
+								}
+							} catch (error) {
+								console.error("Erreur lors de l'extraction des caractéristiques:", error);
+								// En cas d'erreur, utiliser les caractéristiques par défaut
+							}
+							
+							return features.map((feature, index) => (
+								<motion.div
 								key={index}
 								initial={{ opacity: 0, y: 30 }}
 								whileInView={{ opacity: 1, y: 0 }}
@@ -852,24 +978,37 @@ export default function AppleStyleProductDetail({
 										fill='none'
 										viewBox='0 0 24 24'
 										stroke='currentColor'>
-										<path
-											strokeLinecap='round'
-											strokeLinejoin='round'
-											strokeWidth={2}
-											d='M13 10V3L4 14h7v7l9-11h-7z'
-										/>
+										{/* Différentes icônes pour chaque caractéristique */}
+										{index % 6 === 0 && (
+											<path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 13l4 4L19 7' />
+										)}
+										{index % 6 === 1 && (
+											<path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M13 10V3L4 14h7v7l9-11h-7z' />
+										)}
+										{index % 6 === 2 && (
+											<path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' />
+										)}
+										{index % 6 === 3 && (
+											<path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' />
+										)}
+										{index % 6 === 4 && (
+											<path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z' />
+										)}
+										{index % 6 === 5 && (
+											<path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' />
+										)}
 									</svg>
 								</div>
 								<h3 className='text-lg font-medium text-gray-900 mb-2'>
-									Fonctionnalité {index + 1}
+									{/* Créer un titre à partir du début de la fonctionnalité */}
+									{feature.split(' ').slice(0, 3).join(' ')}
+									{feature.split(' ').length > 3 ? '...' : ''}
 								</h3>
 								<p className='text-gray-600'>
-									Une description détaillée de cette
-									fonctionnalité qui explique comment elle
-									améliore votre expérience avec ce produit.
+									{feature}
 								</p>
 							</motion.div>
-						))}
+						))})()}
 					</div>
 
 					{/* Bouton Comparer */}
@@ -1408,39 +1547,70 @@ export default function AppleStyleProductDetail({
 							Spécifications techniques
 						</h2>
 						<p className='text-xl text-gray-500'>
-							Tous les détails techniques que vous devez connaître
+							Caractéristiques détaillées du produit
 						</p>
 					</div>
 
 					<div className='bg-white rounded-xl shadow-sm overflow-hidden'>
 						<div className='border-b border-gray-200'>
 							<dl>
+								{/* Référence produit */}
 								<div className='bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>
 									<dt className='text-sm font-medium text-gray-500'>
-										Nom du produit
+										Référence produit
 									</dt>
 									<dd className='mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2'>
-										{product.name}
+										SKU-{product.id}
 									</dd>
 								</div>
+								
+								{/* Catégories */}
 								<div className='bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>
-									<dt className='text-sm font-medium text-gray-500'>
-										Référence
-									</dt>
-									<dd className='mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2'>
-										PRD-{product.id}
-									</dd>
-								</div>
-								<div className='bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>
 									<dt className='text-sm font-medium text-gray-500'>
 										Catégorie
 									</dt>
 									<dd className='mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2'>
-										{product.categories
-											.map((cat) => cat.name)
-											.join(', ')}
+										{product.categories.map(cat => cat.name).join(', ')}
 									</dd>
 								</div>
+								
+								{/* Tags (si présents) */}
+								{product.tags && product.tags.length > 0 && (
+									<div className='bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>
+										<dt className='text-sm font-medium text-gray-500'>
+											Tags
+										</dt>
+										<dd className='mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2'>
+											{product.tags.map(tag => tag.name).join(', ')}
+										</dd>
+									</div>
+								)}
+								
+								{/* Dimensions (si présentes) */}
+								{product.dimensions && (
+									<div className='bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>
+										<dt className='text-sm font-medium text-gray-500'>
+											Dimensions
+										</dt>
+										<dd className='mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2'>
+											{product.dimensions.length} × {product.dimensions.width} × {product.dimensions.height} cm
+										</dd>
+									</div>
+								)}
+								
+								{/* Poids (si présent) */}
+								{product.weight && (
+									<div className='bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>
+										<dt className='text-sm font-medium text-gray-500'>
+											Poids
+										</dt>
+										<dd className='mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2'>
+											{product.weight} kg
+										</dd>
+									</div>
+								)}
+								
+								{/* Disponibilité */}
 								<div className='bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>
 									<dt className='text-sm font-medium text-gray-500'>
 										Disponibilité
@@ -1448,10 +1618,9 @@ export default function AppleStyleProductDetail({
 									<dd className='mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2'>
 										{product.stock_status === 'instock' ? (
 											<span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800'>
-												En stock
+												En stock {product.stock_quantity ? `(${product.stock_quantity} unités)` : ''}
 											</span>
-										) : product.stock_status ===
-										  'onbackorder' ? (
+										) : product.stock_status === 'onbackorder' ? (
 											<span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800'>
 												Sur commande
 											</span>
@@ -1462,42 +1631,43 @@ export default function AppleStyleProductDetail({
 										)}
 									</dd>
 								</div>
-								<div className='bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>
-									<dt className='text-sm font-medium text-gray-500'>
-										Prix
-									</dt>
-									<dd className='mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2'>
-										{product.on_sale ? (
-											<div className='flex items-center'>
-												<span className='font-medium'>
-													{formatPrice(product.price)}
-												</span>
-												<span className='ml-2 line-through text-gray-500'>
-													{formatPrice(
-														product.regular_price ||
-															'0'
-													)}
-												</span>
-												<span className='ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800'>
-													-{calculateDiscount()}%
-												</span>
+								
+								{/* Attributs (si présents) */}
+								{product.attributes && product.attributes.map((attr, index) => (
+									attr.visible && (
+										<div key={attr.id} className={`${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'} px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6`}>
+											<dt className='text-sm font-medium text-gray-500'>
+												{attr.name}
+											</dt>
+											<dd className='mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2'>
+												{attr.options.join(', ')}
+											</dd>
+										</div>
+									)
+								))}
+								
+								{/* Évaluation (si présente) */}
+								{product.average_rating && parseFloat(product.average_rating) > 0 && (
+									<div className='bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>
+										<dt className='text-sm font-medium text-gray-500'>
+											Évaluation
+										</dt>
+										<dd className='mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 flex items-center'>
+											<div className="flex items-center">
+												{[1, 2, 3, 4, 5].map((star) => (
+													<svg 
+														key={star}
+														className={`h-4 w-4 ${parseFloat(product.average_rating) >= star ? 'text-yellow-400' : 'text-gray-300'}`}
+														fill="currentColor" 
+														viewBox="0 0 20 20">
+														<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+													</svg>
+												))}
 											</div>
-										) : (
-											formatPrice(product.price)
-										)}
-									</dd>
-								</div>
-								<div className='bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>
-									<dt className='text-sm font-medium text-gray-500'>
-										Description
-									</dt>
-									<dd
-										className='mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 prose prose-sm max-w-none'
-										dangerouslySetInnerHTML={{
-											__html: product.description,
-										}}
-									/>
-								</div>
+											<span className="ml-2">{product.average_rating}/5 {product.rating_count && `(${product.rating_count} avis)`}</span>
+										</dd>
+									</div>
+								)}
 							</dl>
 						</div>
 					</div>

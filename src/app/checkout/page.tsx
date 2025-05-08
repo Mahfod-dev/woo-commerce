@@ -3,8 +3,8 @@ import CheckoutContent from '@/components/CheckoutContent';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Checkout - Complete Your Order',
-  description: 'Secure checkout page to complete your purchase',
+  title: 'Paiement - Finaliser votre commande',
+  description: 'Page de paiement sécurisée pour finaliser votre achat',
 };
 
 export default function CheckoutPage() {

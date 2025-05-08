@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { useNotification } from '@/context/notificationContext';
 import { formatPrice } from '@/lib/wooClient';
 
-// Types for order data
+// Types pour les données de commande
 interface OrderItem {
   id: number;
   name: string;
@@ -78,20 +78,20 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
     const fetchOrder = async () => {
       setIsLoading(true);
       try {
-        // Check for authentication
+        // Vérifier l'authentification
         const isLoggedIn = localStorage.getItem('userToken');
         if (!isLoggedIn) {
           addNotification({
             type: 'warning',
-            message: 'Please log in to view order details',
+            message: 'Veuillez vous connecter pour voir les détails de votre commande',
             duration: 5000,
           });
           router.push('/login');
           return;
         }
 
-        // In a real app, this would be an API call to your backend
-        // For demo, we'll use mock data
+        // Dans une vraie application, ce serait un appel à l'API
+        // Pour la démo, nous utiliserons des données fictives
         const mockOrder: Order = {
           id: orderId,
           number: orderId.toString(),
@@ -101,18 +101,18 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
           total: '129.99',
           currency: 'EUR',
           payment_method: 'stripe',
-          payment_method_title: 'Credit Card (Stripe)',
+          payment_method_title: 'Carte de crédit (Stripe)',
           billing: {
             first_name: 'Jean',
             last_name: 'Dupont',
-            company: 'Company Inc.',
+            company: 'Entreprise SAS',
             address_1: '123 Rue de Paris',
             address_2: 'Apt 4B',
             city: 'Paris',
             state: 'Île-de-France',
             postcode: '75001',
             country: 'France',
-            email: 'customer@example.com',
+            email: 'client@exemple.fr',
             phone: '0123456789',
           },
           shipping: {
@@ -129,7 +129,7 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
           line_items: [
             {
               id: 1,
-              name: 'Premium Product',
+              name: 'Produit Premium',
               product_id: 123,
               variation_id: 0,
               quantity: 1,
@@ -143,7 +143,7 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
           shipping_lines: [
             {
               id: 1,
-              method_title: 'Free shipping',
+              method_title: 'Livraison gratuite',
               total: '0.00',
             },
           ],
@@ -151,10 +151,10 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
         
         setOrder(mockOrder);
       } catch (error) {
-        console.error('Error fetching order:', error);
+        console.error('Erreur lors de la récupération de la commande:', error);
         addNotification({
           type: 'error',
-          message: 'Failed to load order details',
+          message: 'Échec du chargement des détails de la commande',
           duration: 5000,
         });
       } finally {
@@ -165,7 +165,7 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
     fetchOrder();
   }, [orderId, addNotification, router]);
 
-  // Format date for display
+  // Formater la date pour l'affichage
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('fr-FR', {
@@ -175,12 +175,12 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
     });
   };
 
-  // Generate invoice number
+  // Générer le numéro de facture
   const generateInvoiceNumber = (orderId: number) => {
-    return `INV-${new Date().getFullYear()}-${orderId.toString().padStart(5, '0')}`;
+    return `FACT-${new Date().getFullYear()}-${orderId.toString().padStart(5, '0')}`;
   };
 
-  // Handle print invoice
+  // Gérer l'impression de la facture
   const handlePrint = () => {
     setIsPrinting(true);
     setTimeout(() => {
@@ -189,20 +189,20 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
     }, 300);
   };
 
-  // Handle download invoice as PDF
+  // Gérer le téléchargement de la facture au format PDF
   const handleDownload = () => {
-    // In a real app, this would generate and download a PDF
-    // For demo, we'll just show a notification
+    // Dans une vraie application, cela générerait et téléchargerait un PDF
+    // Pour la démo, nous afficherons simplement une notification
     addNotification({
       type: 'info',
-      message: 'Downloading invoice PDF...',
+      message: 'Téléchargement du PDF de la facture...',
       duration: 3000,
     });
     
     setTimeout(() => {
       addNotification({
         type: 'success',
-        message: 'Invoice downloaded successfully',
+        message: 'Facture téléchargée avec succès',
         duration: 3000,
       });
     }, 1500);
@@ -214,7 +214,7 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
         <div className="flex items-center justify-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
         </div>
-        <p className="text-center text-gray-500">Loading invoice details...</p>
+        <p className="text-center text-gray-500">Chargement des détails de la facture...</p>
       </div>
     );
   }
@@ -226,11 +226,11 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
           <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">Order not found</h3>
-          <p className="mt-1 text-sm text-gray-500">We couldn't find the order you're looking for.</p>
+          <h3 className="mt-2 text-sm font-medium text-gray-900">Commande introuvable</h3>
+          <p className="mt-1 text-sm text-gray-500">Nous n'avons pas pu trouver la commande que vous recherchez.</p>
           <div className="mt-6">
             <Link href="/account?tab=orders" className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-              Back to My Orders
+              Retour à Mes Commandes
             </Link>
           </div>
         </div>
@@ -238,7 +238,7 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
     );
   }
 
-  // Animation variants
+  // Variantes d'animation
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -262,7 +262,7 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
     },
   };
 
-  // Calculate totals
+  // Calculer les totaux
   const subtotal = order.line_items.reduce((sum, item) => sum + parseFloat(item.subtotal), 0);
   const shipping = order.shipping_lines.reduce((sum, line) => sum + parseFloat(line.total), 0);
   const total = parseFloat(order.total);
@@ -276,17 +276,17 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
           animate="visible"
           className="print:animate-none"
         >
-          {/* Header - Only visible when not printing */}
+          {/* En-tête - Visible uniquement lorsqu'il n'y a pas d'impression */}
           <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 print:hidden">
             <div>
               <Link href={`/account/orders/${order.id}`} className="text-indigo-600 hover:text-indigo-800 flex items-center mb-4">
                 <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
-                Back to Order
+                Retour à la commande
               </Link>
-              <h1 className="text-3xl font-bold text-gray-900">Invoice</h1>
-              <p className="text-gray-500 mt-1">Order #{order.number}</p>
+              <h1 className="text-3xl font-bold text-gray-900">Facture</h1>
+              <p className="text-gray-500 mt-1">Commande #{order.number}</p>
             </div>
             <div className="mt-4 md:mt-0 flex flex-col sm:flex-row gap-2">
               <button
@@ -300,14 +300,14 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Printing...
+                    Impression en cours...
                   </>
                 ) : (
                   <>
                     <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                     </svg>
-                    Print Invoice
+                    Imprimer la facture
                   </>
                 )}
               </button>
@@ -318,14 +318,14 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
                 <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                Download PDF
+                Télécharger PDF
               </button>
             </div>
           </motion.div>
 
-          {/* Invoice Content */}
+          {/* Contenu de la facture */}
           <motion.div variants={itemVariants} className="bg-white rounded-lg shadow-lg overflow-hidden mb-8 p-8 print:shadow-none print:p-0">
-            {/* Invoice Header with Logo */}
+            {/* En-tête de facture avec logo */}
             <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-10">
               <div className="mb-6 md:mb-0">
                 <div className="h-10 w-auto relative mb-2">
@@ -337,26 +337,26 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
                   />
                 </div>
                 <p className="text-gray-500 text-sm">Selectura Shop</p>
-                <p className="text-gray-500 text-sm">123 Commerce Street</p>
+                <p className="text-gray-500 text-sm">123 Rue du Commerce</p>
                 <p className="text-gray-500 text-sm">75001 Paris, France</p>
                 <p className="text-gray-500 text-sm">support@selectura.shop</p>
               </div>
               
               <div className="text-right">
-                <h2 className="text-2xl font-bold text-gray-900">INVOICE</h2>
+                <h2 className="text-2xl font-bold text-gray-900">FACTURE</h2>
                 <p className="text-gray-700 font-medium">{generateInvoiceNumber(order.id)}</p>
-                <p className="text-gray-500 text-sm mt-2">Date: {formatDate(order.date_created)}</p>
-                <p className="text-gray-500 text-sm">Order #: {order.number}</p>
+                <p className="text-gray-500 text-sm mt-2">Date : {formatDate(order.date_created)}</p>
+                <p className="text-gray-500 text-sm">Commande #: {order.number}</p>
                 <div className="mt-2 inline-block px-2 py-1 bg-indigo-100 text-indigo-800 text-xs font-medium rounded">
                   {order.status.toUpperCase()}
                 </div>
               </div>
             </div>
 
-            {/* Billing and Shipping Details */}
+            {/* Détails de facturation et livraison */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
               <div>
-                <h3 className="text-gray-900 font-medium mb-2">Bill To:</h3>
+                <h3 className="text-gray-900 font-medium mb-2">Facturer à :</h3>
                 <p className="text-gray-700">{order.billing.first_name} {order.billing.last_name}</p>
                 {order.billing.company && <p className="text-gray-700">{order.billing.company}</p>}
                 <p className="text-gray-700">{order.billing.address_1}</p>
@@ -369,7 +369,7 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
               </div>
               
               <div>
-                <h3 className="text-gray-900 font-medium mb-2">Ship To:</h3>
+                <h3 className="text-gray-900 font-medium mb-2">Livrer à :</h3>
                 <p className="text-gray-700">{order.shipping.first_name} {order.shipping.last_name}</p>
                 {order.shipping.company && <p className="text-gray-700">{order.shipping.company}</p>}
                 <p className="text-gray-700">{order.shipping.address_1}</p>
@@ -380,27 +380,27 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
               </div>
             </div>
 
-            {/* Payment Method */}
+            {/* Mode de paiement */}
             <div className="mb-8">
-              <h3 className="text-gray-900 font-medium mb-2">Payment Method:</h3>
+              <h3 className="text-gray-900 font-medium mb-2">Mode de paiement :</h3>
               <p className="text-gray-700">{order.payment_method_title}</p>
             </div>
 
-            {/* Order Items Table */}
+            {/* Tableau des articles de la commande */}
             <table className="min-w-full border border-gray-200 mb-8">
               <thead>
                 <tr className="bg-gray-50">
                   <th className="px-6 py-3 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Item
+                    Article
                   </th>
                   <th className="px-6 py-3 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    SKU
+                    Référence
                   </th>
                   <th className="px-6 py-3 border-b border-gray-200 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Price
+                    Prix
                   </th>
                   <th className="px-6 py-3 border-b border-gray-200 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Quantity
+                    Quantité
                   </th>
                   <th className="px-6 py-3 border-b border-gray-200 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Total
@@ -430,18 +430,18 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
               </tbody>
             </table>
 
-            {/* Totals */}
+            {/* Totaux */}
             <div className="ml-auto w-full md:w-1/2 lg:w-1/3">
               <div className="border-t border-gray-200 pt-4">
                 <div className="flex justify-between py-2">
-                  <span className="text-sm text-gray-500">Subtotal</span>
+                  <span className="text-sm text-gray-500">Sous-total</span>
                   <span className="text-sm text-gray-900 font-medium">{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between py-2">
-                  <span className="text-sm text-gray-500">Shipping</span>
-                  <span className="text-sm text-gray-900 font-medium">{shipping === 0 ? 'Free' : formatPrice(shipping)}</span>
+                  <span className="text-sm text-gray-500">Livraison</span>
+                  <span className="text-sm text-gray-900 font-medium">{shipping === 0 ? 'Gratuite' : formatPrice(shipping)}</span>
                 </div>
-                {/* You can add tax, discounts, etc. here */}
+                {/* Vous pouvez ajouter la TVA, les remises, etc. ici */}
                 <div className="flex justify-between py-2 border-t border-gray-200">
                   <span className="text-base text-gray-900 font-bold">Total</span>
                   <span className="text-base text-indigo-600 font-bold">{formatPrice(total)}</span>
@@ -449,30 +449,30 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
               </div>
             </div>
 
-            {/* Notes & Terms */}
+            {/* Notes et conditions */}
             <div className="mt-12 border-t border-gray-200 pt-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
-                  <h3 className="text-gray-900 font-medium mb-2">Notes:</h3>
+                  <h3 className="text-gray-900 font-medium mb-2">Notes :</h3>
                   <p className="text-gray-600 text-sm">
-                    Thank you for your business! If you have any questions about this invoice, please contact our customer service team.
+                    Nous vous remercions de votre commande ! Si vous avez des questions concernant cette facture, veuillez contacter notre service client.
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-gray-900 font-medium mb-2">Terms & Conditions:</h3>
+                  <h3 className="text-gray-900 font-medium mb-2">Conditions générales :</h3>
                   <p className="text-gray-600 text-sm">
-                    Payment is due within 30 days. All products remain the property of Selectura until payment is made in full.
+                    Le paiement est dû dans les 30 jours. Tous les produits restent la propriété de Selectura jusqu'au paiement intégral.
                   </p>
                 </div>
               </div>
             </div>
           </motion.div>
 
-          {/* Footer */}
+          {/* Pied de page */}
           <motion.div variants={itemVariants} className="text-center text-gray-500 text-sm mt-8 print:mt-12">
-            <p>Selectura Shop • VAT: FR12345678900 • RCS Paris B 123 456 789</p>
-            <p>123 Commerce Street, 75001 Paris, France</p>
-            <p className="print:hidden">This invoice was generated on {new Date().toLocaleDateString('fr-FR')}</p>
+            <p>Selectura Shop • TVA : FR12345678900 • RCS Paris B 123 456 789</p>
+            <p>123 Rue du Commerce, 75001 Paris, France</p>
+            <p className="print:hidden">Cette facture a été générée le {new Date().toLocaleDateString('fr-FR')}</p>
           </motion.div>
         </motion.div>
       </div>

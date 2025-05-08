@@ -1,0 +1,44 @@
+const extractFeaturesFromHTML = (htmlContent) => {
+  if (typeof document === 'undefined') return [];
+
+  // Parser la description HTML pour en extraire les points clés
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlContent;
+  
+  // Rechercher les listes à puces (ul/li) ou paragraphes
+  const listItems = tempDiv.querySelectorAll('li');
+  const paragraphs = tempDiv.querySelectorAll('p');
+  
+  // Construire un tableau de caractéristiques à partir du contenu
+  let features = [];
+  
+  // Si on trouve des éléments de liste, les utiliser en priorité
+  if (listItems.length > 0) {
+    features = Array.from(listItems).map(item => item.textContent.trim()).filter(text => text.length > 10);
+  } 
+  // Sinon utiliser les paragraphes courts comme caractéristiques
+  else if (paragraphs.length > 0) {
+    features = Array.from(paragraphs)
+      .map(p => p.textContent.trim())
+      .filter(text => text.length > 10 && text.length < 200);
+  }
+  
+  // Limiter à 6 caractéristiques maximum
+  features = features.slice(0, 6);
+  
+  // Si on n'a pas trouvé assez de caractéristiques, ajouter des éléments génériques
+  const defaultFeatures = [
+    'Qualité premium garantie',
+    'Conception ergonomique',
+    'Matériaux durables',
+    'Performance optimale',
+    'Design élégant',
+    'Fonctionnalités innovantes'
+  ];
+  
+  while (features.length < 6) {
+    features.push(defaultFeatures[features.length % defaultFeatures.length]);
+  }
+  
+  return features;
+};

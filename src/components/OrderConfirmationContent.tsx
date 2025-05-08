@@ -18,7 +18,7 @@ const OrderConfirmationContent = () => {
   const [orderInfo, setOrderInfo] = useState<OrderInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Generate a random delivery date (5-7 days from now)
+  // Générer une date de livraison aléatoire (dans 5-7 jours)
   const deliveryDate = new Date();
   deliveryDate.setDate(deliveryDate.getDate() + 5 + Math.floor(Math.random() * 3));
   const formattedDeliveryDate = deliveryDate.toLocaleDateString('fr-FR', {
@@ -53,7 +53,7 @@ const OrderConfirmationContent = () => {
           router.push('/');
         }
       } catch (error) {
-        console.error('Error loading order information:', error);
+        console.error('Erreur lors du chargement des informations de commande:', error);
       } finally {
         setIsLoading(false);
       }
@@ -68,7 +68,7 @@ const OrderConfirmationContent = () => {
         <div className="flex items-center justify-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
         </div>
-        <p className="text-center text-gray-500">Loading order information...</p>
+        <p className="text-center text-gray-500">Chargement des informations de commande...</p>
       </div>
     );
   }
@@ -76,10 +76,10 @@ const OrderConfirmationContent = () => {
   if (!orderInfo) {
     return (
       <div className="confirmation-container">
-        <h2 className="text-xl font-bold text-red-600">Order information not found</h2>
-        <p className="mb-6">We couldn't find your order information. Please contact customer service.</p>
+        <h2 className="text-xl font-bold text-red-600">Informations de commande introuvables</h2>
+        <p className="mb-6">Nous n'avons pas pu trouver les informations de votre commande. Veuillez contacter notre service client.</p>
         <Link href="/" className="continue-shopping-btn">
-          Return to Home
+          Retour à l'accueil
         </Link>
       </div>
     );
@@ -100,44 +100,44 @@ const OrderConfirmationContent = () => {
         </svg>
       </div>
       
-      <h1 className="confirmation-title">Thank You for Your Order!</h1>
+      <h1 className="confirmation-title">Merci pour votre commande !</h1>
       <p className="confirmation-subtitle">
-        Your order has been placed successfully and is being processed.
+        Votre commande a été passée avec succès et est en cours de traitement.
       </p>
       
       <div className="confirmation-details">
         <div className="detail-row">
-          <span className="detail-label">Order Number:</span>
+          <span className="detail-label">Numéro de commande :</span>
           <span className="detail-value">#{orderInfo.orderNumber}</span>
         </div>
         <div className="detail-row">
-          <span className="detail-label">Order Date:</span>
+          <span className="detail-label">Date de commande :</span>
           <span className="detail-value">{orderDate}</span>
         </div>
         <div className="detail-row">
-          <span className="detail-label">Estimated Delivery:</span>
+          <span className="detail-label">Livraison estimée :</span>
           <span className="detail-value">{formattedDeliveryDate}</span>
         </div>
         {orderInfo.total && (
           <div className="detail-row">
-            <span className="detail-label">Total:</span>
+            <span className="detail-label">Total :</span>
             <span className="detail-value">{formatPrice(parseFloat(orderInfo.total))}</span>
           </div>
         )}
       </div>
       
       <p className="mb-6">
-        We&apos;ve sent a confirmation email with all the details of your order.
-        If you have any questions, please contact our customer service.
+        Nous vous avons envoyé un e-mail de confirmation avec tous les détails de votre commande.
+        Si vous avez des questions, n'hésitez pas à contacter notre service client.
       </p>
       
       <div className="flex flex-col md:flex-row gap-4 justify-center mt-8">
         <Link href="/" className="continue-shopping-btn">
-          Continue Shopping
+          Continuer mes achats
         </Link>
         
         <Link href={`/my-account/orders/${orderInfo.orderId}`} className="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded hover:bg-gray-200 transition-colors">
-          Track Order
+          Suivre ma commande
         </Link>
       </div>
     </div>

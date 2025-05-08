@@ -31,7 +31,7 @@ const LoginPage = () => {
       [name]: value,
     }));
     
-    // Clear error when user types
+    // Effacer l'erreur lorsque l'utilisateur tape
     if (errors[name as keyof typeof errors]) {
       setErrors((prev) => ({
         ...prev,
@@ -43,23 +43,23 @@ const LoginPage = () => {
   const validateForm = () => {
     const newErrors: typeof errors = {};
     
-    // Validate email
+    // Valider l'email
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = 'L\'email est requis';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = 'Format d\'email invalide';
     }
     
-    // Validate password
+    // Valider le mot de passe
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = 'Le mot de passe est requis';
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = 'Le mot de passe doit contenir au moins 6 caractères';
     }
     
-    // Validate password confirmation for registration
+    // Valider la confirmation du mot de passe pour l'inscription
     if (!isLogin && formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = 'Les mots de passe ne correspondent pas';
     }
     
     setErrors(newErrors);
@@ -76,51 +76,51 @@ const LoginPage = () => {
     setIsLoading(true);
     
     try {
-      // For demo purposes, we'll simulate authentication with localStorage
-      // In a real application, this would be an API call to authenticate
+      // Pour la démonstration, nous simulons l'authentification avec localStorage
+      // Dans une application réelle, ce serait un appel API pour s'authentifier
       
       if (isLogin) {
-        // Simulate login (in a real app, this would validate credentials server-side)
+        // Simuler la connexion (dans une vraie application, cela validerait les identifiants côté serveur)
         if (formData.email === 'demo@example.com' && formData.password === 'password') {
-          // Store authentication token
+          // Stocker le jeton d'authentification
           localStorage.setItem('userToken', 'demo-token-123');
           
           addNotification({
             type: 'success',
-            message: 'Login successful! Redirecting to your account...',
+            message: 'Connexion réussie ! Redirection vers votre compte...',
             duration: 3000,
           });
           
-          // Redirect to account page
+          // Redirection vers la page du compte
           setTimeout(() => {
             router.push('/account');
           }, 1000);
         } else {
-          // Simulate failed login
-          throw new Error('Invalid email or password');
+          // Simuler l'échec de la connexion
+          throw new Error('Email ou mot de passe invalide');
         }
       } else {
-        // Simulate registration
-        // In a real app, this would create a new user account server-side
+        // Simuler l'inscription
+        // Dans une vraie application, cela créerait un nouveau compte utilisateur côté serveur
         localStorage.setItem('userToken', 'new-user-token-123');
         
         addNotification({
           type: 'success',
-          message: 'Account created successfully! Redirecting to your account...',
+          message: 'Compte créé avec succès ! Redirection vers votre compte...',
           duration: 3000,
         });
         
-        // Redirect to account page
+        // Redirection vers la page du compte
         setTimeout(() => {
           router.push('/account');
         }, 1000);
       }
     } catch (error) {
-      console.error('Authentication error:', error);
+      console.error('Erreur d\'authentification:', error);
       
       addNotification({
         type: 'error',
-        message: error instanceof Error ? error.message : 'Authentication failed',
+        message: error instanceof Error ? error.message : 'Échec de l\'authentification',
         duration: 5000,
       });
     } finally {
@@ -150,27 +150,27 @@ const LoginPage = () => {
           </Link>
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          {isLogin ? 'Sign in to your account' : 'Create a new account'}
+          {isLogin ? 'Connectez-vous à votre compte' : 'Créez un nouveau compte'}
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           {isLogin ? (
             <>
-              Or{' '}
+              Ou{' '}
               <button
                 onClick={toggleAuthMode}
                 className="font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none"
               >
-                create a new account
+                créez un nouveau compte
               </button>
             </>
           ) : (
             <>
-              Already have an account?{' '}
+              Vous avez déjà un compte ?{' '}
               <button
                 onClick={toggleAuthMode}
                 className="font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none"
               >
-                Sign in
+                Connectez-vous
               </button>
             </>
           )}
@@ -180,12 +180,12 @@ const LoginPage = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {/* Registration fields */}
+            {/* Champs d'inscription */}
             {!isLogin && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
-                    First name
+                    Prénom
                   </label>
                   <div className="mt-1">
                     <input
@@ -201,7 +201,7 @@ const LoginPage = () => {
                 </div>
                 <div>
                   <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
-                    Last name
+                    Nom
                   </label>
                   <div className="mt-1">
                     <input
@@ -218,10 +218,10 @@ const LoginPage = () => {
               </div>
             )}
             
-            {/* Email field */}
+            {/* Champ d'email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
+                Adresse email
               </label>
               <div className="mt-1">
                 <input
@@ -235,21 +235,21 @@ const LoginPage = () => {
                   className={`appearance-none block w-full px-3 py-2 border ${
                     errors.email ? 'border-red-300' : 'border-gray-300'
                   } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
-                  placeholder="you@example.com"
+                  placeholder="vous@exemple.com"
                 />
               </div>
               {errors.email && (
                 <p className="mt-2 text-sm text-red-600">{errors.email}</p>
               )}
               {isLogin && (
-                <p className="mt-1 text-xs text-gray-500">Demo: demo@example.com</p>
+                <p className="mt-1 text-xs text-gray-500">Démo: demo@example.com</p>
               )}
             </div>
 
-            {/* Password field */}
+            {/* Champ de mot de passe */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
+                Mot de passe
               </label>
               <div className="mt-1">
                 <input
@@ -269,15 +269,15 @@ const LoginPage = () => {
                 <p className="mt-2 text-sm text-red-600">{errors.password}</p>
               )}
               {isLogin && (
-                <p className="mt-1 text-xs text-gray-500">Demo: password</p>
+                <p className="mt-1 text-xs text-gray-500">Démo: password</p>
               )}
             </div>
 
-            {/* Confirm Password field for registration */}
+            {/* Champ de confirmation de mot de passe pour l'inscription */}
             {!isLogin && (
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                  Confirm password
+                  Confirmer le mot de passe
                 </label>
                 <div className="mt-1">
                   <input
@@ -298,7 +298,7 @@ const LoginPage = () => {
               </div>
             )}
 
-            {/* Remember me and forgot password (only for login) */}
+            {/* Se souvenir de moi et mot de passe oublié (uniquement pour la connexion) */}
             {isLogin && (
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
@@ -309,19 +309,19 @@ const LoginPage = () => {
                     className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                   />
                   <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                    Remember me
+                    Se souvenir de moi
                   </label>
                 </div>
 
                 <div className="text-sm">
                   <Link href="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500">
-                    Forgot your password?
+                    Mot de passe oublié ?
                   </Link>
                 </div>
               </div>
             )}
 
-            {/* Submit button */}
+            {/* Bouton de soumission */}
             <div>
               <button
                 type="submit"
@@ -334,22 +334,22 @@ const LoginPage = () => {
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                 ) : isLogin ? (
-                  'Sign in'
+                  'Se connecter'
                 ) : (
-                  'Create account'
+                  'Créer un compte'
                 )}
               </button>
             </div>
           </form>
 
-          {/* Social login */}
+          {/* Connexion sociale */}
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                <span className="px-2 bg-white text-gray-500">Ou continuer avec</span>
               </div>
             </div>
 
@@ -359,7 +359,7 @@ const LoginPage = () => {
                   href="#"
                   className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
                 >
-                  <span className="sr-only">Sign in with Google</span>
+                  <span className="sr-only">Se connecter avec Google</span>
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12.545 10.239v3.821h5.445c-.712 2.315-2.647 3.972-5.445 3.972a6.033 6.033 0 110-12.064c1.498 0 2.866.549 3.921 1.453l2.814-2.814A9.969 9.969 0 0012.545 2C7.021 2 2.543 6.477 2.543 12s4.478 10 10.002 10c8.396 0 10.249-7.85 9.426-11.748l-9.426-.013z" />
                   </svg>
@@ -371,7 +371,7 @@ const LoginPage = () => {
                   href="#"
                   className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
                 >
-                  <span className="sr-only">Sign in with Facebook</span>
+                  <span className="sr-only">Se connecter avec Facebook</span>
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                     <path
                       fillRule="evenodd"
@@ -386,16 +386,16 @@ const LoginPage = () => {
         </div>
       </div>
 
-      {/* Privacy policy and terms */}
+      {/* Politique de confidentialité et conditions d'utilisation */}
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md text-center">
         <p className="text-xs text-gray-500">
-          By continuing, you agree to our{' '}
+          En continuant, vous acceptez nos{' '}
           <Link href="/terms" className="text-indigo-600 hover:text-indigo-500">
-            Terms of Service
+            Conditions d'utilisation
           </Link>{' '}
-          and{' '}
+          et notre{' '}
           <Link href="/privacy" className="text-indigo-600 hover:text-indigo-500">
-            Privacy Policy
+            Politique de confidentialité
           </Link>
         </p>
       </div>
