@@ -2,6 +2,8 @@
 import { Suspense } from 'react';
 import FlashSaleContent from '@/components/FlashSaleContent';
 import '../styles/flash-sale.css'; // Fichier de style dédié
+import { getSaleProducts } from '@/lib/woo';
+import { WooProduct } from '@/lib/woo';
 
 // Métadonnées pour le SEO
 export const metadata = {
@@ -46,8 +48,8 @@ function FlashSaleLoading() {
 // Date de fin de la vente flash
 const saleEndDate = new Date('2025-06-05T23:59:59');
 
-// Produits en vente flash
-const flashSaleData = {
+// Informations statiques de la vente flash
+const flashSaleStaticData = {
 	heroSection: {
 		title: 'Vente Flash Exceptionnelle',
 		subtitle: 'Offres exclusives à durée limitée',
@@ -66,134 +68,6 @@ const flashSaleData = {
 			'Livraison express offerte pour toute commande pendant la vente flash',
 		],
 	},
-	products: [
-		{
-			id: 101,
-			name: 'Écouteurs Premium XS-700 - Édition Limitée',
-			description:
-				'Notre best-seller dans une édition limitée avec finition exclusive et étui de rangement premium inclus.',
-			price: '199.00',
-			sale_price: '129.00',
-			regular_price: '199.00',
-			discount_percentage: 35,
-			rating: 4.9,
-			reviews: 189,
-			image: '/img/flash-sale/headphones-limited.jpg',
-			badge: 'Bestseller',
-			badgeColor: 'bg-yellow-500',
-			slug: 'ecouteurs-premium-xs-700-edition-limitee',
-			featured: true,
-			on_sale: true,
-			stock_status: 'instock',
-			stock_quantity: 15,
-			categories: [{ id: 1, name: 'Audio' }],
-		},
-		{
-			id: 102,
-			name: 'Lampe de Bureau Design - Pack Duo',
-			description:
-				'Notre lampe de bureau design primée en pack duo exclusif pour créer une ambiance parfaite dans votre espace de travail.',
-			price: '258.00',
-			sale_price: '179.00',
-			regular_price: '258.00',
-			discount_percentage: 30,
-			rating: 4.8,
-			reviews: 76,
-			image: '/img/flash-sale/desk-lamp-duo.jpg',
-			badge: 'Pack exclusif',
-			badgeColor: 'bg-purple-600',
-			slug: 'lampe-bureau-design-pack-duo',
-			featured: true,
-			on_sale: true,
-			stock_status: 'instock',
-			stock_quantity: 8,
-			categories: [{ id: 3, name: 'Éclairage' }],
-		},
-		{
-			id: 103,
-			name: 'Ensemble Premium Accessoires Tech',
-			description:
-				'Collection complète de nos accessoires tech les plus populaires avec finition harmonisée et rangement dédié.',
-			price: '349.00',
-			sale_price: '209.00',
-			regular_price: '349.00',
-			discount_percentage: 40,
-			rating: 4.7,
-			reviews: 42,
-			image: '/img/flash-sale/tech-accessories-set.jpg',
-			badge: 'Économie max',
-			badgeColor: 'bg-green-600',
-			slug: 'ensemble-premium-accessoires-tech',
-			featured: false,
-			on_sale: true,
-			stock_status: 'instock',
-			stock_quantity: 5,
-			categories: [{ id: 2, name: 'Accessoires' }],
-		},
-		{
-			id: 104,
-			name: 'Carafe Filtrante Premium - Pack Familial',
-			description:
-				'Notre carafe filtrante avec 6 filtres inclus pour une eau pure pendant une année complète. Idéal pour toute la famille.',
-			price: '159.00',
-			sale_price: '99.00',
-			regular_price: '159.00',
-			discount_percentage: 38,
-			rating: 4.9,
-			reviews: 67,
-			image: '/img/flash-sale/water-carafe-family.jpg',
-			badge: 'Offre spéciale',
-			badgeColor: 'bg-teal-600',
-			slug: 'carafe-filtrante-premium-pack-familial',
-			featured: true,
-			on_sale: true,
-			stock_status: 'instock',
-			stock_quantity: 12,
-			categories: [{ id: 4, name: 'Cuisine' }],
-		},
-		{
-			id: 105,
-			name: "Diffuseur d'Huiles Essentielles - Collection Bien-être",
-			description:
-				"Notre diffuseur silencieux accompagné d'une collection de 5 huiles essentielles exclusives pour un bien-être optimal.",
-			price: '199.00',
-			sale_price: '129.00',
-			regular_price: '199.00',
-			discount_percentage: 35,
-			rating: 4.8,
-			reviews: 53,
-			image: '/img/flash-sale/essential-oil-collection.jpg',
-			badge: 'Collection',
-			badgeColor: 'bg-pink-600',
-			slug: 'diffuseur-huiles-collection-bien-etre',
-			featured: false,
-			on_sale: true,
-			stock_status: 'instock',
-			stock_quantity: 7,
-			categories: [{ id: 6, name: 'Bien-être' }],
-		},
-		{
-			id: 106,
-			name: 'Set Carnets Premium - Édition Limitée',
-			description:
-				'Collection de trois carnets en cuir véritable avec techniques de reliure différentes et papier premium sans acide.',
-			price: '149.00',
-			sale_price: '99.00',
-			regular_price: '149.00',
-			discount_percentage: 34,
-			rating: 4.9,
-			reviews: 38,
-			image: '/img/flash-sale/premium-notebook-set.jpg',
-			badge: 'Édition Spéciale',
-			badgeColor: 'bg-amber-600',
-			slug: 'set-carnets-premium-edition-limitee',
-			featured: true,
-			on_sale: true,
-			stock_status: 'instock',
-			stock_quantity: 9,
-			categories: [{ id: 5, name: 'Papeterie' }],
-		},
-	],
 	faqs: [
 		{
 			question: 'Combien de temps dure la vente flash ?',
@@ -227,7 +101,92 @@ const flashSaleData = {
 	},
 };
 
-export default function FlashSalePage() {
+// Fonction pour calculer le pourcentage de réduction
+function calculateDiscountPercentage(regularPrice: string, salePrice: string): number {
+	const regular = parseFloat(regularPrice);
+	const sale = parseFloat(salePrice);
+	
+	if (isNaN(regular) || isNaN(sale) || regular <= 0 || sale <= 0) {
+		return 0;
+	}
+	
+	return Math.round(((regular - sale) / regular) * 100);
+}
+
+// Fonction pour assigner des badges et couleurs en fonction des catégories et réductions
+function assignBadgeAndColor(product: WooProduct, discountPercentage: number): { badge: string; badgeColor: string } {
+	// Badge basé sur le pourcentage de réduction
+	if (discountPercentage >= 40) {
+		return { badge: 'Économie max', badgeColor: 'bg-green-600' };
+	}
+	if (discountPercentage >= 30) {
+		return { badge: 'Offre spéciale', badgeColor: 'bg-teal-600' };
+	}
+	if (discountPercentage >= 20) {
+		return { badge: 'Promotion', badgeColor: 'bg-blue-600' };
+	}
+
+	// Badge basé sur les catégories
+	if (product.categories && product.categories.length > 0) {
+		const categoryName = product.categories[0].name.toLowerCase();
+		
+		if (categoryName.includes('nouv')) {
+			return { badge: 'Nouveau', badgeColor: 'bg-purple-600' };
+		}
+		if (categoryName.includes('best') || categoryName.includes('vente')) {
+			return { badge: 'Bestseller', badgeColor: 'bg-yellow-500' };
+		}
+		if (categoryName.includes('limit') || categoryName.includes('exclus')) {
+			return { badge: 'Édition Limitée', badgeColor: 'bg-amber-600' };
+		}
+	}
+	
+	// Badge par défaut
+	return { badge: 'En promotion', badgeColor: 'bg-pink-600' };
+}
+
+// Fonction pour mapper les produits WooCommerce au format FlashSaleProduct
+function mapWooProductsToFlashSaleProducts(products: WooProduct[]) {
+	return products.map(product => {
+		const discountPercentage = calculateDiscountPercentage(product.regular_price, product.sale_price);
+		const { badge, badgeColor } = assignBadgeAndColor(product, discountPercentage);
+		
+		return {
+			id: product.id,
+			name: product.name,
+			description: product.short_description || product.description.substring(0, 120) + '...',
+			price: product.price,
+			sale_price: product.sale_price,
+			regular_price: product.regular_price,
+			discount_percentage: discountPercentage,
+			rating: parseFloat(product.average_rating) || 4.0,
+			reviews: product.rating_count || Math.floor(Math.random() * 50) + 10,
+			image: product.images && product.images.length > 0 ? product.images[0].src : '/img/placeholder.jpg',
+			badge,
+			badgeColor,
+			slug: product.slug,
+			featured: product.featured,
+			on_sale: product.on_sale,
+			stock_status: product.stock_status,
+			stock_quantity: product.stock_quantity || 10,
+			categories: product.categories,
+		};
+	});
+}
+
+export default async function FlashSalePage() {
+	// Récupérer les produits en promotion à partir de l'API WooCommerce
+	const saleProducts = await getSaleProducts(12); // Récupérer 12 produits en promotion
+	
+	// Mapper les produits WooCommerce au format attendu par FlashSaleContent
+	const mappedProducts = mapWooProductsToFlashSaleProducts(saleProducts);
+	
+	// Créer les données complètes de la vente flash en combinant les données statiques et dynamiques
+	const flashSaleData = {
+		...flashSaleStaticData,
+		products: mappedProducts,
+	};
+
 	return (
 		<Suspense fallback={<FlashSaleLoading />}>
 			<FlashSaleContent flashSaleData={flashSaleData} />

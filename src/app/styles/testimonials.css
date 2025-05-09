@@ -1,0 +1,96 @@
+/* Styles pour la page de témoignages */
+
+/* Configuration des polices */
+.testimonial-page {
+  font-family: var(--font-geist-sans);
+}
+
+.testimonial-heading {
+  font-family: var(--font-geist-sans);
+  font-weight: 700;
+}
+
+.testimonial-quote {
+  font-family: var(--font-geist-sans);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.testimonial-author {
+  font-family: var(--font-geist-sans);
+  font-weight: 600;
+}
+
+.testimonial-code {
+  font-family: var(--font-geist-mono);
+}
+
+.testimonial-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.quote-mark {
+  font-size: 4rem;
+  line-height: 1;
+  position: absolute;
+  top: 10px;
+  left: 16px;
+  opacity: 0.1;
+}
+
+.bg-pattern-dots {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.2) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.testimonial-image {
+  position: relative;
+  overflow: hidden;
+}
+
+.testimonial-image::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to right, rgba(79, 70, 229, 0.8), rgba(124, 58, 237, 0.8));
+  opacity: 0.5;
+}
+
+/* Animation pour les étoiles sur hover */
+.star-rating svg {
+  transition: transform 0.2s ease;
+}
+
+.star-rating:hover svg {
+  transform: scale(1.1);
+}
+
+/* Style pour le bouton CTA */
+.cta-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.cta-button:hover::after {
+  transform: translateX(0);
+}

@@ -4,9 +4,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { CartProvider } from '@/components/CartProvider';
-import { NotificationProvider } from '@/context/notificationContext';
-import { AnimationProvider } from '@/components/AnimationProvider';
+import Providers from './providers';
 import { getCategories } from '@/lib/woo';
 
 const geistSans = Geist({
@@ -39,17 +37,13 @@ export default async function RootLayout({
 			<head />
 			<body
 				className={`${geistSans.className} ${geistMono.className} antialiased`}>
-				<AnimationProvider>
-					<NotificationProvider>
-						<CartProvider>
-							<Header categories={categories} />
-							<main className='flex-grow min-h-screen pt-16 md:pt-20'>
-								{children}
-							</main>
-							<Footer />
-						</CartProvider>
-					</NotificationProvider>
-				</AnimationProvider>
+				<Providers>
+					<Header categories={categories} />
+					<main className='flex-grow min-h-screen pt-16 md:pt-20'>
+						{children}
+					</main>
+					<Footer />
+				</Providers>
 			</body>
 		</html>
 	);

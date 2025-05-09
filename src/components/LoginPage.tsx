@@ -1,14 +1,17 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useNotification } from '@/context/notificationContext';
+import { signIn, signOut, useSession } from 'next-auth/react';
 import Image from 'next/image';
 
 const LoginPage = () => {
   const router = useRouter();
   const { addNotification } = useNotification();
+  const { data: session, status } = useSession();
+  
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -23,6 +26,26 @@ const LoginPage = () => {
     password?: string;
     confirmPassword?: string;
   }>({});
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  // Rediriger si déjà authentifié
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/account');
+    }
+  }, [status, router]);
+
+  // Afficher les erreurs d'authentification
+  useEffect(() => {
+    if (authError) {
+      addNotification({
+        type: 'error',
+        message: authError,
+        duration: 5000,
+      });
+      setAuthError(null);
+    }
+  }, [authError, addNotification]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -76,53 +99,73 @@ const LoginPage = () => {
     setIsLoading(true);
     
     try {
-      // Pour la démonstration, nous simulons l'authentification avec localStorage
-      // Dans une application réelle, ce serait un appel API pour s'authentifier
-      
       if (isLogin) {
-        // Simuler la connexion (dans une vraie application, cela validerait les identifiants côté serveur)
-        if (formData.email === 'demo@example.com' && formData.password === 'password') {
-          // Stocker le jeton d'authentification
-          localStorage.setItem('userToken', 'demo-token-123');
-          
-          addNotification({
-            type: 'success',
-            message: 'Connexion réussie ! Redirection vers votre compte...',
-            duration: 3000,
-          });
-          
-          // Redirection vers la page du compte
-          setTimeout(() => {
-            router.push('/account');
-          }, 1000);
-        } else {
-          // Simuler l'échec de la connexion
-          throw new Error('Email ou mot de passe invalide');
+        // Connexion avec NextAuth
+        const result = await signIn('credentials', {
+          redirect: false,
+          email: formData.email,
+          password: formData.password
+        });
+        
+        if (result?.error) {
+          setAuthError('Email ou mot de passe incorrect');
+          return;
         }
-      } else {
-        // Simuler l'inscription
-        // Dans une vraie application, cela créerait un nouveau compte utilisateur côté serveur
-        localStorage.setItem('userToken', 'new-user-token-123');
         
         addNotification({
           type: 'success',
-          message: 'Compte créé avec succès ! Redirection vers votre compte...',
+          message: 'Connexion réussie ! Redirection vers votre compte...',
           duration: 3000,
         });
-        
-        // Redirection vers la page du compte
-        setTimeout(() => {
-          router.push('/account');
-        }, 1000);
+      } else {
+        try {
+          // Utiliser le userService pour créer un nouvel utilisateur
+          const newUser = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: formData.email,
+              password: formData.password,
+              firstName: formData.firstName,
+              lastName: formData.lastName,
+            }),
+          }).then(res => {
+            if (!res.ok) {
+              throw new Error('Erreur lors de la création du compte');
+            }
+            return res.json();
+          });
+          
+          // Connecter automatiquement après inscription
+          const result = await signIn('credentials', {
+            redirect: false,
+            email: formData.email,
+            password: formData.password
+          });
+          
+          if (result?.error) {
+            setAuthError("Erreur lors de la connexion automatique après inscription");
+            return;
+          }
+          
+          addNotification({
+            type: 'success',
+            message: 'Compte créé avec succès ! Redirection vers votre compte...',
+            duration: 3000,
+          });
+        } catch (error: any) {
+          console.error('Erreur d\'inscription:', error);
+          setAuthError(error.message || "Une erreur est survenue lors de l'inscription");
+          return;
+        }
       }
+      
+      // La redirection est gérée par l'effet qui surveille le statut de la session
     } catch (error) {
       console.error('Erreur d\'authentification:', error);
-      
-      addNotification({
-        type: 'error',
-        message: error instanceof Error ? error.message : 'Échec de l\'authentification',
-        duration: 5000,
-      });
+      setAuthError("Une erreur est survenue lors de l'authentification");
     } finally {
       setIsLoading(false);
     }
@@ -325,10 +368,10 @@ const LoginPage = () => {
             <div>
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || status === 'loading'}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400 disabled:cursor-not-allowed"
               >
-                {isLoading ? (
+                {(isLoading || status === 'loading') ? (
                   <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>

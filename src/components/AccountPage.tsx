@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useNotification } from '@/context/notificationContext';
+import { signOut, useSession } from 'next-auth/react';
 
 // Types for user data
 interface UserAddress {
@@ -49,14 +50,29 @@ interface Order {
   line_items: OrderItem[];
 }
 
+// Types for claims
+interface Claim {
+  id: number;
+  orderId: number;
+  type: string;
+  description: string;
+  status: 'pending' | 'in_review' | 'resolved';
+  createdAt: string;
+}
+
 const AccountPage = () => {
   const router = useRouter();
   const { addNotification } = useNotification();
+  const { data: session, status } = useSession();
+  
   const [activeTab, setActiveTab] = useState('profile');
   const [userData, setUserData] = useState<UserData | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [claims, setClaims] = useState<Claim[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [loadingClaims, setLoadingClaims] = useState(false);
+  
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -65,6 +81,18 @@ const AccountPage = () => {
     password: '',
     confirm_password: '',
   });
+  
+  const [claimForm, setClaimForm] = useState({
+    orderId: '',
+    type: 'product_issue',
+    description: '',
+  });
+  
+  const [showClaimForm, setShowClaimForm] = useState(false);
+  const [claimErrors, setClaimErrors] = useState<{
+    orderId?: string;
+    description?: string;
+  }>({});
 
   // Animation variants
   const containerVariants = {
@@ -91,117 +119,123 @@ const AccountPage = () => {
   };
 
   useEffect(() => {
-    // Check if user is logged in
-    const checkAuth = async () => {
+    // Redirect if not authenticated
+    if (status === 'unauthenticated') {
+      addNotification({
+        type: 'warning',
+        message: 'Veuillez vous connecter pour accéder à votre compte',
+        duration: 5000,
+      });
+      router.push('/login');
+      return;
+    }
+    
+    if (status === 'loading') {
+      return; // Attendre que le statut de la session soit déterminé
+    }
+
+    // Load user data
+    const loadUserData = async () => {
       setIsLoading(true);
       try {
-        // This would be your actual authentication check
-        const isLoggedIn = localStorage.getItem('userToken');
-        
-        if (!isLoggedIn) {
-          addNotification({
-            type: 'warning',
-            message: 'Please log in to view your account',
-            duration: 5000,
+        // Create mock user data based on NextAuth session
+        if (session?.user) {
+          const mockUserData: UserData = {
+            id: session.user.id,
+            email: session.user.email || '',
+            first_name: session.user.firstName,
+            last_name: session.user.lastName,
+            avatar_url: session.user.avatar || session.user.image || '/profile-placeholder.jpg',
+            billing: {
+              first_name: session.user.firstName,
+              last_name: session.user.lastName,
+              company: 'Company Inc.',
+              address_1: '123 Rue de Paris',
+              address_2: 'Apt 4B',
+              city: 'Paris',
+              state: 'Île-de-France',
+              postcode: '75001',
+              country: 'France',
+              email: session.user.email || '',
+              phone: '0123456789',
+            },
+            shipping: {
+              first_name: session.user.firstName,
+              last_name: session.user.lastName,
+              company: '',
+              address_1: '123 Rue de Paris',
+              address_2: 'Apt 4B',
+              city: 'Paris',
+              state: 'Île-de-France',
+              postcode: '75001',
+              country: 'France',
+            },
+          };
+          
+          setUserData(mockUserData);
+          setFormData({
+            first_name: mockUserData.first_name,
+            last_name: mockUserData.last_name,
+            email: mockUserData.email,
+            phone: mockUserData.billing.phone || '',
+            password: '',
+            confirm_password: '',
           });
-          router.push('/login');
-          return;
+          
+          // Simuler des commandes pour la démonstration
+          // Dans un cas réel, vous appelleriez une API pour récupérer les commandes
+          const mockOrders: Order[] = [
+            {
+              id: 1148,
+              number: '1148',
+              status: 'processing',
+              date_created: '2025-02-15T14:30:45',
+              total: '129.99',
+              line_items: [
+                {
+                  id: 1,
+                  name: 'Premium Product',
+                  product_id: 123,
+                  quantity: 1,
+                  total: '129.99',
+                },
+              ],
+            },
+            {
+              id: 1142,
+              number: '1142',
+              status: 'completed',
+              date_created: '2025-01-20T10:15:30',
+              total: '89.95',
+              line_items: [
+                {
+                  id: 2,
+                  name: 'Essential Product',
+                  product_id: 456,
+                  quantity: 1,
+                  total: '79.95',
+                },
+                {
+                  id: 3,
+                  name: 'Accessory',
+                  product_id: 789,
+                  quantity: 1,
+                  total: '10.00',
+                },
+              ],
+            },
+          ];
+          
+          setOrders(mockOrders);
+          
+          // Load claims
+          fetchClaims();
         }
-        
-        // Fetch user data - in a real app, this would be an API call
-        // Mock data for demonstration
-        const mockUserData: UserData = {
-          id: 1,
-          email: 'customer@example.com',
-          first_name: 'Jean',
-          last_name: 'Dupont',
-          avatar_url: '/profile-placeholder.jpg',
-          billing: {
-            first_name: 'Jean',
-            last_name: 'Dupont',
-            company: 'Company Inc.',
-            address_1: '123 Rue de Paris',
-            address_2: 'Apt 4B',
-            city: 'Paris',
-            state: 'Île-de-France',
-            postcode: '75001',
-            country: 'France',
-            email: 'customer@example.com',
-            phone: '0123456789',
-          },
-          shipping: {
-            first_name: 'Jean',
-            last_name: 'Dupont',
-            company: '',
-            address_1: '123 Rue de Paris',
-            address_2: 'Apt 4B',
-            city: 'Paris',
-            state: 'Île-de-France',
-            postcode: '75001',
-            country: 'France',
-          },
-        };
-        
-        setUserData(mockUserData);
-        setFormData({
-          first_name: mockUserData.first_name,
-          last_name: mockUserData.last_name,
-          email: mockUserData.email,
-          phone: mockUserData.billing.phone || '',
-          password: '',
-          confirm_password: '',
-        });
-        
-        // Fetch orders - in a real app, this would be an API call
-        // Mock data for demonstration
-        const mockOrders: Order[] = [
-          {
-            id: 1148,
-            number: '1148',
-            status: 'processing',
-            date_created: '2025-02-15T14:30:45',
-            total: '129.99',
-            line_items: [
-              {
-                id: 1,
-                name: 'Premium Product',
-                product_id: 123,
-                quantity: 1,
-                total: '129.99',
-              },
-            ],
-          },
-          {
-            id: 1142,
-            number: '1142',
-            status: 'completed',
-            date_created: '2025-01-20T10:15:30',
-            total: '89.95',
-            line_items: [
-              {
-                id: 2,
-                name: 'Essential Product',
-                product_id: 456,
-                quantity: 1,
-                total: '79.95',
-              },
-              {
-                id: 3,
-                name: 'Accessory',
-                product_id: 789,
-                quantity: 1,
-                total: '10.00',
-              },
-            ],
-          },
-        ];
-        
-        setOrders(mockOrders);
       } catch (error) {
         console.error('Error loading user data:', error);
         addNotification({
           type: 'error',
-          message: 'Failed to load account information',
+          message: "Impossible de charger les informations du compte",
           duration: 5000,
         });
       } finally {
@@ -209,8 +243,46 @@ const AccountPage = () => {
       }
     };
     
-    checkAuth();
-  }, [addNotification, router]);
+    loadUserData();
+  }, [status, session, addNotification, router]);
+  
+  // Fetch claims data
+  const fetchClaims = async () => {
+    setLoadingClaims(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // Mock claims data
+      setClaims([
+        {
+          id: 1,
+          orderId: 1148,
+          type: 'product_issue',
+          description: 'Le produit ne fonctionne pas comme prévu.',
+          status: 'resolved',
+          createdAt: '2025-02-20T10:45:00',
+        },
+        {
+          id: 2,
+          orderId: 1142,
+          type: 'late_delivery',
+          description: "Ma commande n'est pas arrivée dans les délais indiqués.",
+          status: 'in_review',
+          createdAt: '2025-02-25T14:30:00',
+        },
+      ]);
+    } catch (error) {
+      console.error('Error fetching claims:', error);
+      addNotification({
+        type: 'error',
+        message: 'Impossible de charger vos réclamations',
+        duration: 3000,
+      });
+    } finally {
+      setLoadingClaims(false);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -266,12 +338,80 @@ const AccountPage = () => {
     }
   };
 
-  const handleLogout = () => {
-    // Clear user data and redirect to login
-    localStorage.removeItem('userToken');
+  // Handle claim submission
+  const handleSubmitClaim = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validation
+    const errors: typeof claimErrors = {};
+    
+    if (!claimForm.orderId) {
+      errors.orderId = 'Veuillez sélectionner une commande';
+    }
+    
+    if (!claimForm.description) {
+      errors.description = 'Veuillez décrire votre problème';
+    } else if (claimForm.description.length < 10) {
+      errors.description = 'La description doit contenir au moins 10 caractères';
+    }
+    
+    setClaimErrors(errors);
+    
+    if (Object.keys(errors).length > 0) {
+      return;
+    }
+    
+    // Submit claim
+    setLoadingClaims(true);
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Add new claim to list
+      const newClaim: Claim = {
+        id: claims.length + 1,
+        orderId: parseInt(claimForm.orderId),
+        type: claimForm.type,
+        description: claimForm.description,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+      };
+      
+      setClaims([...claims, newClaim]);
+      
+      // Reset form
+      setClaimForm({
+        orderId: '',
+        type: 'product_issue',
+        description: '',
+      });
+      
+      setShowClaimForm(false);
+      
+      addNotification({
+        type: 'success',
+        message: 'Votre réclamation a été soumise avec succès',
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error submitting claim:', error);
+      addNotification({
+        type: 'error',
+        message: 'Impossible de soumettre votre réclamation',
+        duration: 3000,
+      });
+    } finally {
+      setLoadingClaims(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    // Use NextAuth signOut function
+    await signOut({ redirect: false });
     addNotification({
       type: 'info',
-      message: 'You have been logged out',
+      message: 'Vous avez été déconnecté',
       duration: 3000,
     });
     router.push('/');

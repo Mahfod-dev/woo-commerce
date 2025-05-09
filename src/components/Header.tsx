@@ -87,6 +87,7 @@ export default function Header({ categories }: HeaderProps) {
 		{ name: 'Produits', href: '/products' },
 		{ name: 'Nouveautés', href: '/new-arrivals' },
 		{ name: 'Promotions', href: '/promotions' },
+		{ name: 'Témoignages', href: '/testimonials' },
 		{ name: 'Blog', href: '/blog' },
 		{ name: 'À propos', href: '/about' },
 		{ name: 'Contact', href: '/contact' },

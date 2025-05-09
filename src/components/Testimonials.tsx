@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 
-export default function ImprovedTestimonials() {
+export default function Testimonials() {
 	const [currentTestimonial, setCurrentTestimonial] = useState(0);
 	const [autoplay, setAutoplay] = useState(true);
 	const [direction, setDirection] = useState(0);
