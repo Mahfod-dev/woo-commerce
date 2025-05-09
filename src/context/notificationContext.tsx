@@ -1,5 +1,5 @@
 'use client';
-import React, { createContext, useContext, useState, useRef } from 'react';
+import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
 import { NotificationContainer } from './NotificationContainer';
 
 // Types (à placer éventuellement dans un fichier séparé)
@@ -54,6 +54,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
 	const [notifications, setNotifications] = useState<Notification[]>([]);
+	// Flag to track component mount state
+	const isMounted = useRef(true);
 	const idCounter = useRef(0);
 
 	// Ajouter une nouvelle notification
@@ -68,12 +70,31 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
 			action: notification.action,
 		};
 
-		setNotifications((prev) => [...prev, newNotification]);
+		// Use a more stable way to update notifications
+		setNotifications((prev) => {
+			// Check if this is a duplicate notification (same message and type)
+			const isDuplicate = prev.some(
+				(n) => 
+					n.message === newNotification.message && 
+					n.type === newNotification.type
+			);
+			
+			if (isDuplicate) {
+				return prev; // Don't add duplicate notifications
+			}
+			
+			return [...prev, newNotification];
+		});
 
 		// Auto-suppression après la durée spécifiée
 		if (newNotification.duration !== Infinity) {
 			setTimeout(() => {
-				removeNotification(id);
+				// Only update if component is still mounted
+				if (isMounted.current) {
+					setNotifications((prev) => 
+						prev.filter((n) => n.id !== id)
+					);
+				}
 			}, newNotification.duration);
 		}
 
@@ -82,9 +103,12 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
 
 	// Supprimer une notification par son ID
 	const removeNotification = (id: number) => {
-		setNotifications((prev) =>
-			prev.filter((notification) => notification.id !== id)
-		);
+		// Only update if component is still mounted
+		if (isMounted.current) {
+			setNotifications((prev) =>
+				prev.filter((notification) => notification.id !== id)
+			);
+		}
 	};
 
 	// Supprimer toutes les notifications
@@ -99,6 +123,14 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
 		removeNotification,
 		clearAllNotifications,
 	};
+
+	// Add effect to track mount state
+	useEffect(() => {
+		isMounted.current = true;
+		return () => {
+			isMounted.current = false;
+		};
+	}, []);
 
 	return (
 		<NotificationContext.Provider value={contextValue}>

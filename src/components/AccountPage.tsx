@@ -407,14 +407,19 @@ const AccountPage = () => {
   };
 
   const handleLogout = async () => {
-    // Use NextAuth signOut function
-    await signOut({ redirect: false });
+    // Show notification before logout to prevent state updates during unmount
     addNotification({
       type: 'info',
       message: 'Vous avez été déconnecté',
       duration: 3000,
     });
-    router.push('/');
+    
+    // Short delay to allow notification to be processed
+    setTimeout(async () => {
+      // Use NextAuth signOut function
+      await signOut({ redirect: false });
+      router.push('/');
+    }, 100);
   };
 
   // Format date for display
