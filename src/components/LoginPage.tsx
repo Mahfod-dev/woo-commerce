@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -7,7 +7,7 @@ import { useNotification } from '@/context/notificationContext';
 import Image from 'next/image';
 import { signInWithEmail, signUpWithEmail } from '@/lib/supabase/auth';
 
-const LoginPage = () => {
+const LoginPageContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { addNotification } = useNotification();
@@ -402,6 +402,20 @@ const LoginPage = () => {
         </p>
       </div>
     </div>
+  );
+};
+
+const LoginPage = () => {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Chargement...
+        </h2>
+      </div>
+    </div>}>
+      <LoginPageContent />
+    </Suspense>
   );
 };
 
