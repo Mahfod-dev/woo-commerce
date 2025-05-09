@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@/lib/supabase/server'
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -8,31 +8,29 @@ export async function middleware(request: NextRequest) {
     },
   })
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value
-        },
-        set(name: string, value: string, options: Record<string, any>) {
-          response.cookies.set({
-            name,
-            value,
-            ...options,
-          })
-        },
-        remove(name: string, options: Record<string, any>) {
-          response.cookies.set({
-            name,
-            value: '',
-            ...options,
-          })
-        },
-      },
+  // Create a cookie store that works with our middleware
+  const cookieStore = {
+    get(name: string) {
+      return request.cookies.get(name)
+    },
+    set(name: string, value: string, options: Record<string, any>) {
+      response.cookies.set({
+        name,
+        value,
+        ...options,
+      })
+    },
+    remove(name: string, options: Record<string, any>) {
+      response.cookies.set({
+        name,
+        value: '',
+        ...options,
+      })
     }
-  )
+  }
+
+  // Create a Supabase client using the middleware cookie store
+  const supabase = createClient(cookieStore)
 
   // Refresh session if expired - required for Server Components
   await supabase.auth.getUser()
@@ -62,7 +60,8 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public (public files)
+     * - api (API routes that handle their own auth)
      */
-    '/((?!_next/static|_next/image|favicon.ico|public).*)',
+    '/((?!_next/static|_next/image|favicon.ico|public|api).*)',
   ],
 }

@@ -1,4 +1,4 @@
-import { createClient as createServerClient } from './server'
+import { createClientFromRequest } from './server'
 import { createClient as createBrowserClient } from './client'
 import { Database } from './types'
 
@@ -21,8 +21,11 @@ export type AddressInfo = {
 /**
  * Get user profile by user ID
  */
-export async function getProfile(userId: string): Promise<Profile | null> {
-  const supabase = createServerClient()
+export async function getProfile(userId: string, req?: any, res?: any): Promise<Profile | null> {
+  // Use appropriate client based on context
+  const supabase = req 
+    ? createClientFromRequest(req, res)
+    : createBrowserClient();
   
   const { data, error } = await supabase
     .from('profiles')
@@ -110,8 +113,11 @@ export async function updateBillingAddress(userId: string, address: AddressInfo)
 /**
  * Get user orders
  */
-export async function getUserOrders(userId: string) {
-  const supabase = createServerClient()
+export async function getUserOrders(userId: string, req?: any, res?: any) {
+  // Use appropriate client based on context
+  const supabase = req
+    ? createClientFromRequest(req, res)
+    : createBrowserClient();
   
   const { data, error } = await supabase
     .from('orders')
@@ -130,8 +136,11 @@ export async function getUserOrders(userId: string) {
 /**
  * Get order by ID
  */
-export async function getOrderById(orderId: number, userId: string) {
-  const supabase = createServerClient()
+export async function getOrderById(orderId: number, userId: string, req?: any, res?: any) {
+  // Use appropriate client based on context
+  const supabase = req
+    ? createClientFromRequest(req, res)
+    : createBrowserClient();
   
   const { data, error } = await supabase
     .from('orders')

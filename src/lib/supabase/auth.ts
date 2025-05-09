@@ -1,6 +1,7 @@
-import { createClient as createServerClient } from './server'
+import { createClientFromRequest } from './server'
 import { createClient as createBrowserClient } from './client'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/cookies'
 
 export type AuthCredentials = {
   email: string
@@ -86,18 +87,36 @@ export async function signOut() {
 
 /**
  * Gets the current user session (server-side)
+ * Can be used from getServerSideProps or API routes
  */
-export async function getSession() {
-  const supabase = createServerClient()
+export async function getSession(req?: any, res?: any) {
+  // If req is provided, use it to create a server client
+  if (req) {
+    const supabase = createClientFromRequest(req, res)
+    const { data } = await supabase.auth.getSession()
+    return data.session
+  }
+  
+  // Fallback to browser client for client components
+  const supabase = createBrowserClient()
   const { data } = await supabase.auth.getSession()
   return data.session
 }
 
 /**
  * Gets the current user (server-side)
+ * Can be used from getServerSideProps or API routes
  */
-export async function getUser() {
-  const supabase = createServerClient()
+export async function getUser(req?: any, res?: any) {
+  // If req is provided, use it to create a server client
+  if (req) {
+    const supabase = createClientFromRequest(req, res)
+    const { data } = await supabase.auth.getUser()
+    return data.user
+  }
+  
+  // Fallback to browser client for client components
+  const supabase = createBrowserClient()
   const { data } = await supabase.auth.getUser()
   return data.user
 }
@@ -106,11 +125,17 @@ export async function getUser() {
  * Server action to require authentication
  * Redirects to login if user is not authenticated
  */
-export async function requireAuth() {
-  const session = await getSession()
+export async function requireAuth(req?: any, res?: any) {
+  const session = await getSession(req, res)
   
   if (!session) {
-    redirect('/login')
+    if (typeof window === 'undefined' && !req) {
+      // Server-side redirect in App Router
+      redirect('/login')
+    } else {
+      // Client-side redirect or Pages Router
+      window.location.href = '/login'
+    }
   }
   
   return session
@@ -149,9 +174,26 @@ export async function updatePassword(password: string) {
 /**
  * Get user profile data
  */
-export async function getUserProfile(userId: string) {
-  const supabase = createServerClient()
+export async function getUserProfile(userId: string, req?: any, res?: any) {
+  // If req is provided, use it to create a server client
+  if (req) {
+    const supabase = createClientFromRequest(req, res)
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
+    
+    if (error) {
+      console.error('Error fetching profile:', error)
+      return null
+    }
+    
+    return data
+  }
   
+  // Fallback to browser client for client components
+  const supabase = createBrowserClient()
   const { data, error } = await supabase
     .from('profiles')
     .select('*')

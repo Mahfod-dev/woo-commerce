@@ -158,7 +158,7 @@ class WooCommerceAPI {
 	private cache: Map<string, { data: any; timestamp: number }>;
 
 	constructor() {
-		const defaultUrl = 'https://selectura.shop	';
+		const defaultUrl = 'https://selectura.shop';
 		this.baseUrl = process.env.URL_WORDPRESS || defaultUrl;
 		this.consumerKey =
 			process.env.WOOCOMMERCE_CONSUMER_KEY ||
