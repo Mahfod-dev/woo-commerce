@@ -1,49 +1,68 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
-
-// Routes protégées qui nécessitent une authentification
-const protectedRoutes = ['/account', '/checkout'];
+import { NextRequest, NextResponse } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
 
 export async function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname;
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value
+        },
+        set(name: string, value: string, options: Record<string, any>) {
+          response.cookies.set({
+            name,
+            value,
+            ...options,
+          })
+        },
+        remove(name: string, options: Record<string, any>) {
+          response.cookies.set({
+            name,
+            value: '',
+            ...options,
+          })
+        },
+      },
+    }
+  )
+
+  // Refresh session if expired - required for Server Components
+  await supabase.auth.getUser()
+
+  // If accessing a protected route and not authenticated, redirect to login
+  const { pathname } = request.nextUrl
+  const protectedRoutes = ['/account', '/checkout']
   
-  // Vérifier si la route actuelle nécessite une authentification
-  const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route));
-  
-  if (isProtectedRoute) {
-    // Obtenir le token de session depuis les cookies
-    const token = await getToken({
-      req: request,
-      secret: process.env.NEXTAUTH_SECRET,
-    });
+  if (protectedRoutes.some(route => pathname.startsWith(route))) {
+    const { data: { session } } = await supabase.auth.getSession()
     
-    // Si l'utilisateur n'est pas authentifié, rediriger vers la page de connexion
-    if (!token) {
-      // URL de redirection
-      const url = new URL('/login', request.url);
-      
-      // Ajouter la page protégée comme paramètre callbackUrl
-      url.searchParams.set('callbackUrl', path);
-      
-      return NextResponse.redirect(url);
+    if (!session) {
+      const redirectUrl = new URL('/login', request.url)
+      redirectUrl.searchParams.set('callbackUrl', pathname)
+      return NextResponse.redirect(redirectUrl)
     }
   }
-  
-  return NextResponse.next();
+
+  return response
 }
 
-// Configurer sur quelles routes le middleware doit être exécuté
 export const config = {
   matcher: [
     /*
-     * Match all request paths except:
+     * Match all request paths except for the ones starting with:
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public (public files)
-     * - api (API routes)
      */
-    '/((?!_next/static|_next/image|favicon.ico|public|api).*)',
+    '/((?!_next/static|_next/image|favicon.ico|public).*)',
   ],
-};
+}

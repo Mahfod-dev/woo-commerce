@@ -1,16 +1,16 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useNotification } from '@/context/notificationContext';
-import { signIn, signOut, useSession } from 'next-auth/react';
 import Image from 'next/image';
+import { signInWithEmail, signUpWithEmail } from '@/lib/supabase/auth';
 
 const LoginPage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { addNotification } = useNotification();
-  const { data: session, status } = useSession();
   
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -21,21 +21,16 @@ const LoginPage = () => {
     lastName: '',
     confirmPassword: '',
   });
+  
   const [errors, setErrors] = useState<{
     email?: string;
     password?: string;
     confirmPassword?: string;
   }>({});
+  
   const [authError, setAuthError] = useState<string | null>(null);
 
-  // Rediriger si déjà authentifié
-  useEffect(() => {
-    if (status === 'authenticated') {
-      router.push('/account');
-    }
-  }, [status, router]);
-
-  // Afficher les erreurs d'authentification
+  // Display auth errors
   useEffect(() => {
     if (authError) {
       addNotification({
@@ -54,7 +49,7 @@ const LoginPage = () => {
       [name]: value,
     }));
     
-    // Effacer l'erreur lorsque l'utilisateur tape
+    // Clear the error when the user types
     if (errors[name as keyof typeof errors]) {
       setErrors((prev) => ({
         ...prev,
@@ -66,21 +61,21 @@ const LoginPage = () => {
   const validateForm = () => {
     const newErrors: typeof errors = {};
     
-    // Valider l'email
+    // Validate email
     if (!formData.email) {
       newErrors.email = 'L\'email est requis';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Format d\'email invalide';
     }
     
-    // Valider le mot de passe
+    // Validate password
     if (!formData.password) {
       newErrors.password = 'Le mot de passe est requis';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Le mot de passe doit contenir au moins 6 caractères';
     }
     
-    // Valider la confirmation du mot de passe pour l'inscription
+    // Validate password confirmation for signup
     if (!isLogin && formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Les mots de passe ne correspondent pas';
     }
@@ -100,72 +95,42 @@ const LoginPage = () => {
     
     try {
       if (isLogin) {
-        // Connexion avec NextAuth
-        const result = await signIn('credentials', {
-          redirect: false,
+        // Login with Supabase
+        await signInWithEmail({
           email: formData.email,
           password: formData.password
         });
-        
-        if (result?.error) {
-          setAuthError('Email ou mot de passe incorrect');
-          return;
-        }
         
         addNotification({
           type: 'success',
           message: 'Connexion réussie ! Redirection vers votre compte...',
           duration: 3000,
         });
+
+        // Redirect after successful login
+        const callbackUrl = searchParams.get('callbackUrl') || '/account';
+        router.push(callbackUrl);
       } else {
-        try {
-          // Utiliser le userService pour créer un nouvel utilisateur
-          const newUser = await fetch('/api/auth/register', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              email: formData.email,
-              password: formData.password,
-              firstName: formData.firstName,
-              lastName: formData.lastName,
-            }),
-          }).then(res => {
-            if (!res.ok) {
-              throw new Error('Erreur lors de la création du compte');
-            }
-            return res.json();
-          });
-          
-          // Connecter automatiquement après inscription
-          const result = await signIn('credentials', {
-            redirect: false,
-            email: formData.email,
-            password: formData.password
-          });
-          
-          if (result?.error) {
-            setAuthError("Erreur lors de la connexion automatique après inscription");
-            return;
-          }
-          
-          addNotification({
-            type: 'success',
-            message: 'Compte créé avec succès ! Redirection vers votre compte...',
-            duration: 3000,
-          });
-        } catch (error: any) {
-          console.error('Erreur d\'inscription:', error);
-          setAuthError(error.message || "Une erreur est survenue lors de l'inscription");
-          return;
-        }
+        // Register with Supabase
+        await signUpWithEmail({
+          email: formData.email,
+          password: formData.password,
+          firstName: formData.firstName,
+          lastName: formData.lastName
+        });
+        
+        addNotification({
+          type: 'success',
+          message: 'Compte créé avec succès ! Redirection vers votre compte...',
+          duration: 3000,
+        });
+
+        // Redirect to account page after successful registration
+        router.push('/account');
       }
-      
-      // La redirection est gérée par l'effet qui surveille le statut de la session
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur d\'authentification:', error);
-      setAuthError("Une erreur est survenue lors de l'authentification");
+      setAuthError(error.message || "Une erreur est survenue lors de l'authentification");
     } finally {
       setIsLoading(false);
     }
@@ -183,8 +148,8 @@ const LoginPage = () => {
           <Link href="/">
             <div className="relative h-12 w-36">
               <Image
-                src="/logo.svg"
-                alt="Selectura"
+                src="/next.svg"
+                alt="Logo"
                 fill
                 priority
                 className="object-contain"
@@ -223,7 +188,7 @@ const LoginPage = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {/* Champs d'inscription */}
+            {/* Signup fields */}
             {!isLogin && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -261,7 +226,7 @@ const LoginPage = () => {
               </div>
             )}
             
-            {/* Champ d'email */}
+            {/* Email field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Adresse email
@@ -284,12 +249,9 @@ const LoginPage = () => {
               {errors.email && (
                 <p className="mt-2 text-sm text-red-600">{errors.email}</p>
               )}
-              {isLogin && (
-                <p className="mt-1 text-xs text-gray-500">Démo: demo@example.com</p>
-              )}
             </div>
 
-            {/* Champ de mot de passe */}
+            {/* Password field */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Mot de passe
@@ -311,12 +273,9 @@ const LoginPage = () => {
               {errors.password && (
                 <p className="mt-2 text-sm text-red-600">{errors.password}</p>
               )}
-              {isLogin && (
-                <p className="mt-1 text-xs text-gray-500">Démo: password</p>
-              )}
             </div>
 
-            {/* Champ de confirmation de mot de passe pour l'inscription */}
+            {/* Password confirmation field for signup */}
             {!isLogin && (
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
@@ -341,7 +300,7 @@ const LoginPage = () => {
               </div>
             )}
 
-            {/* Se souvenir de moi et mot de passe oublié (uniquement pour la connexion) */}
+            {/* Remember me and forgot password (login only) */}
             {isLogin && (
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
@@ -364,14 +323,14 @@ const LoginPage = () => {
               </div>
             )}
 
-            {/* Bouton de soumission */}
+            {/* Submit button */}
             <div>
               <button
                 type="submit"
-                disabled={isLoading || status === 'loading'}
+                disabled={isLoading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400 disabled:cursor-not-allowed"
               >
-                {(isLoading || status === 'loading') ? (
+                {isLoading ? (
                   <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -385,7 +344,7 @@ const LoginPage = () => {
             </div>
           </form>
 
-          {/* Connexion sociale */}
+          {/* Social login */}
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -414,11 +373,11 @@ const LoginPage = () => {
                   href="#"
                   className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
                 >
-                  <span className="sr-only">Se connecter avec Facebook</span>
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <span className="sr-only">Se connecter avec GitHub</span>
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
-                      d="M20 10c0-5.523-4.477-10-10-10S0 4.477 0 10c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V10h2.54V7.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V10h2.773l-.443 2.89h-2.33v6.988C16.343 19.128 20 14.991 20 10z"
+                      d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.481C17.139 18.192 20 14.44 20 10.017 20 4.484 15.522 0 10 0z"
                       clipRule="evenodd"
                     />
                   </svg>
@@ -429,7 +388,7 @@ const LoginPage = () => {
         </div>
       </div>
 
-      {/* Politique de confidentialité et conditions d'utilisation */}
+      {/* Privacy policy and terms of service */}
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md text-center">
         <p className="text-xs text-gray-500">
           En continuant, vous acceptez nos{' '}

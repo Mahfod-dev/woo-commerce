@@ -5,70 +5,36 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useNotification } from '@/context/notificationContext';
-import { signOut, useSession } from 'next-auth/react';
+import { getUser, signOut } from '@/lib/supabase/auth';
+import { getProfile, updateProfile, updateShippingAddress, updateBillingAddress, getUserOrders } from '@/lib/supabase/profile';
+import { Database } from '@/lib/supabase/types';
 
-// Types for user data
-interface UserAddress {
+// Types
+type ProfileType = Database['public']['Tables']['profiles']['Row'];
+type OrderType = Database['public']['Tables']['orders']['Row'];
+
+type AddressInfo = {
   first_name: string;
   last_name: string;
-  company: string;
+  company?: string;
   address_1: string;
-  address_2: string;
+  address_2?: string;
   city: string;
   state: string;
   postcode: string;
   country: string;
   email?: string;
   phone?: string;
-}
-
-interface UserData {
-  id: number;
-  email: string;
-  first_name: string;
-  last_name: string;
-  avatar_url: string;
-  billing: UserAddress;
-  shipping: UserAddress;
-}
-
-// Types for order data
-interface OrderItem {
-  id: number;
-  name: string;
-  product_id: number;
-  quantity: number;
-  total: string;
-}
-
-interface Order {
-  id: number;
-  number: string;
-  status: string;
-  date_created: string;
-  total: string;
-  line_items: OrderItem[];
-}
-
-// Types for claims
-interface Claim {
-  id: number;
-  orderId: number;
-  type: string;
-  description: string;
-  status: 'pending' | 'in_review' | 'resolved';
-  createdAt: string;
-}
+};
 
 const AccountPage = () => {
   const router = useRouter();
   const { addNotification } = useNotification();
-  const { data: session, status } = useSession();
   
   const [activeTab, setActiveTab] = useState('profile');
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [claims, setClaims] = useState<Claim[]>([]);
+  const [userData, setUserData] = useState<ProfileType | null>(null);
+  const [orders, setOrders] = useState<OrderType[]>([]);
+  const [claims, setClaims] = useState<any[]>([]); // For demo purposes
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [loadingClaims, setLoadingClaims] = useState(false);
@@ -118,119 +84,65 @@ const AccountPage = () => {
     },
   };
 
+  // Load user data
   useEffect(() => {
-    // Redirect if not authenticated
-    if (status === 'unauthenticated') {
-      addNotification({
-        type: 'warning',
-        message: 'Veuillez vous connecter pour accéder à votre compte',
-        duration: 5000,
-      });
-      router.push('/login');
-      return;
-    }
-    
-    if (status === 'loading') {
-      return; // Attendre que le statut de la session soit déterminé
-    }
-
-    // Load user data
-    const loadUserData = async () => {
+    async function loadUserData() {
       setIsLoading(true);
+      
       try {
-        // Create mock user data based on NextAuth session
-        if (session?.user) {
-          const mockUserData: UserData = {
-            id: session.user.id,
-            email: session.user.email || '',
-            first_name: session.user.firstName,
-            last_name: session.user.lastName,
-            avatar_url: session.user.avatar || session.user.image || '/profile-placeholder.jpg',
-            billing: {
-              first_name: session.user.firstName,
-              last_name: session.user.lastName,
-              company: 'Company Inc.',
-              address_1: '123 Rue de Paris',
-              address_2: 'Apt 4B',
-              city: 'Paris',
-              state: 'Île-de-France',
-              postcode: '75001',
-              country: 'France',
-              email: session.user.email || '',
-              phone: '0123456789',
-            },
-            shipping: {
-              first_name: session.user.firstName,
-              last_name: session.user.lastName,
-              company: '',
-              address_1: '123 Rue de Paris',
-              address_2: 'Apt 4B',
-              city: 'Paris',
-              state: 'Île-de-France',
-              postcode: '75001',
-              country: 'France',
-            },
-          };
-          
-          setUserData(mockUserData);
+        // Get the current user from Supabase
+        const user = await getUser();
+        
+        if (!user) {
+          // User not authenticated, redirect to login
+          addNotification({
+            type: 'warning',
+            message: 'Veuillez vous connecter pour accéder à votre compte',
+            duration: 5000,
+          });
+          router.push('/login');
+          return;
+        }
+        
+        // Get user profile from Supabase
+        const profile = await getProfile(user.id);
+        
+        if (profile) {
+          setUserData(profile);
           setFormData({
-            first_name: mockUserData.first_name,
-            last_name: mockUserData.last_name,
-            email: mockUserData.email,
-            phone: mockUserData.billing.phone || '',
+            first_name: profile.first_name || '',
+            last_name: profile.last_name || '',
+            email: profile.email || '',
+            phone: profile.phone || '',
             password: '',
             confirm_password: '',
           });
-          
-          // Simuler des commandes pour la démonstration
-          // Dans un cas réel, vous appelleriez une API pour récupérer les commandes
-          const mockOrders: Order[] = [
-            {
-              id: 1148,
-              number: '1148',
-              status: 'processing',
-              date_created: '2025-02-15T14:30:45',
-              total: '129.99',
-              line_items: [
-                {
-                  id: 1,
-                  name: 'Premium Product',
-                  product_id: 123,
-                  quantity: 1,
-                  total: '129.99',
-                },
-              ],
-            },
-            {
-              id: 1142,
-              number: '1142',
-              status: 'completed',
-              date_created: '2025-01-20T10:15:30',
-              total: '89.95',
-              line_items: [
-                {
-                  id: 2,
-                  name: 'Essential Product',
-                  product_id: 456,
-                  quantity: 1,
-                  total: '79.95',
-                },
-                {
-                  id: 3,
-                  name: 'Accessory',
-                  product_id: 789,
-                  quantity: 1,
-                  total: '10.00',
-                },
-              ],
-            },
-          ];
-          
-          setOrders(mockOrders);
-          
-          // Load claims
-          fetchClaims();
         }
+        
+        // Get user orders
+        const userOrders = await getUserOrders(user.id);
+        setOrders(userOrders);
+        
+        // For demo purposes, add mock claims
+        const mockClaims = [
+          {
+            id: 1,
+            orderId: userOrders.length > 0 ? userOrders[0].id : 1148,
+            type: 'product_issue',
+            description: 'Le produit ne fonctionne pas comme prévu.',
+            status: 'resolved',
+            createdAt: '2025-02-20T10:45:00',
+          },
+          {
+            id: 2,
+            orderId: userOrders.length > 1 ? userOrders[1].id : 1142,
+            type: 'late_delivery',
+            description: "Ma commande n'est pas arrivée dans les délais indiqués.",
+            status: 'in_review',
+            createdAt: '2025-02-25T14:30:00',
+          },
+        ];
+        setClaims(mockClaims);
       } catch (error) {
         console.error('Error loading user data:', error);
         addNotification({
@@ -241,48 +153,10 @@ const AccountPage = () => {
       } finally {
         setIsLoading(false);
       }
-    };
+    }
     
     loadUserData();
-  }, [status, session, addNotification, router]);
-  
-  // Fetch claims data
-  const fetchClaims = async () => {
-    setLoadingClaims(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Mock claims data
-      setClaims([
-        {
-          id: 1,
-          orderId: 1148,
-          type: 'product_issue',
-          description: 'Le produit ne fonctionne pas comme prévu.',
-          status: 'resolved',
-          createdAt: '2025-02-20T10:45:00',
-        },
-        {
-          id: 2,
-          orderId: 1142,
-          type: 'late_delivery',
-          description: "Ma commande n'est pas arrivée dans les délais indiqués.",
-          status: 'in_review',
-          createdAt: '2025-02-25T14:30:00',
-        },
-      ]);
-    } catch (error) {
-      console.error('Error fetching claims:', error);
-      addNotification({
-        type: 'error',
-        message: 'Impossible de charger vos réclamations',
-        duration: 3000,
-      });
-    } finally {
-      setLoadingClaims(false);
-    }
-  };
+  }, [router, addNotification]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -298,41 +172,39 @@ const AccountPage = () => {
     if (formData.password && formData.password !== formData.confirm_password) {
       addNotification({
         type: 'error',
-        message: 'Passwords do not match',
+        message: 'Les mots de passe ne correspondent pas',
         duration: 5000,
       });
       return;
     }
     
+    if (!userData) return;
+    
     try {
-      // This would be your actual API call to update user data
-      // For demo purposes, we'll just update the local state
-      if (userData) {
-        const updatedUserData = {
-          ...userData,
-          first_name: formData.first_name,
-          last_name: formData.last_name,
-          email: formData.email,
-          billing: {
-            ...userData.billing,
-            phone: formData.phone,
-          },
-        };
-        
-        setUserData(updatedUserData);
+      const profileData: Partial<ProfileType> = {
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        email: formData.email,
+        phone: formData.phone,
+      };
+      
+      const updatedProfile = await updateProfile(userData.id, profileData);
+      
+      if (updatedProfile) {
+        setUserData(updatedProfile);
         setIsEditing(false);
         
         addNotification({
           type: 'success',
-          message: 'Profile updated successfully',
+          message: 'Profil mis à jour avec succès',
           duration: 3000,
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating profile:', error);
       addNotification({
         type: 'error',
-        message: 'Failed to update profile',
+        message: error.message || 'Impossible de mettre à jour le profil',
         duration: 5000,
       });
     }
@@ -361,7 +233,7 @@ const AccountPage = () => {
       return;
     }
     
-    // Submit claim
+    // Submit claim (mock implementation)
     setLoadingClaims(true);
     
     try {
@@ -369,7 +241,7 @@ const AccountPage = () => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Add new claim to list
-      const newClaim: Claim = {
+      const newClaim = {
         id: claims.length + 1,
         orderId: parseInt(claimForm.orderId),
         type: claimForm.type,
@@ -416,9 +288,12 @@ const AccountPage = () => {
     
     // Short delay to allow notification to be processed
     setTimeout(async () => {
-      // Use NextAuth signOut function
-      await signOut({ redirect: false });
-      router.push('/');
+      try {
+        await signOut();
+        router.push('/');
+      } catch (error) {
+        console.error('Error signing out:', error);
+      }
     }, 100);
   };
 
@@ -449,11 +324,11 @@ const AccountPage = () => {
   };
 
   // Format price
-  const formatPrice = (price: string) => {
+  const formatPrice = (price: number) => {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
       currency: 'EUR',
-    }).format(parseFloat(price));
+    }).format(price);
   };
 
   if (isLoading) {
@@ -462,7 +337,7 @@ const AccountPage = () => {
         <div className="flex items-center justify-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
         </div>
-        <p className="text-center text-gray-500">Loading account information...</p>
+        <p className="text-center text-gray-500">Chargement des informations du compte...</p>
       </div>
     );
   }
@@ -506,7 +381,7 @@ const AccountPage = () => {
                   d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                 />
               </svg>
-              Logout
+              Déconnexion
             </button>
           </motion.div>
         </div>
@@ -533,7 +408,7 @@ const AccountPage = () => {
                 <svg className="w-5 h-5 mr-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                My Profile
+                Mon Profil
               </button>
               <button
                 onClick={() => setActiveTab('orders')}
@@ -546,7 +421,7 @@ const AccountPage = () => {
                 <svg className="w-5 h-5 mr-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
-                My Orders
+                Mes Commandes
               </button>
               <button
                 onClick={() => setActiveTab('addresses')}
@@ -560,7 +435,7 @@ const AccountPage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                My Addresses
+                Mes Adresses
               </button>
               <button
                 onClick={() => setActiveTab('settings')}
@@ -574,7 +449,7 @@ const AccountPage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                Account Settings
+                Paramètres du compte
               </button>
             </nav>
           </div>
@@ -589,7 +464,7 @@ const AccountPage = () => {
               >
                 <div className="sm:flex sm:items-center sm:justify-between mb-8">
                   <motion.h2 variants={itemVariants} className="text-2xl font-bold text-gray-900">
-                    My Profile
+                    Mon Profil
                   </motion.h2>
                   {!isEditing && (
                     <motion.button
@@ -600,7 +475,7 @@ const AccountPage = () => {
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                       </svg>
-                      Edit Profile
+                      Modifier le profil
                     </motion.button>
                   )}
                 </div>
@@ -614,7 +489,7 @@ const AccountPage = () => {
                     <div className="grid gap-6 md:grid-cols-2">
                       <motion.div variants={itemVariants}>
                         <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 mb-1">
-                          First Name
+                          Prénom
                         </label>
                         <input
                           type="text"
@@ -629,7 +504,7 @@ const AccountPage = () => {
                       
                       <motion.div variants={itemVariants}>
                         <label htmlFor="last_name" className="block text-sm font-medium text-gray-700 mb-1">
-                          Last Name
+                          Nom
                         </label>
                         <input
                           type="text"
@@ -644,7 +519,7 @@ const AccountPage = () => {
                       
                       <motion.div variants={itemVariants}>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                          Email Address
+                          Adresse email
                         </label>
                         <input
                           type="email"
@@ -659,7 +534,7 @@ const AccountPage = () => {
                       
                       <motion.div variants={itemVariants}>
                         <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                          Phone Number
+                          Téléphone
                         </label>
                         <input
                           type="tel"
@@ -673,13 +548,13 @@ const AccountPage = () => {
                     </div>
                     
                     <motion.div variants={itemVariants} className="border-t border-gray-200 pt-6">
-                      <h3 className="text-lg font-medium text-gray-900 mb-4">Change Password</h3>
-                      <p className="text-sm text-gray-500 mb-4">Leave blank if you don't want to change your password</p>
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">Changer de mot de passe</h3>
+                      <p className="text-sm text-gray-500 mb-4">Laissez vide si vous ne souhaitez pas modifier votre mot de passe</p>
                       
                       <div className="grid gap-6 md:grid-cols-2">
                         <div>
                           <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                            New Password
+                            Nouveau mot de passe
                           </label>
                           <input
                             type="password"
@@ -693,7 +568,7 @@ const AccountPage = () => {
                         
                         <div>
                           <label htmlFor="confirm_password" className="block text-sm font-medium text-gray-700 mb-1">
-                            Confirm New Password
+                            Confirmer le nouveau mot de passe
                           </label>
                           <input
                             type="password"
@@ -712,58 +587,60 @@ const AccountPage = () => {
                         type="submit"
                         className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition-colors"
                       >
-                        Save Changes
+                        Enregistrer les modifications
                       </button>
                       <button
                         type="button"
                         onClick={() => setIsEditing(false)}
                         className="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md transition-colors"
                       >
-                        Cancel
+                        Annuler
                       </button>
                     </motion.div>
                   </motion.form>
                 ) : (
                   <motion.div variants={containerVariants}>
                     <motion.div variants={itemVariants} className="bg-gray-50 p-6 rounded-lg mb-8">
-                      <h3 className="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">Informations personnelles</h3>
                       <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
                         <div>
-                          <dt className="text-sm font-medium text-gray-500">Full Name</dt>
+                          <dt className="text-sm font-medium text-gray-500">Nom complet</dt>
                           <dd className="mt-1 text-gray-900">{userData?.first_name} {userData?.last_name}</dd>
                         </div>
                         <div>
-                          <dt className="text-sm font-medium text-gray-500">Email Address</dt>
+                          <dt className="text-sm font-medium text-gray-500">Email</dt>
                           <dd className="mt-1 text-gray-900">{userData?.email}</dd>
                         </div>
                         <div>
-                          <dt className="text-sm font-medium text-gray-500">Phone Number</dt>
-                          <dd className="mt-1 text-gray-900">{userData?.billing.phone || '-'}</dd>
+                          <dt className="text-sm font-medium text-gray-500">Téléphone</dt>
+                          <dd className="mt-1 text-gray-900">{userData?.phone || '-'}</dd>
                         </div>
                         <div>
-                          <dt className="text-sm font-medium text-gray-500">Member Since</dt>
-                          <dd className="mt-1 text-gray-900">January 2025</dd>
+                          <dt className="text-sm font-medium text-gray-500">Membre depuis</dt>
+                          <dd className="mt-1 text-gray-900">
+                            {userData?.created_at ? formatDate(userData.created_at) : 'Janvier 2025'}
+                          </dd>
                         </div>
                       </dl>
                     </motion.div>
                     
                     <motion.div variants={itemVariants}>
-                      <h3 className="text-lg font-medium text-gray-900 mb-4">Account Statistics</h3>
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">Statistiques du compte</h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="bg-indigo-50 p-4 rounded-lg">
-                          <p className="text-sm font-medium text-indigo-600">Total Orders</p>
+                          <p className="text-sm font-medium text-indigo-600">Total des commandes</p>
                           <p className="text-2xl font-bold text-indigo-900 mt-1">{orders.length}</p>
                         </div>
                         <div className="bg-purple-50 p-4 rounded-lg">
-                          <p className="text-sm font-medium text-purple-600">Active Subscriptions</p>
+                          <p className="text-sm font-medium text-purple-600">Abonnements actifs</p>
                           <p className="text-2xl font-bold text-purple-900 mt-1">0</p>
                         </div>
                         <div className="bg-green-50 p-4 rounded-lg">
-                          <p className="text-sm font-medium text-green-600">Reviews</p>
+                          <p className="text-sm font-medium text-green-600">Avis</p>
                           <p className="text-2xl font-bold text-green-900 mt-1">2</p>
                         </div>
                         <div className="bg-blue-50 p-4 rounded-lg">
-                          <p className="text-sm font-medium text-blue-600">Reward Points</p>
+                          <p className="text-sm font-medium text-blue-600">Points fidélité</p>
                           <p className="text-2xl font-bold text-blue-900 mt-1">120</p>
                         </div>
                       </div>
@@ -780,7 +657,7 @@ const AccountPage = () => {
                 animate="visible"
               >
                 <motion.h2 variants={itemVariants} className="text-2xl font-bold text-gray-900 mb-8">
-                  My Orders
+                  Mes Commandes
                 </motion.h2>
 
                 {orders.length === 0 ? (
@@ -788,11 +665,11 @@ const AccountPage = () => {
                     <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">No orders</h3>
-                    <p className="mt-1 text-sm text-gray-500">You haven't placed any orders yet.</p>
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">Aucune commande</h3>
+                    <p className="mt-1 text-sm text-gray-500">Vous n'avez pas encore passé de commande.</p>
                     <div className="mt-6">
                       <Link href="/products" className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Start Shopping
+                        Commencer les achats
                         <svg className="ml-2 -mr-1 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>
@@ -805,13 +682,13 @@ const AccountPage = () => {
                       <thead className="bg-gray-50">
                         <tr>
                           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Order
+                            Commande
                           </th>
                           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Date
                           </th>
                           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Status
+                            Statut
                           </th>
                           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Total
@@ -825,10 +702,10 @@ const AccountPage = () => {
                         {orders.map((order) => (
                           <tr key={order.id} className="hover:bg-gray-50">
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="text-sm font-medium text-gray-900">#{order.number}</span>
+                              <span className="text-sm font-medium text-gray-900">#{order.id}</span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="text-sm text-gray-500">{formatDate(order.date_created)}</span>
+                              <span className="text-sm text-gray-500">{formatDate(order.created_at)}</span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
@@ -839,8 +716,8 @@ const AccountPage = () => {
                               {formatPrice(order.total)}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                              <Link href={`/my-account/orders/${order.id}`} className="text-indigo-600 hover:text-indigo-900 mr-4">
-                                View
+                              <Link href={`/account/orders/${order.id}`} className="text-indigo-600 hover:text-indigo-900 mr-4">
+                                Voir
                               </Link>
                             </td>
                           </tr>
@@ -859,54 +736,100 @@ const AccountPage = () => {
                 animate="visible"
               >
                 <motion.h2 variants={itemVariants} className="text-2xl font-bold text-gray-900 mb-8">
-                  My Addresses
+                  Mes Adresses
                 </motion.h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <motion.div variants={itemVariants} className="bg-gray-50 rounded-lg p-6">
                     <div className="flex justify-between items-start mb-4">
-                      <h3 className="text-lg font-medium text-gray-900">Billing Address</h3>
+                      <h3 className="text-lg font-medium text-gray-900">Adresse de facturation</h3>
                       <button className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center">
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                         </svg>
-                        Edit
+                        Modifier
                       </button>
                     </div>
                     
-                    {userData?.billing && (
+                    {userData?.billing_address ? (
                       <div className="space-y-2">
-                        <p className="text-gray-800">{userData.billing.first_name} {userData.billing.last_name}</p>
-                        {userData.billing.company && <p className="text-gray-600">{userData.billing.company}</p>}
-                        <p className="text-gray-600">{userData.billing.address_1}</p>
-                        {userData.billing.address_2 && <p className="text-gray-600">{userData.billing.address_2}</p>}
-                        <p className="text-gray-600">{userData.billing.postcode} {userData.billing.city}</p>
-                        <p className="text-gray-600">{userData.billing.state ? `${userData.billing.state}, ` : ''}{userData.billing.country}</p>
-                        {userData.billing.phone && <p className="text-gray-600">Phone: {userData.billing.phone}</p>}
-                        {userData.billing.email && <p className="text-gray-600">Email: {userData.billing.email}</p>}
+                        <p className="text-gray-800">
+                          {(userData.billing_address as AddressInfo).first_name} {(userData.billing_address as AddressInfo).last_name}
+                        </p>
+                        {(userData.billing_address as AddressInfo).company && 
+                          <p className="text-gray-600">{(userData.billing_address as AddressInfo).company}</p>
+                        }
+                        <p className="text-gray-600">{(userData.billing_address as AddressInfo).address_1}</p>
+                        {(userData.billing_address as AddressInfo).address_2 && 
+                          <p className="text-gray-600">{(userData.billing_address as AddressInfo).address_2}</p>
+                        }
+                        <p className="text-gray-600">
+                          {(userData.billing_address as AddressInfo).postcode} {(userData.billing_address as AddressInfo).city}
+                        </p>
+                        <p className="text-gray-600">
+                          {(userData.billing_address as AddressInfo).state ? 
+                            `${(userData.billing_address as AddressInfo).state}, ` : 
+                            ''
+                          }
+                          {(userData.billing_address as AddressInfo).country}
+                        </p>
+                        {(userData.billing_address as AddressInfo).phone && 
+                          <p className="text-gray-600">Téléphone: {(userData.billing_address as AddressInfo).phone}</p>
+                        }
+                        {(userData.billing_address as AddressInfo).email && 
+                          <p className="text-gray-600">Email: {(userData.billing_address as AddressInfo).email}</p>
+                        }
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="text-gray-500">Vous n'avez pas encore ajouté d'adresse de facturation.</p>
+                        <button className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
+                          Ajouter une adresse
+                        </button>
                       </div>
                     )}
                   </motion.div>
                   
                   <motion.div variants={itemVariants} className="bg-gray-50 rounded-lg p-6">
                     <div className="flex justify-between items-start mb-4">
-                      <h3 className="text-lg font-medium text-gray-900">Shipping Address</h3>
+                      <h3 className="text-lg font-medium text-gray-900">Adresse de livraison</h3>
                       <button className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center">
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                         </svg>
-                        Edit
+                        Modifier
                       </button>
                     </div>
                     
-                    {userData?.shipping && (
+                    {userData?.shipping_address ? (
                       <div className="space-y-2">
-                        <p className="text-gray-800">{userData.shipping.first_name} {userData.shipping.last_name}</p>
-                        {userData.shipping.company && <p className="text-gray-600">{userData.shipping.company}</p>}
-                        <p className="text-gray-600">{userData.shipping.address_1}</p>
-                        {userData.shipping.address_2 && <p className="text-gray-600">{userData.shipping.address_2}</p>}
-                        <p className="text-gray-600">{userData.shipping.postcode} {userData.shipping.city}</p>
-                        <p className="text-gray-600">{userData.shipping.state ? `${userData.shipping.state}, ` : ''}{userData.shipping.country}</p>
+                        <p className="text-gray-800">
+                          {(userData.shipping_address as AddressInfo).first_name} {(userData.shipping_address as AddressInfo).last_name}
+                        </p>
+                        {(userData.shipping_address as AddressInfo).company && 
+                          <p className="text-gray-600">{(userData.shipping_address as AddressInfo).company}</p>
+                        }
+                        <p className="text-gray-600">{(userData.shipping_address as AddressInfo).address_1}</p>
+                        {(userData.shipping_address as AddressInfo).address_2 && 
+                          <p className="text-gray-600">{(userData.shipping_address as AddressInfo).address_2}</p>
+                        }
+                        <p className="text-gray-600">
+                          {(userData.shipping_address as AddressInfo).postcode} {(userData.shipping_address as AddressInfo).city}
+                        </p>
+                        <p className="text-gray-600">
+                          {(userData.shipping_address as AddressInfo).state ? 
+                            `${(userData.shipping_address as AddressInfo).state}, ` : 
+                            ''
+                          }
+                          {(userData.shipping_address as AddressInfo).country}
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="text-gray-500">Vous n'avez pas encore ajouté d'adresse de livraison.</p>
+                        <button className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
+                          Ajouter une adresse
+                        </button>
                       </div>
                     )}
                   </motion.div>
@@ -921,12 +844,12 @@ const AccountPage = () => {
                 animate="visible"
               >
                 <motion.h2 variants={itemVariants} className="text-2xl font-bold text-gray-900 mb-8">
-                  Account Settings
+                  Paramètres du compte
                 </motion.h2>
 
                 <motion.div variants={itemVariants} className="space-y-8">
                   <div className="bg-white p-6 rounded-lg border border-gray-200">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Communication Preferences</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Préférences de communication</h3>
                     <div className="space-y-4">
                       <div className="flex items-start">
                         <div className="flex items-center h-5">
@@ -940,7 +863,7 @@ const AccountPage = () => {
                         </div>
                         <div className="ml-3 text-sm">
                           <label htmlFor="newsletter" className="font-medium text-gray-700">Newsletter</label>
-                          <p className="text-gray-500">Receive our newsletter with product updates and exclusive offers</p>
+                          <p className="text-gray-500">Recevoir notre newsletter avec les mises à jour et offres exclusives</p>
                         </div>
                       </div>
                       
@@ -955,8 +878,8 @@ const AccountPage = () => {
                           />
                         </div>
                         <div className="ml-3 text-sm">
-                          <label htmlFor="order_updates" className="font-medium text-gray-700">Order Updates</label>
-                          <p className="text-gray-500">Receive notifications about your order status</p>
+                          <label htmlFor="order_updates" className="font-medium text-gray-700">Mises à jour des commandes</label>
+                          <p className="text-gray-500">Recevoir des notifications sur l'état de vos commandes</p>
                         </div>
                       </div>
                       
@@ -972,25 +895,25 @@ const AccountPage = () => {
                         </div>
                         <div className="ml-3 text-sm">
                           <label htmlFor="promotions" className="font-medium text-gray-700">Promotions</label>
-                          <p className="text-gray-500">Receive information about sales and special offers</p>
+                          <p className="text-gray-500">Recevoir des informations sur les ventes et offres spéciales</p>
                         </div>
                       </div>
                     </div>
                     
                     <div className="mt-6">
                       <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition-colors">
-                        Save Preferences
+                        Enregistrer les préférences
                       </button>
                     </div>
                   </div>
                   
                   <div className="bg-white p-6 rounded-lg border border-gray-200">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Delete Account</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Supprimer le compte</h3>
                     <p className="text-gray-600 mb-4">
-                      Once you delete your account, there is no going back. Please be certain.
+                      Une fois que vous supprimez votre compte, il n'y a pas de retour en arrière. Merci d'être certain de votre décision.
                     </p>
                     <button className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors">
-                      Delete My Account
+                      Supprimer mon compte
                     </button>
                   </div>
                 </motion.div>
