@@ -1,5 +1,5 @@
 import { createClientFromRequest } from './server'
-import { createClient as createBrowserClient } from './client'
+import { supabase } from './client'
 import { Database } from './types'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
@@ -23,11 +23,11 @@ export type AddressInfo = {
  */
 export async function getProfile(userId: string, req?: any, res?: any): Promise<Profile | null> {
   // Use appropriate client based on context
-  const supabase = req 
+  const client = req
     ? createClientFromRequest(req, res)
-    : createBrowserClient();
+    : supabase;
   
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from('profiles')
     .select('*')
     .eq('id', userId)
@@ -45,8 +45,8 @@ export async function getProfile(userId: string, req?: any, res?: any): Promise<
  * Update user profile
  */
 export async function updateProfile(userId: string, profileData: Partial<Profile>) {
-  const supabase = createBrowserClient()
-  
+  // Utiliser le client Supabase importé
+
   const { data, error } = await supabase
     .from('profiles')
     .update({
@@ -68,8 +68,7 @@ export async function updateProfile(userId: string, profileData: Partial<Profile
  * Update shipping address
  */
 export async function updateShippingAddress(userId: string, address: AddressInfo) {
-  const supabase = createBrowserClient()
-  
+  // Utiliser le client Supabase importé
   const { data, error } = await supabase
     .from('profiles')
     .update({
@@ -79,11 +78,11 @@ export async function updateShippingAddress(userId: string, address: AddressInfo
     .eq('id', userId)
     .select()
     .single()
-  
+
   if (error) {
     throw new Error(error.message)
   }
-  
+
   return data
 }
 
@@ -91,8 +90,7 @@ export async function updateShippingAddress(userId: string, address: AddressInfo
  * Update billing address
  */
 export async function updateBillingAddress(userId: string, address: AddressInfo) {
-  const supabase = createBrowserClient()
-  
+  // Utiliser le client Supabase importé
   const { data, error } = await supabase
     .from('profiles')
     .update({
@@ -115,11 +113,11 @@ export async function updateBillingAddress(userId: string, address: AddressInfo)
  */
 export async function getUserOrders(userId: string, req?: any, res?: any) {
   // Use appropriate client based on context
-  const supabase = req
+  const client = req
     ? createClientFromRequest(req, res)
-    : createBrowserClient();
+    : supabase;
   
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from('orders')
     .select('*')
     .eq('user_id', userId)
@@ -138,11 +136,11 @@ export async function getUserOrders(userId: string, req?: any, res?: any) {
  */
 export async function getOrderById(orderId: number, userId: string, req?: any, res?: any) {
   // Use appropriate client based on context
-  const supabase = req
+  const client = req
     ? createClientFromRequest(req, res)
-    : createBrowserClient();
+    : supabase;
   
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from('orders')
     .select('*')
     .eq('id', orderId)

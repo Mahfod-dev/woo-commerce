@@ -5,9 +5,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useNotification } from '@/context/notificationContext';
-import { getUser, signOut } from '@/lib/supabase/auth';
-import { getProfile, updateProfile, updateShippingAddress, updateBillingAddress, getUserOrders } from '@/lib/supabase/profile';
+import { getUser, signOut, getUserProfile } from '@/lib/supabase/auth';
+import { updateProfile, updateShippingAddress, updateBillingAddress } from '@/lib/supabase/profile';
 import { Database } from '@/lib/supabase/types';
+import '@/app/styles/account.css';
 
 // Types
 type ProfileType = Database['public']['Tables']['profiles']['Row'];
@@ -31,14 +32,15 @@ const AccountPage = () => {
   const router = useRouter();
   const { addNotification } = useNotification();
   
-  const [activeTab, setActiveTab] = useState('profile');
+  // Forcer l'affichage des commandes au démarrage pour déboguer
+  const [activeTab, setActiveTab] = useState('orders');
   const [userData, setUserData] = useState<ProfileType | null>(null);
   const [orders, setOrders] = useState<OrderType[]>([]);
   const [claims, setClaims] = useState<any[]>([]); // For demo purposes
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [loadingClaims, setLoadingClaims] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -47,13 +49,18 @@ const AccountPage = () => {
     password: '',
     confirm_password: '',
   });
-  
+
   const [claimForm, setClaimForm] = useState({
     orderId: '',
     type: 'product_issue',
     description: '',
   });
-  
+
+  const [editingAddress, setEditingAddress] = useState<{
+    type: 'shipping' | 'billing';
+    data: AddressInfo;
+  } | null>(null);
+
   const [showClaimForm, setShowClaimForm] = useState(false);
   const [claimErrors, setClaimErrors] = useState<{
     orderId?: string;
@@ -84,15 +91,37 @@ const AccountPage = () => {
     },
   };
 
+  // Fonction pour obtenir la dernière adresse d'une commande
+  const getLatestAddress = (orders: OrderType[], addressType: 'shipping' | 'billing'): AddressInfo | null => {
+    if (!orders || orders.length === 0) return null;
+
+    // Trier les commandes par date décroissante
+    const sortedOrders = [...orders].sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      return dateB - dateA;
+    });
+
+    // Récupérer la première commande qui a une adresse valide
+    for (const order of sortedOrders) {
+      const address = addressType === 'shipping' ? order.shipping_address : order.billing_address;
+      if (address && address.address_1) {
+        return address as AddressInfo;
+      }
+    }
+
+    return null;
+  };
+
   // Load user data
   useEffect(() => {
     async function loadUserData() {
       setIsLoading(true);
-      
+
       try {
         // Get the current user from Supabase
         const user = await getUser();
-        
+
         if (!user) {
           // User not authenticated, redirect to login
           addNotification({
@@ -103,10 +132,10 @@ const AccountPage = () => {
           router.push('/login');
           return;
         }
-        
+
         // Get user profile from Supabase
-        const profile = await getProfile(user.id);
-        
+        const profile = await getUserProfile(user.id);
+
         if (profile) {
           setUserData(profile);
           setFormData({
@@ -118,16 +147,142 @@ const AccountPage = () => {
             confirm_password: '',
           });
         }
-        
-        // Get user orders
-        const userOrders = await getUserOrders(user.id);
-        setOrders(userOrders);
-        
+
+        // Get user orders using improved fetching with retries
+        const fetchOrders = async (retries = 3) => {
+          try {
+            console.log('Tentative de récupération des commandes...');
+
+            // D'abord essayer l'API admin avec l'ID utilisateur standardisé
+            console.log('Récupération des commandes pour utilisateur:', user.id);
+            const response = await fetch(`/api/admin-get-orders?userId=${user.id}`);
+
+            if (response.ok) {
+              const data = await response.json();
+              console.log('Commandes récupérées via API admin:', data.orders?.length || 0);
+              if (data.orders?.length > 0) {
+                console.log('Structure des commandes:', JSON.stringify(data.orders).substring(0, 200) + '...');
+                setOrders(data.orders);
+
+                // Vérifier si le profil utilisateur a des adresses, sinon utiliser celles des commandes
+                const userProfile = await getUserProfile(user.id);
+                if (userProfile) {
+                  // Si l'utilisateur n'a pas d'adresse de facturation, utiliser celle de la dernière commande
+                  if (!userProfile.billing_address) {
+                    const lastBillingAddress = getLatestAddress(data.orders, 'billing');
+                    if (lastBillingAddress) {
+                      await updateBillingAddress(user.id, lastBillingAddress);
+                      console.log('Adresse de facturation mise à jour depuis la dernière commande');
+                    }
+                  }
+
+                  // Si l'utilisateur n'a pas d'adresse de livraison, utiliser celle de la dernière commande
+                  if (!userProfile.shipping_address) {
+                    const lastShippingAddress = getLatestAddress(data.orders, 'shipping');
+                    if (lastShippingAddress) {
+                      await updateShippingAddress(user.id, lastShippingAddress);
+                      console.log('Adresse de livraison mise à jour depuis la dernière commande');
+                    }
+                  }
+
+                  // Rafraîchir les données utilisateur après la mise à jour
+                  const updatedProfile = await getUserProfile(user.id);
+                  if (updatedProfile) {
+                    setUserData(updatedProfile);
+                  }
+                }
+
+                return;
+              } else {
+                console.log('Aucune commande récupérée via API admin, essai de l\'API standard');
+              }
+            } else {
+              const errorText = await response.text();
+              console.error('Échec API admin:', errorText);
+              console.log('Tentative avec l\'API standard après échec admin...');
+            }
+
+            // Fallback: essayer l'API standard avec standardization
+            try {
+              const stdResponse = await fetch('/api/user-orders');
+              if (stdResponse.ok) {
+                const stdData = await stdResponse.json();
+                console.log('Commandes récupérées via API standard:', stdData.orders?.length || 0);
+                setOrders(stdData.orders || []);
+
+                // Même logique de récupération d'adresses avec l'API standard
+                if (stdData.orders && stdData.orders.length > 0) {
+                  const userProfile = await getUserProfile(user.id);
+                  if (userProfile) {
+                    if (!userProfile.billing_address) {
+                      const lastBillingAddress = getLatestAddress(stdData.orders, 'billing');
+                      if (lastBillingAddress) {
+                        await updateBillingAddress(user.id, lastBillingAddress);
+                      }
+                    }
+
+                    if (!userProfile.shipping_address) {
+                      const lastShippingAddress = getLatestAddress(stdData.orders, 'shipping');
+                      if (lastShippingAddress) {
+                        await updateShippingAddress(user.id, lastShippingAddress);
+                      }
+                    }
+
+                    const updatedProfile = await getUserProfile(user.id);
+                    if (updatedProfile) {
+                      setUserData(updatedProfile);
+                    }
+                  }
+                }
+              } else {
+                const errorText = await stdResponse.text();
+                console.error('Échec API standard:', errorText);
+
+                // Tenter à nouveau si des tentatives restent
+                if (retries > 0) {
+                  console.log(`Nouvelle tentative de récupération (${retries} tentatives restantes)...`);
+                  setTimeout(() => fetchOrders(retries - 1), 1000);
+                } else {
+                  setOrders([]);
+                  addNotification({
+                    type: 'warning',
+                    message: 'Impossible de récupérer votre historique de commandes.',
+                    duration: 5000,
+                  });
+                }
+              }
+            } catch (fallbackError) {
+              console.error('Erreur fallback:', fallbackError);
+
+              // Tenter à nouveau si des tentatives restent
+              if (retries > 0) {
+                console.log(`Nouvelle tentative de récupération (${retries} tentatives restantes)...`);
+                setTimeout(() => fetchOrders(retries - 1), 1000);
+              } else {
+                setOrders([]);
+              }
+            }
+          } catch (orderError) {
+            console.error('Erreur récupération commandes:', orderError);
+
+            // Tenter à nouveau si des tentatives restent
+            if (retries > 0) {
+              console.log(`Nouvelle tentative de récupération (${retries} tentatives restantes)...`);
+              setTimeout(() => fetchOrders(retries - 1), 1000);
+            } else {
+              setOrders([]);
+            }
+          }
+        };
+
+        // Appeler la fonction avec les tentatives
+        fetchOrders();
+
         // For demo purposes, add mock claims
         const mockClaims = [
           {
             id: 1,
-            orderId: userOrders.length > 0 ? userOrders[0].id : 1148,
+            orderId: orders.length > 0 ? orders[0].id : 1148,
             type: 'product_issue',
             description: 'Le produit ne fonctionne pas comme prévu.',
             status: 'resolved',
@@ -135,7 +290,7 @@ const AccountPage = () => {
           },
           {
             id: 2,
-            orderId: userOrders.length > 1 ? userOrders[1].id : 1142,
+            orderId: orders.length > 1 ? orders[1].id : 1142,
             type: 'late_delivery',
             description: "Ma commande n'est pas arrivée dans les délais indiqués.",
             status: 'in_review',
@@ -154,7 +309,7 @@ const AccountPage = () => {
         setIsLoading(false);
       }
     }
-    
+
     loadUserData();
   }, [router, addNotification]);
 
@@ -299,12 +454,29 @@ const AccountPage = () => {
 
   // Format date for display
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+    try {
+      if (!dateString) return 'Date inconnue';
+
+      // Log pour diagnostiquer le format de la date
+      console.log('Formattage de la date:', dateString);
+
+      const date = new Date(dateString);
+
+      // Vérifier si la date est valide
+      if (isNaN(date.getTime())) {
+        console.error('Date invalide:', dateString);
+        return 'Date invalide';
+      }
+
+      return date.toLocaleDateString('fr-FR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    } catch (error) {
+      console.error('Erreur lors du formatage de la date:', error);
+      return 'Erreur de date';
+    }
   };
 
   // Get status badge color
@@ -324,11 +496,28 @@ const AccountPage = () => {
   };
 
   // Format price
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(price);
+  const formatPrice = (price: number | string) => {
+    try {
+      // Log pour diagnostiquer le format du prix
+      console.log('Formattage du prix:', price, typeof price);
+
+      // Convertir en nombre si c'est une chaîne
+      const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+
+      // Vérifier si le prix est un nombre valide
+      if (isNaN(numPrice)) {
+        console.error('Prix invalide:', price);
+        return '0,00 €';
+      }
+
+      return new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: 'EUR',
+      }).format(numPrice);
+    } catch (error) {
+      console.error('Erreur lors du formatage du prix:', error);
+      return '0,00 €';
+    }
   };
 
   if (isLoading) {
@@ -343,9 +532,9 @@ const AccountPage = () => {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-16">
+    <div className="bg-gray-50 min-h-screen pb-16 account-container">
       {/* Account Header */}
-      <div className="bg-gradient-to-r from-indigo-700 to-purple-700 text-white">
+      <div className="bg-gradient-to-r from-indigo-700 to-purple-700 text-white account-header">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -392,7 +581,7 @@ const AccountPage = () => {
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="bg-white rounded-xl shadow-lg overflow-hidden"
+          className="bg-white rounded-xl shadow-lg overflow-hidden account-content"
         >
           {/* Tabs */}
           <div className="px-4 sm:px-0 border-b border-gray-200">
@@ -660,71 +849,123 @@ const AccountPage = () => {
                   Mes Commandes
                 </motion.h2>
 
-                {orders.length === 0 ? (
-                  <motion.div variants={itemVariants} className="text-center py-16">
-                    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                    </svg>
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">Aucune commande</h3>
-                    <p className="mt-1 text-sm text-gray-500">Vous n'avez pas encore passé de commande.</p>
+                {orders && orders.length > 0 ? (
+                  <div className="space-y-8">
+                    {orders.map((order, index) => (
+                      <div key={`order-${order.id}`} className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                        <div className="bg-gray-50 px-6 py-4 flex justify-between items-center">
+                          <div>
+                            <h3 className="text-lg font-medium text-gray-900">Commande #{order.id}</h3>
+                            <p className="text-sm text-gray-600">
+                              {formatDate(order.created_at)} ·
+                              <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                                {order.status === 'processing' ? 'En traitement' :
+                                 order.status === 'completed' ? 'Terminée' :
+                                 order.status === 'on-hold' ? 'En attente' :
+                                 order.status === 'cancelled' ? 'Annulée' : 'Statut inconnu'}
+                              </span>
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-lg font-semibold text-gray-900">{formatPrice(order.total)}</p>
+                            <Link href={`/account/orders/${order.id}`} className="text-sm text-indigo-600 hover:text-indigo-800">
+                              Voir les détails
+                            </Link>
+                          </div>
+                        </div>
+
+                        <div className="px-6 py-4 border-t border-gray-200">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                              <h4 className="text-sm font-medium text-gray-900 mb-2">Articles ({order.items?.length || 0})</h4>
+                              <ul className="space-y-3">
+                                {order.items && order.items.map((item, idx) => (
+                                  <li key={`item-${idx}`} className="flex items-start">
+                                    <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-3">
+                                      <img src={item.image_url || '/images/placeholder.jpg'} alt={item.product_name} className="h-full w-full object-cover" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-sm font-medium text-gray-900 truncate">{item.product_name}</p>
+                                      <p className="text-xs text-gray-500">
+                                        {formatPrice(item.price)} × {item.quantity}
+                                      </p>
+                                    </div>
+                                    <div className="flex-shrink-0 ml-2">
+                                      <p className="text-sm font-medium text-gray-900">{formatPrice(item.subtotal)}</p>
+                                    </div>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <h4 className="text-sm font-medium text-gray-900 mb-2">Adresse de livraison</h4>
+                                {order.shipping_address ? (
+                                  <div className="text-sm text-gray-600">
+                                    <p>{order.shipping_address.first_name} {order.shipping_address.last_name}</p>
+                                    <p>{order.shipping_address.address_1}</p>
+                                    {order.shipping_address.address_2 && <p>{order.shipping_address.address_2}</p>}
+                                    <p>{order.shipping_address.postcode}, {order.shipping_address.city}</p>
+                                    <p>{order.shipping_address.country}</p>
+                                  </div>
+                                ) : (
+                                  <p className="text-sm text-gray-500">Non disponible</p>
+                                )}
+                              </div>
+
+                              <div>
+                                <h4 className="text-sm font-medium text-gray-900 mb-2">Adresse de facturation</h4>
+                                {order.billing_address ? (
+                                  <div className="text-sm text-gray-600">
+                                    <p>{order.billing_address.first_name} {order.billing_address.last_name}</p>
+                                    <p>{order.billing_address.address_1}</p>
+                                    {order.billing_address.address_2 && <p>{order.billing_address.address_2}</p>}
+                                    <p>{order.billing_address.postcode}, {order.billing_address.city}</p>
+                                    <p>{order.billing_address.country}</p>
+                                    {order.billing_address.phone && <p>Tél: {order.billing_address.phone}</p>}
+                                    {order.billing_address.email && <p>Email: {order.billing_address.email}</p>}
+                                  </div>
+                                ) : (
+                                  <p className="text-sm text-gray-500">Non disponible</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="bg-gray-50 px-6 py-3 border-t border-gray-200 flex justify-end space-x-3">
+                          <button
+                            className="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                            onClick={() => window.print()}
+                          >
+                            Imprimer
+                          </button>
+                          <Link
+                            href={`/account/orders/invoice?orderId=${order.id}`}
+                            className="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                          >
+                            Voir la facture
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+                    <div className="mx-auto h-24 w-24 text-gray-400">
+                      <svg className="h-full w-full" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                      </svg>
+                    </div>
+                    <h3 className="mt-4 text-lg font-medium text-gray-900">Aucune commande trouvée</h3>
+                    <p className="mt-2 text-gray-500">Vous n'avez pas encore passé de commande.</p>
                     <div className="mt-6">
-                      <Link href="/products" className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Commencer les achats
-                        <svg className="ml-2 -mr-1 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
+                      <Link href="/products" className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                        Découvrir nos produits
                       </Link>
                     </div>
-                  </motion.div>
-                ) : (
-                  <motion.div variants={itemVariants} className="overflow-hidden rounded-lg shadow">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Commande
-                          </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Date
-                          </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Statut
-                          </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Total
-                          </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {orders.map((order) => (
-                          <tr key={order.id} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="text-sm font-medium text-gray-900">#{order.id}</span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="text-sm text-gray-500">{formatDate(order.created_at)}</span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
-                                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {formatPrice(order.total)}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                              <Link href={`/account/orders/${order.id}`} className="text-indigo-600 hover:text-indigo-900 mr-4">
-                                Voir
-                              </Link>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </motion.div>
+                  </div>
                 )}
               </motion.div>
             )}
@@ -740,100 +981,457 @@ const AccountPage = () => {
                 </motion.h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <motion.div variants={itemVariants} className="bg-gray-50 rounded-lg p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <h3 className="text-lg font-medium text-gray-900">Adresse de facturation</h3>
-                      <button className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center">
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                        </svg>
-                        Modifier
-                      </button>
-                    </div>
-                    
-                    {userData?.billing_address ? (
-                      <div className="space-y-2">
-                        <p className="text-gray-800">
-                          {(userData.billing_address as AddressInfo).first_name} {(userData.billing_address as AddressInfo).last_name}
-                        </p>
-                        {(userData.billing_address as AddressInfo).company && 
-                          <p className="text-gray-600">{(userData.billing_address as AddressInfo).company}</p>
-                        }
-                        <p className="text-gray-600">{(userData.billing_address as AddressInfo).address_1}</p>
-                        {(userData.billing_address as AddressInfo).address_2 && 
-                          <p className="text-gray-600">{(userData.billing_address as AddressInfo).address_2}</p>
-                        }
-                        <p className="text-gray-600">
-                          {(userData.billing_address as AddressInfo).postcode} {(userData.billing_address as AddressInfo).city}
-                        </p>
-                        <p className="text-gray-600">
-                          {(userData.billing_address as AddressInfo).state ? 
-                            `${(userData.billing_address as AddressInfo).state}, ` : 
-                            ''
+                  {/* Adresse de facturation */}
+                  <motion.div variants={itemVariants} className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <h3 className="text-lg font-medium text-gray-900">Adresse de facturation</h3>
+
+                        {userData?.billing_address ? (
+                          <button
+                            onClick={() => {
+                              const billingAddress = userData.billing_address as AddressInfo;
+                              setEditingAddress({
+                                type: 'billing',
+                                data: {
+                                  first_name: billingAddress.first_name || userData.first_name || '',
+                                  last_name: billingAddress.last_name || userData.last_name || '',
+                                  address_1: billingAddress.address_1 || '',
+                                  address_2: billingAddress.address_2 || '',
+                                  city: billingAddress.city || '',
+                                  state: billingAddress.state || '',
+                                  postcode: billingAddress.postcode || '',
+                                  country: billingAddress.country || 'France',
+                                  email: billingAddress.email || userData.email || '',
+                                  phone: billingAddress.phone || userData.phone || '',
+                                  company: billingAddress.company || '',
+                                },
+                              });
+                            }}
+                            className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center"
+                          >
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                            Modifier
+                          </button>
+                        ) : null}
+                      </div>
+
+                      {userData?.billing_address ? (
+                        <div className="space-y-2">
+                          <p className="text-gray-800">
+                            {(userData.billing_address as AddressInfo).first_name} {(userData.billing_address as AddressInfo).last_name}
+                          </p>
+                          {(userData.billing_address as AddressInfo).company &&
+                            <p className="text-gray-600">{(userData.billing_address as AddressInfo).company}</p>
                           }
-                          {(userData.billing_address as AddressInfo).country}
-                        </p>
-                        {(userData.billing_address as AddressInfo).phone && 
-                          <p className="text-gray-600">Téléphone: {(userData.billing_address as AddressInfo).phone}</p>
-                        }
-                        {(userData.billing_address as AddressInfo).email && 
-                          <p className="text-gray-600">Email: {(userData.billing_address as AddressInfo).email}</p>
-                        }
-                      </div>
-                    ) : (
-                      <div>
-                        <p className="text-gray-500">Vous n'avez pas encore ajouté d'adresse de facturation.</p>
-                        <button className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
-                          Ajouter une adresse
-                        </button>
-                      </div>
-                    )}
+                          <p className="text-gray-600">{(userData.billing_address as AddressInfo).address_1}</p>
+                          {(userData.billing_address as AddressInfo).address_2 &&
+                            <p className="text-gray-600">{(userData.billing_address as AddressInfo).address_2}</p>
+                          }
+                          <p className="text-gray-600">
+                            {(userData.billing_address as AddressInfo).postcode} {(userData.billing_address as AddressInfo).city}
+                          </p>
+                          <p className="text-gray-600">
+                            {(userData.billing_address as AddressInfo).state ?
+                              `${(userData.billing_address as AddressInfo).state}, ` :
+                              ''
+                            }
+                            {(userData.billing_address as AddressInfo).country}
+                          </p>
+                          {(userData.billing_address as AddressInfo).phone &&
+                            <p className="text-gray-600">Téléphone: {(userData.billing_address as AddressInfo).phone}</p>
+                          }
+                          {(userData.billing_address as AddressInfo).email &&
+                            <p className="text-gray-600">Email: {(userData.billing_address as AddressInfo).email}</p>
+                          }
+                        </div>
+                      ) : (
+                        <div>
+                          <div className="flex items-center justify-center h-32 border-2 border-dashed border-gray-300 rounded-lg">
+                            <div className="text-center">
+                              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                              </svg>
+                              <p className="mt-1 text-sm text-gray-500">Vous n'avez pas encore ajouté d'adresse de facturation</p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => {
+                              // Utiliser les informations de l'utilisateur pour les champs par défaut
+                              setEditingAddress({
+                                type: 'billing',
+                                data: {
+                                  first_name: userData?.first_name || '',
+                                  last_name: userData?.last_name || '',
+                                  address_1: '',
+                                  address_2: '',
+                                  city: '',
+                                  state: '',
+                                  postcode: '',
+                                  country: 'France',
+                                  email: userData?.email || '',
+                                  phone: userData?.phone || '',
+                                  company: '',
+                                },
+                              });
+                            }}
+                            className="mt-4 w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+                          >
+                            Ajouter une adresse
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </motion.div>
-                  
-                  <motion.div variants={itemVariants} className="bg-gray-50 rounded-lg p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <h3 className="text-lg font-medium text-gray-900">Adresse de livraison</h3>
-                      <button className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center">
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                        </svg>
-                        Modifier
-                      </button>
-                    </div>
-                    
-                    {userData?.shipping_address ? (
-                      <div className="space-y-2">
-                        <p className="text-gray-800">
-                          {(userData.shipping_address as AddressInfo).first_name} {(userData.shipping_address as AddressInfo).last_name}
-                        </p>
-                        {(userData.shipping_address as AddressInfo).company && 
-                          <p className="text-gray-600">{(userData.shipping_address as AddressInfo).company}</p>
-                        }
-                        <p className="text-gray-600">{(userData.shipping_address as AddressInfo).address_1}</p>
-                        {(userData.shipping_address as AddressInfo).address_2 && 
-                          <p className="text-gray-600">{(userData.shipping_address as AddressInfo).address_2}</p>
-                        }
-                        <p className="text-gray-600">
-                          {(userData.shipping_address as AddressInfo).postcode} {(userData.shipping_address as AddressInfo).city}
-                        </p>
-                        <p className="text-gray-600">
-                          {(userData.shipping_address as AddressInfo).state ? 
-                            `${(userData.shipping_address as AddressInfo).state}, ` : 
-                            ''
-                          }
-                          {(userData.shipping_address as AddressInfo).country}
-                        </p>
+
+                  {/* Adresse de livraison */}
+                  <motion.div variants={itemVariants} className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <h3 className="text-lg font-medium text-gray-900">Adresse de livraison</h3>
+
+                        {userData?.shipping_address ? (
+                          <button
+                            onClick={() => {
+                              const shippingAddress = userData.shipping_address as AddressInfo;
+                              setEditingAddress({
+                                type: 'shipping',
+                                data: {
+                                  first_name: shippingAddress.first_name || userData.first_name || '',
+                                  last_name: shippingAddress.last_name || userData.last_name || '',
+                                  address_1: shippingAddress.address_1 || '',
+                                  address_2: shippingAddress.address_2 || '',
+                                  city: shippingAddress.city || '',
+                                  state: shippingAddress.state || '',
+                                  postcode: shippingAddress.postcode || '',
+                                  country: shippingAddress.country || 'France',
+                                  company: shippingAddress.company || '',
+                                },
+                              });
+                            }}
+                            className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center"
+                          >
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                            Modifier
+                          </button>
+                        ) : null}
                       </div>
-                    ) : (
-                      <div>
-                        <p className="text-gray-500">Vous n'avez pas encore ajouté d'adresse de livraison.</p>
-                        <button className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
-                          Ajouter une adresse
+
+                      {userData?.shipping_address ? (
+                        <div className="space-y-2">
+                          <p className="text-gray-800">
+                            {(userData.shipping_address as AddressInfo).first_name} {(userData.shipping_address as AddressInfo).last_name}
+                          </p>
+                          {(userData.shipping_address as AddressInfo).company &&
+                            <p className="text-gray-600">{(userData.shipping_address as AddressInfo).company}</p>
+                          }
+                          <p className="text-gray-600">{(userData.shipping_address as AddressInfo).address_1}</p>
+                          {(userData.shipping_address as AddressInfo).address_2 &&
+                            <p className="text-gray-600">{(userData.shipping_address as AddressInfo).address_2}</p>
+                          }
+                          <p className="text-gray-600">
+                            {(userData.shipping_address as AddressInfo).postcode} {(userData.shipping_address as AddressInfo).city}
+                          </p>
+                          <p className="text-gray-600">
+                            {(userData.shipping_address as AddressInfo).state ?
+                              `${(userData.shipping_address as AddressInfo).state}, ` :
+                              ''
+                            }
+                            {(userData.shipping_address as AddressInfo).country}
+                          </p>
+                        </div>
+                      ) : (
+                        <div>
+                          <div className="flex items-center justify-center h-32 border-2 border-dashed border-gray-300 rounded-lg">
+                            <div className="text-center">
+                              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                              </svg>
+                              <p className="mt-1 text-sm text-gray-500">Vous n'avez pas encore ajouté d'adresse de livraison</p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => {
+                              // Utiliser les informations de l'utilisateur pour les champs par défaut
+                              setEditingAddress({
+                                type: 'shipping',
+                                data: {
+                                  first_name: userData?.first_name || '',
+                                  last_name: userData?.last_name || '',
+                                  address_1: '',
+                                  address_2: '',
+                                  city: '',
+                                  state: '',
+                                  postcode: '',
+                                  country: 'France',
+                                  company: '',
+                                },
+                              });
+                            }}
+                            className="mt-4 w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+                          >
+                            Ajouter une adresse
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {userData?.shipping_address && userData?.billing_address && (
+                      <div className="border-t border-gray-200 px-4 py-3 flex justify-end">
+                        <button
+                          onClick={() => {
+                            if (userData?.billing_address) {
+                              setEditingAddress({
+                                type: 'shipping',
+                                data: userData.billing_address as AddressInfo
+                              });
+                            }
+                          }}
+                          className="text-sm text-indigo-600 hover:text-indigo-800"
+                        >
+                          Utiliser l'adresse de facturation
                         </button>
                       </div>
                     )}
                   </motion.div>
                 </div>
+
+                {/* Modal d'édition d'adresse */}
+                {editingAddress && (
+                  <div className="fixed inset-0 overflow-y-auto z-50 pt-20" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                    <div className="flex items-start justify-center min-h-screen px-4 pb-20 text-center sm:p-0">
+                      <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onClick={() => setEditingAddress(null)}></div>
+
+                      <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                      <div className="inline-block bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all max-w-lg w-full sm:p-6 relative top-20">
+                        <div>
+                          <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                            {editingAddress.type === 'shipping' ? 'Adresse de livraison' : 'Adresse de facturation'}
+                          </h3>
+                          <form className="mt-5 space-y-4" onSubmit={(e) => {
+                            e.preventDefault();
+                            if (!userData) return;
+
+                            const updateFunction = editingAddress.type === 'shipping'
+                              ? updateShippingAddress
+                              : updateBillingAddress;
+
+                            updateFunction(userData.id, editingAddress.data)
+                              .then((updatedProfile) => {
+                                if (updatedProfile) {
+                                  setUserData(updatedProfile);
+                                  setEditingAddress(null);
+                                  addNotification({
+                                    type: 'success',
+                                    message: `Adresse ${editingAddress.type === 'shipping' ? 'de livraison' : 'de facturation'} mise à jour avec succès`,
+                                    duration: 3000,
+                                  });
+                                }
+                              })
+                              .catch((error) => {
+                                console.error('Error updating address:', error);
+                                addNotification({
+                                  type: 'error',
+                                  message: `Impossible de mettre à jour l'adresse: ${error.message}`,
+                                  duration: 5000,
+                                });
+                              });
+                          }}>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">Prénom</label>
+                                <input
+                                  type="text"
+                                  id="first_name"
+                                  value={editingAddress.data.first_name}
+                                  onChange={(e) => setEditingAddress({
+                                    ...editingAddress,
+                                    data: { ...editingAddress.data, first_name: e.target.value }
+                                  })}
+                                  className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">Nom</label>
+                                <input
+                                  type="text"
+                                  id="last_name"
+                                  value={editingAddress.data.last_name}
+                                  onChange={(e) => setEditingAddress({
+                                    ...editingAddress,
+                                    data: { ...editingAddress.data, last_name: e.target.value }
+                                  })}
+                                  className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                  required
+                                />
+                              </div>
+                            </div>
+
+                            <div>
+                              <label htmlFor="company" className="block text-sm font-medium text-gray-700">Entreprise (optionnel)</label>
+                              <input
+                                type="text"
+                                id="company"
+                                value={editingAddress.data.company || ''}
+                                onChange={(e) => setEditingAddress({
+                                  ...editingAddress,
+                                  data: { ...editingAddress.data, company: e.target.value }
+                                })}
+                                className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                              />
+                            </div>
+
+                            <div>
+                              <label htmlFor="address_1" className="block text-sm font-medium text-gray-700">Adresse</label>
+                              <input
+                                type="text"
+                                id="address_1"
+                                value={editingAddress.data.address_1}
+                                onChange={(e) => setEditingAddress({
+                                  ...editingAddress,
+                                  data: { ...editingAddress.data, address_1: e.target.value }
+                                })}
+                                className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                required
+                              />
+                            </div>
+
+                            <div>
+                              <label htmlFor="address_2" className="block text-sm font-medium text-gray-700">Complément d'adresse (optionnel)</label>
+                              <input
+                                type="text"
+                                id="address_2"
+                                value={editingAddress.data.address_2 || ''}
+                                onChange={(e) => setEditingAddress({
+                                  ...editingAddress,
+                                  data: { ...editingAddress.data, address_2: e.target.value }
+                                })}
+                                className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <label htmlFor="postal_code" className="block text-sm font-medium text-gray-700">Code postal</label>
+                                <input
+                                  type="text"
+                                  id="postal_code"
+                                  value={editingAddress.data.postcode}
+                                  onChange={(e) => setEditingAddress({
+                                    ...editingAddress,
+                                    data: { ...editingAddress.data, postcode: e.target.value }
+                                  })}
+                                  className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label htmlFor="city" className="block text-sm font-medium text-gray-700">Ville</label>
+                                <input
+                                  type="text"
+                                  id="city"
+                                  value={editingAddress.data.city}
+                                  onChange={(e) => setEditingAddress({
+                                    ...editingAddress,
+                                    data: { ...editingAddress.data, city: e.target.value }
+                                  })}
+                                  className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                  required
+                                />
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <label htmlFor="state" className="block text-sm font-medium text-gray-700">Région/État (optionnel)</label>
+                                <input
+                                  type="text"
+                                  id="state"
+                                  value={editingAddress.data.state || ''}
+                                  onChange={(e) => setEditingAddress({
+                                    ...editingAddress,
+                                    data: { ...editingAddress.data, state: e.target.value }
+                                  })}
+                                  className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                />
+                              </div>
+                              <div>
+                                <label htmlFor="country" className="block text-sm font-medium text-gray-700">Pays</label>
+                                <input
+                                  type="text"
+                                  id="country"
+                                  value={editingAddress.data.country}
+                                  onChange={(e) => setEditingAddress({
+                                    ...editingAddress,
+                                    data: { ...editingAddress.data, country: e.target.value }
+                                  })}
+                                  className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                  required
+                                />
+                              </div>
+                            </div>
+
+                            {editingAddress.type === 'billing' && (
+                              <>
+                                <div>
+                                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Téléphone</label>
+                                  <input
+                                    type="tel"
+                                    id="phone"
+                                    value={editingAddress.data.phone || ''}
+                                    onChange={(e) => setEditingAddress({
+                                      ...editingAddress,
+                                      data: { ...editingAddress.data, phone: e.target.value }
+                                    })}
+                                    className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                  />
+                                </div>
+
+                                <div>
+                                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+                                  <input
+                                    type="email"
+                                    id="email"
+                                    value={editingAddress.data.email || ''}
+                                    onChange={(e) => setEditingAddress({
+                                      ...editingAddress,
+                                      data: { ...editingAddress.data, email: e.target.value }
+                                    })}
+                                    className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                  />
+                                </div>
+                              </>
+                            )}
+
+                            <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+                              <button
+                                type="submit"
+                                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none sm:col-start-2 sm:text-sm"
+                              >
+                                Enregistrer
+                              </button>
+                              <button
+                                type="button"
+                                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:col-start-1 sm:text-sm"
+                                onClick={() => setEditingAddress(null)}
+                              >
+                                Annuler
+                              </button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </motion.div>
             )}
 

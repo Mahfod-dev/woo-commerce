@@ -5,10 +5,11 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import '@/app/styles/checkout.css';
 import { formatPrice } from '@/lib/wooClient';
-import { createOrder } from '@/lib/woo';
+import { createOrder } from '@/lib/orderService';
 import { useCart } from './CartProvider';
 import { useNotification } from '@/context/notificationContext';
 import StripePaymentForm from './StripePaymentForm';
+import { supabase } from '@/lib/supabase/client';
 
 const CheckoutContent = () => {
 	const router = useRouter();
@@ -39,58 +40,101 @@ const CheckoutContent = () => {
 		(total, item) => total + parseFloat(item.price) * item.quantity,
 		0
 	);
-	const shippingCost = subtotal > 100 ? 0 : 7.99;
+	const shippingCost = 0; // Livraison gratuite
 	const total = subtotal + shippingCost;
 
+	// Chargement des données utilisateur au démarrage
 	useEffect(() => {
-		// Redirection vers la page d'accueil si le panier est vide
-		if (items.length === 0 && !orderCreated) {
-			router.push('/');
-		}
-	}, [items, router, orderCreated]);
+		const loadUserData = async () => {
+			try {
+				const { data: { user } } = await supabase.auth.getUser();
+				if (user) {
+					// Récupérer le profil utilisateur
+					const { data: profile } = await supabase
+						.from('profiles')
+						.select('*')
+						.eq('id', user.id)
+						.single();
+					
+					if (profile) {
+						// Pré-remplir les champs avec les données de profil
+						setFormData(prevData => ({
+							...prevData,
+							firstName: profile.first_name || '',
+							lastName: profile.last_name || '',
+							email: profile.email || '',
+							phone: profile.phone || '',
+							// Utiliser l'adresse de livraison si disponible
+							...(profile.shipping_address && {
+								address: profile.shipping_address.address_1 || '',
+								city: profile.shipping_address.city || '',
+								postalCode: profile.shipping_address.postcode || '',
+								country: profile.shipping_address.country || 'France',
+							}),
+						}));
+					}
+				}
+			} catch (error) {
+				console.error('Erreur lors du chargement des données utilisateur:', error);
+			}
+		};
+		
+		loadUserData();
+	}, []);
 
-	const handleChange = (
-		e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-	) => {
-		const { name, value } = e.target;
-		setFormData((prev) => ({
-			...prev,
-			[name]: value,
-		}));
+	// Gestion des erreurs de paiement
+	const handlePaymentError = (error: any) => {
+		console.error('Erreur de paiement:', error);
+		addNotification({
+			type: 'error',
+			message: 'Échec du paiement. Veuillez vérifier vos informations et réessayer.',
+			duration: 7000
+		});
 	};
 
+	// Gestion des changements dans le formulaire
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+		const { name, value } = e.target;
+		setFormData({
+			...formData,
+			[name]: value,
+		});
+	};
+
+	// Soumission du formulaire de commande
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setIsSubmitting(true);
 		setOrderError('');
 
 		try {
-			// Préparation des données de commande pour WooCommerce
+			// Vérification du panier
+			if (items.length === 0) {
+				throw new Error('Votre panier est vide.');
+			}
+
+			// Création des données de commande
 			const orderData = {
-				payment_method: 'stripe',
-				payment_method_title: 'Carte de crédit (Direct)',
-				set_paid: false, // Le paiement sera confirmé séparément
+				payment_method: formData.paymentMethod,
+				payment_method_title: 'Carte bancaire',
+				set_paid: false,
 				billing: {
 					first_name: formData.firstName,
 					last_name: formData.lastName,
 					address_1: formData.address,
 					city: formData.city,
-					state: '', // Optionnel
 					postcode: formData.postalCode,
 					country: formData.country,
 					email: formData.email,
-					phone: formData.phone,
-					company: '' // Champ potentiellement requis par WooCommerce
+					phone: formData.phone
 				},
 				shipping: {
 					first_name: formData.firstName,
 					last_name: formData.lastName,
 					address_1: formData.address,
 					city: formData.city,
-					state: '', // Optionnel
 					postcode: formData.postalCode,
-					country: formData.country,
-					company: '' // Champ potentiellement requis par WooCommerce
+					country: formData.country
 				},
 				line_items: items.map(item => ({
 					product_id: item.id,
@@ -99,15 +143,66 @@ const CheckoutContent = () => {
 				shipping_lines: [
 					{
 						method_id: 'flat_rate',
-						method_title: subtotal > 100 ? 'Livraison gratuite' : 'Tarif forfaitaire',
+						method_title: 'Livraison gratuite',
 						total: shippingCost.toString()
 					}
 				]
 			};
 
-			// Création de la commande dans WooCommerce
-			const order = await createOrder(orderData);
-			
+			// Récupération de l'ID utilisateur
+			const userResponse = await fetch('/api/auth');
+			const userData = await userResponse.json();
+			const userId = userData?.user?.id;
+
+			if (!userId) {
+				console.warn('Utilisateur non connecté, la commande sera créée sans ID utilisateur');
+			} else {
+				// Enregistrer les adresses dans le profil utilisateur
+				try {
+					// Créer l'objet d'adresse au format attendu par le profil
+					const shippingAddress = {
+						first_name: formData.firstName,
+						last_name: formData.lastName,
+						address_1: formData.address,
+						city: formData.city,
+						postcode: formData.postalCode,
+						country: formData.country,
+					};
+					
+					const billingAddress = {
+						first_name: formData.firstName,
+						last_name: formData.lastName,
+						address_1: formData.address,
+						city: formData.city,
+						postcode: formData.postalCode,
+						country: formData.country,
+						email: formData.email,
+						phone: formData.phone,
+					};
+					
+					// Mettre à jour le profil avec les adresses de livraison et facturation
+					const { data: profileResponse, error: profileError } = await supabase
+						.from('profiles')
+						.update({
+							shipping_address: shippingAddress,
+							billing_address: billingAddress,
+							updated_at: new Date().toISOString()
+						})
+						.eq('id', userId);
+						
+					if (profileError) {
+						console.error('Erreur lors de la mise à jour du profil:', profileError);
+					} else {
+						console.log('Profil mis à jour avec les adresses de commande');
+					}
+				} catch (profileUpdateError) {
+					console.error('Erreur inattendue lors de la mise à jour du profil:', profileUpdateError);
+				}
+			}
+
+			// Création de la commande dans WooCommerce et Supabase
+			const order = await createOrder(orderData, userId || '');
+
 			if (!order) {
 				throw new Error('Échec de création de la commande');
 			}
@@ -197,45 +292,23 @@ const CheckoutContent = () => {
 	};
 	
 	// Gestion des erreurs de paiement
-	const handlePaymentError = (errorMessage: string) => {
-		addNotification({
-			type: 'error',
-			message: `Échec du paiement: ${errorMessage}`,
-			duration: 7000
-		});
-	};
-
-	const isFormValid = () => {
-		const { firstName, lastName, email, phone, address, city, postalCode } =
-			formData;
-		return (
-			firstName &&
-			lastName &&
-			email &&
-			phone &&
-			address &&
-			city &&
-			postalCode
-		);
-	};
-	
-	// Afficher le formulaire de paiement si la commande est créée, sinon afficher le formulaire de commande
 	if (orderCreated && orderDetails) {
 		return (
 			<div className='checkout-container'>
-				<h1 className='text-3xl font-bold mb-6'>Finaliser votre paiement</h1>
-				
-				<div className='max-w-xl mx-auto bg-white p-8 rounded-lg shadow-md'>
-					<h2 className='text-xl font-medium mb-4'>Commande #{orderDetails.orderId}</h2>
-					<p className='mb-6'>Veuillez compléter votre paiement pour confirmer votre commande.</p>
-					
-					<StripePaymentForm 
-						orderId={orderDetails.orderId}
-						orderTotal={orderDetails.total}
-						paymentMethod="card-direct"
-						onSuccess={handlePaymentSuccess}
-						onError={handlePaymentError}
-					/>
+				<div className='max-w-2xl mx-auto mt-8 p-8 bg-white rounded-lg shadow-md'>
+					<h2 className='text-2xl font-bold mb-4'>Finaliser votre commande</h2>
+					<div className='mb-6 p-4 bg-blue-50 rounded-md border border-blue-200'>
+						<p className='mb-2 font-semibold'>Commande #{orderDetails.orderId} créée avec succès!</p>
+						<p className='mb-6'>Veuillez compléter votre paiement pour confirmer votre commande.</p>
+						
+						<StripePaymentForm 
+							orderId={orderDetails.orderId}
+							orderTotal={orderDetails.total}
+							paymentMethod="card-direct"
+							onSuccess={handlePaymentSuccess}
+							onError={handlePaymentError}
+						/>
+					</div>
 				</div>
 			</div>
 		);
@@ -388,46 +461,29 @@ const CheckoutContent = () => {
 								name='country'
 								value={formData.country}
 								onChange={handleChange}
-								className='form-input'
-								required>
+								className='form-input'>
 								<option value='France'>France</option>
-								<option value='Belgium'>Belgique</option>
-								<option value='Switzerland'>Suisse</option>
-								<option value='Germany'>Allemagne</option>
-								<option value='Italy'>Italie</option>
-								<option value='Spain'>Espagne</option>
+								<option value='Belgique'>Belgique</option>
+								<option value='Suisse'>Suisse</option>
+								<option value='Canada'>Canada</option>
+								<option value='Luxembourg'>Luxembourg</option>
 							</select>
 						</div>
 
-						<div className='form-group'>
-							<h3 className='text-lg font-semibold mb-2'>
-								Mode de paiement
-							</h3>
-							<div className='p-3 border rounded-md bg-gray-50'>
-								<div className='font-medium'>Carte de crédit</div>
-								<div className='text-xs text-gray-500'>Payez en toute sécurité avec votre carte de crédit sur ce site</div>
-							</div>
-							<input 
-								type='hidden' 
-								name='paymentMethod' 
-								value='card-direct' 
-							/>
-						</div>
-						
 						{orderError && (
-							<div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+							<div className='error-message mt-4 p-3 bg-red-100 text-red-700 rounded-md'>
 								{orderError}
 							</div>
 						)}
 
-						<button
-							type='submit'
-							className='checkout-btn mt-4'
-							disabled={isSubmitting || !isFormValid()}>
-							{isSubmitting
-								? 'Traitement en cours...'
-								: `Continuer vers le paiement - ${formatPrice(total)}`}
-						</button>
+						<div className='form-submit mt-6'>
+							<button
+								type='submit'
+								className='checkout-button'
+								disabled={isSubmitting}>
+								{isSubmitting ? 'Traitement...' : 'Procéder au paiement'}
+							</button>
+						</div>
 					</form>
 				</div>
 
@@ -436,54 +492,54 @@ const CheckoutContent = () => {
 						Récapitulatif de commande
 					</h2>
 
-					<div className='mb-4'>
-						{items.map((item) => (
-							<div
-								key={item.key}
-								className='cart-item'>
-								<div className='relative w-20 h-20'>
-									<Image
-										src={
-											item.image ||
-											'/images/placeholder.jpg'
-										}
-										alt={item.name}
-										fill
-										className='cart-item-img'
-									/>
+					<div className='summary-items'>
+						<div className='items-list'>
+							{items.map((item, index) => (
+								<div
+									key={index}
+									className='cart-item'>
+									<div className='relative w-20 h-20'>
+										<Image
+											src={
+												item.image ||
+												'/images/placeholder.jpg'
+											}
+											alt={item.name}
+											fill
+											className='cart-item-img'
+										/>
+									</div>
+									<div className='cart-item-info'>
+										<span className='cart-item-name'>
+											{item.name}
+										</span>
+										<span className='cart-item-price'>
+											{formatPrice(parseFloat(item.price))}
+										</span>
+										<span className='cart-item-quantity'>
+											Qté: {item.quantity}
+										</span>
+									</div>
 								</div>
-								<div className='cart-item-info'>
-									<span className='cart-item-name'>
-										{item.name}
-									</span>
-									<span className='cart-item-price'>
-										{formatPrice(parseFloat(item.price))}
-									</span>
-									<span className='cart-item-quantity'>
-										Qté: {item.quantity}
-									</span>
-								</div>
-							</div>
-						))}
-					</div>
+							))}
+						</div>
 
-					<div className='summary-item'>
-						<span>Sous-total</span>
-						<span>{formatPrice(subtotal)}</span>
-					</div>
+						<div className='summary-item'>
+							<span>Sous-total</span>
+							<span>{formatPrice(subtotal)}</span>
+						</div>
 
-					<div className='summary-item'>
-						<span>Livraison</span>
-						<span>
-							{shippingCost === 0
-								? 'Gratuite'
-								: formatPrice(shippingCost)}
-						</span>
-					</div>
+						<div className='summary-item'>
+							<span>Livraison</span>
+							<span className="font-medium bg-green-100 text-green-700 py-1 px-2 rounded-md text-xs">
+								GRATUITE
+							</span>
+						</div>
 
-					<div className='summary-item summary-total'>
-						<span>Total</span>
-						<span>{formatPrice(total)}</span>
+						<div className='summary-item summary-total'>
+							<span>Total</span>
+							<span>{formatPrice(total)}</span>
+						</div>
 					</div>
 				</div>
 			</div>
