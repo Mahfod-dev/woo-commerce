@@ -1,0 +1,186 @@
+/* Account Page Styles */
+
+/* Utiliser la police Geist définie dans le layout principal */
+.account-container,
+.account-content,
+.account-header,
+.account-form-container,
+.account-orders-container,
+.account-settings-container,
+.account-address-container {
+  font-family: var(--font-geist-sans);
+}
+
+.account-container code,
+.account-code {
+  font-family: var(--font-geist-mono);
+}
+
+/* Styles généraux de la page account */
+.account-header {
+  background-image: linear-gradient(to right, #4f46e5, #7c3aed);
+  color: white;
+  padding: 2rem 0;
+  margin-bottom: 2rem;
+}
+
+.account-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid white;
+}
+
+.account-tab-container {
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 1.5rem;
+}
+
+.account-tab {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid transparent;
+  font-weight: 500;
+  transition: all 0.2s;
+  margin-right: 1rem;
+}
+
+.account-tab.active {
+  border-bottom-color: #4f46e5;
+  color: #4f46e5;
+}
+
+.account-tab:hover:not(.active) {
+  border-bottom-color: #e5e7eb;
+  color: #374151;
+}
+
+.account-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.account-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.account-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.account-form-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+.account-form-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  transition: border-color 0.2s;
+}
+
+.account-form-input:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+}
+
+.account-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.account-btn-primary {
+  background-color: #4f46e5;
+  color: white;
+}
+
+.account-btn-primary:hover {
+  background-color: #4338ca;
+}
+
+.account-btn-secondary {
+  background-color: white;
+  border: 1px solid #d1d5db;
+  color: #374151;
+}
+
+.account-btn-secondary:hover {
+  background-color: #f9fafb;
+}
+
+.account-btn-danger {
+  background-color: #ef4444;
+  color: white;
+}
+
+.account-btn-danger:hover {
+  background-color: #dc2626;
+}
+
+/* Ordre de commandes */
+.order-status-indicator {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.order-status-completed {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.order-status-processing {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.order-status-on-hold {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.order-status-cancelled {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Animation pour les transitions */
+.account-fade-enter {
+  opacity: 0;
+}
+
+.account-fade-enter-active {
+  opacity: 1;
+  transition: opacity 300ms;
+}
+
+.account-fade-exit {
+  opacity: 1;
+}
+
+.account-fade-exit-active {
+  opacity: 0;
+  transition: opacity 300ms;
+}

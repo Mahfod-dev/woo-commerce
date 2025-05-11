@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import '@/app/styles/checkout.css';
 import { formatPrice } from '@/lib/wooClient';
-import { createOrder } from '@/lib/orderService';
+import { createOrder } from '@/lib/orders';
 import { useCart } from './CartProvider';
 import { useNotification } from '@/context/notificationContext';
 import StripePaymentForm from './StripePaymentForm';
