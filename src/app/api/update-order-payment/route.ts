@@ -1,6 +1,9 @@
 // src/app/api/update-order-payment/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { updateOrderPayment } from '@/lib/orders';
+import { createClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
 
 export async function POST(request: NextRequest) {
   try {
@@ -160,7 +163,17 @@ export async function POST(request: NextRequest) {
     
     console.log(`Updating order ${orderId} with payment data:`, JSON.stringify(updateData));
     
-    // Update the order status to processing/completed in WooCommerce
+    // 1. Get the current user from Supabase
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData?.user?.id;
+
+    if (!userId) {
+      console.warn('No user ID found when updating payment status');
+    }
+
+    // 2. Update the order status to processing/completed in WooCommerce
     const updateResponse = await fetch(
       `${wooCommerceUrl}/wp-json/wc/v3/orders/${orderId}`,
       {
@@ -174,14 +187,26 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify(updateData),
       }
     );
-    
+
     if (!updateResponse.ok) {
       const errorText = await updateResponse.text();
-      throw new Error(`Failed to update order: ${updateResponse.statusText}. Details: ${errorText}`);
+      throw new Error(`Failed to update order in WooCommerce: ${updateResponse.statusText}. Details: ${errorText}`);
     }
-    
+
     // Get updated order data for the response
     const updatedOrder = await updateResponse.json();
+
+    // 3. Also update in Supabase if we have a user ID
+    if (userId) {
+      try {
+        const status = verifiedPaymentIntent.status === 'succeeded' ? 'processing' : 'pending';
+        await updateOrderPayment(orderId, userId, paymentIntentId, status);
+        console.log(`Updated order ${orderId} payment status in Supabase`);
+      } catch (supabaseError) {
+        console.error('Error updating order payment in Supabase:', supabaseError);
+        // We'll continue since WooCommerce update was successful
+      }
+    }
     
     return NextResponse.json({ 
       success: true,

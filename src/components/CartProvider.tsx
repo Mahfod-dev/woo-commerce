@@ -7,6 +7,7 @@ import React, {
 	useEffect,
 	ReactNode,
 } from 'react';
+import { getProductById, WooProduct } from '@/lib/woo';
 
 // Define types for cart items
 interface CartItem {
@@ -14,6 +15,8 @@ interface CartItem {
 	key: string;
 	name: string;
 	price: string;
+	regular_price?: string;
+	sale_price?: string;
 	quantity: number;
 	image: string;
 }
@@ -58,6 +61,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
 		(total, item) => total + parseFloat(item.price) * item.quantity,
 		0
 	);
+	
+	// Helper function to get a valid image URL from a WooCommerce product
+	const getProductImageUrl = (product: WooProduct): string => {
+		if (product.images && product.images.length > 0) {
+			return product.images[0].src;
+		}
+		return '/images/placeholder.jpg';
+	};
 
 	// Simulate loading the cart initially
 	useEffect(() => {
@@ -86,32 +97,62 @@ export function CartProvider({ children }: { children: ReactNode }) {
 		}
 	}, [items]);
 
-	// Function to add a product to cart
+	// Function to add a product to cart with real data from the WordPress backend
 	const addToCart = async (productId: number, quantity = 1) => {
 		setIsLoading(true);
 		setError(null);
 
 		try {
-			// Simulate API call
-			await new Promise((resolve) => setTimeout(resolve, 800));
-
 			// Create a unique key for this item
 			const itemKey = `item_${productId}_${Date.now()}`;
 
-			// Simulate product data (in a real app, this data would come from the API)
+			// Fetch the real product data from the WordPress backend
+			const product = await getProductById(productId);
+
+			if (!product) {
+				throw new Error(`Product with ID ${productId} not found`);
+			}
+
+			// Use the real product data
 			const productData: CartItem = {
-				id: productId,
+				id: product.id,
 				key: itemKey,
-				name: `Product #${productId}`,
-				price: (Math.random() * 100 + 10).toFixed(2),
+				name: product.name,
+				price: product.price,
+				regular_price: product.regular_price,
+				sale_price: product.sale_price,
 				quantity: quantity,
-				image: '/placeholder.jpg', // Default image
+				image: getProductImageUrl(product),
 			};
 
 			setItems((prevItems) => [...prevItems, productData]);
 			return { success: true };
 		} catch (err) {
+			console.error('Error adding product to cart:', err);
 			setError('Error adding to cart');
+
+			// Fallback to mock data in case of error (for development)
+			if (process.env.NODE_ENV === 'development') {
+				// Create a unique key for this item
+				const itemKey = `item_${productId}_${Date.now()}`;
+
+				// Calculer un prix réaliste (entre 19.99€ et 129.99€)
+				const basePrice = (productId % 11) * 10 + 19.99;
+
+				// Fallback product data
+				const productData: CartItem = {
+					id: productId,
+					key: itemKey,
+					name: `Product #${productId}`,
+					price: basePrice.toFixed(2),
+					quantity: quantity,
+					image: '/images/placeholder.jpg',
+				};
+
+				setItems((prevItems) => [...prevItems, productData]);
+				return { success: true };
+			}
+
 			throw err;
 		} finally {
 			setIsLoading(false);

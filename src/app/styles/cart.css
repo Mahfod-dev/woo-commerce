@@ -1,0 +1,92 @@
+/* Cart Page Styles */
+
+/* Utiliser la police Geist définie dans le layout principal */
+.cart-content {
+  font-family: var(--font-geist-sans);
+}
+
+.cart-content code {
+  font-family: var(--font-geist-mono);
+}
+
+.cart-container {
+  min-height: calc(100vh - 16rem);
+}
+
+.cart-image {
+  transition: transform 0.3s ease;
+}
+
+.cart-image:hover {
+  transform: scale(1.05);
+}
+
+.quantity-input {
+  -moz-appearance: textfield;
+}
+
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .cart-grid {
+    display: block;
+  }
+  
+  .cart-product {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .cart-label {
+    display: inline-block;
+    width: 120px;
+    font-weight: 500;
+    color: #6b7280;
+  }
+}
+
+/* Animation styles */
+.cart-item-enter {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.cart-item-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.cart-item-exit {
+  opacity: 1;
+}
+
+.cart-item-exit-active {
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Payment method icons */
+.payment-icons {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.payment-icon {
+  width: 2rem;
+  height: 1.25rem;
+  background-color: #f3f4f6;
+  border-radius: 0.25rem;
+  transition: opacity 0.2s;
+}
+
+.payment-icon:hover {
+  opacity: 0.8;
+}

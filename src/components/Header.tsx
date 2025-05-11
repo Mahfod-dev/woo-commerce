@@ -9,22 +9,24 @@ import { usePathname } from 'next/navigation';
 import { useCart } from './CartProvider';
 import MiniCart from './MiniCart';
 import MegaMenu from './MegaMenu';
+import { getUser, getUserProfile } from '@/lib/supabase/auth';
+import Image from 'next/image';
 
 // Interface pour les catégories
 interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  count?: number;
-  image?: {
-    id?: number;
-    src: string;
-    alt?: string;
-  } | null;
+	id: number;
+	name: string;
+	slug: string;
+	count?: number;
+	image?: {
+		id?: number;
+		src: string;
+		alt?: string;
+	} | null;
 }
 
 interface HeaderProps {
-  categories: Category[];
+	categories: Category[];
 }
 
 export default function Header({ categories }: HeaderProps) {
@@ -32,6 +34,8 @@ export default function Header({ categories }: HeaderProps) {
 	const [isSearchOpen, setIsSearchOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [scrolled, setScrolled] = useState(false);
+	const [userProfile, setUserProfile] = useState<any>(null);
+	const [isLoading, setIsLoading] = useState(true);
 	const pathname = usePathname();
 	const searchRef = useRef<HTMLDivElement>(null);
 	const { itemCount } = useCart();
@@ -48,6 +52,26 @@ export default function Header({ categories }: HeaderProps) {
 		window.addEventListener('scroll', handleScroll);
 		return () => window.removeEventListener('scroll', handleScroll);
 	}, [scrolled]);
+
+	// Chargement du profil utilisateur connecté
+	useEffect(() => {
+		async function loadUserProfile() {
+			setIsLoading(true);
+			try {
+				const user = await getUser();
+				if (user) {
+					const profile = await getUserProfile(user.id);
+					setUserProfile(profile);
+				}
+			} catch (error) {
+				console.error('Erreur lors du chargement du profil:', error);
+			} finally {
+				setIsLoading(false);
+			}
+		}
+
+		loadUserProfile();
+	}, []);
 
 	// Fermer le menu et la barre de recherche lors du changement de page
 	useEffect(() => {
@@ -105,14 +129,23 @@ export default function Header({ categories }: HeaderProps) {
 						href='/'
 						className='flex-shrink-0'>
 						<div className='flex items-center'>
-							<h1
-								className={`text-2xl font-bold transition-colors duration-300 ${
+							<Image
+								src={
 									scrolled || pathname !== '/'
-										? 'text-indigo-600'
-										: 'text-white'
-								}`}>
-								VotreLogo
-							</h1>
+										? '/selectura.png'
+										: '/selectura.png'
+								}
+								alt='Logo Selectura'
+								width={120}
+								height={40}
+								className={`h-8 w-auto transition-all duration-300 ${
+									scrolled || pathname !== '/'
+										? 'opacity-100'
+										: 'opacity-0'
+								}`}
+								priority
+								loading='eager'
+							/>
 						</div>
 					</Link>
 
@@ -130,9 +163,9 @@ export default function Header({ categories }: HeaderProps) {
 							}`}>
 							Accueil
 						</Link>
-						
+
 						{/* Produits avec MegaMenu à côté */}
-						<div className="flex items-center">
+						<div className='flex items-center'>
 							<Link
 								href='/products'
 								className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 ${
@@ -144,12 +177,12 @@ export default function Header({ categories }: HeaderProps) {
 								}`}>
 								Produits
 							</Link>
-							<MegaMenu 
-								categories={categories} 
-								isDarkBg={!scrolled && pathname === '/'} 
+							<MegaMenu
+								categories={categories}
+								isDarkBg={!scrolled && pathname === '/'}
 							/>
 						</div>
-						
+
 						{/* Autres items de navigation */}
 						{navigationItems.slice(2).map((item) => (
 							<Link
@@ -186,16 +219,25 @@ export default function Header({ categories }: HeaderProps) {
 							<MiniCart />
 						</div>
 
-						{/* Compte utilisateur */}
+						{/* Compte utilisateur modifié */}
 						<Link
 							href='/account'
-							className={`p-2 rounded-full transition-colors ${
+							className={`p-2 rounded-md transition-colors flex items-center ${
 								scrolled || pathname !== '/'
 									? 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
 									: 'text-white hover:text-white hover:bg-white/20'
 							}`}
 							aria-label='Mon compte'>
-							<FaUser size={18} />
+							{userProfile ? (
+								<>
+									<span className='hidden sm:inline-block mr-2 text-sm font-medium'>
+										{userProfile.first_name || 'Compte'}
+									</span>
+									<FaUser size={16} />
+								</>
+							) : (
+								<FaUser size={18} />
+							)}
 						</Link>
 
 						{/* Bouton menu mobile */}
@@ -318,10 +360,16 @@ export default function Header({ categories }: HeaderProps) {
 									</div>
 									<div className='ml-3'>
 										<div className='text-base font-medium text-gray-800'>
-											Mon compte
+											{userProfile
+												? userProfile.first_name +
+												  ' ' +
+												  userProfile.last_name
+												: 'Mon compte'}
 										</div>
 										<div className='text-sm font-medium text-gray-500'>
-											Accédez à votre compte
+											{userProfile
+												? userProfile.email
+												: 'Accédez à votre compte'}
 										</div>
 									</div>
 								</div>

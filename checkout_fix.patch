@@ -1,0 +1,40 @@
+diff --git a/src/components/CheckoutContent.tsx b/src/components/CheckoutContent.tsx
+index 1234567..abcdef0 100644
+--- a/src/components/CheckoutContent.tsx
++++ b/src/components/CheckoutContent.tsx
+@@ -8,6 +8,7 @@ import { formatPrice } from '@/lib/wooClient';
+ import { createOrder } from '@/lib/orderService';
+ import { useCart } from './CartProvider';
+ import { useNotification } from '@/context/notificationContext';
++import { createClient } from '@/lib/supabase/client';
+ import StripePaymentForm from './StripePaymentForm';
+ 
+ const CheckoutContent = () => {
+@@ -129,14 +130,21 @@ const CheckoutContent = () => {
+ 				];
+ 
+ 				// Récupération de l'ID utilisateur
+-				const userResponse = await fetch('/api/auth');
+-				const userData = await userResponse.json();
+-				const userId = userData?.user?.id;
+-
+-				if (!userId) {
+-					console.warn('Utilisateur non connecté, la commande sera créée sans ID utilisateur');
++				let userId = '';
++				try {
++					const supabase = createClient();
++					const { data: { user } } = await supabase.auth.getUser();
++					
++					if (user) {
++						userId = user.id;
++						console.log('CheckoutContent - Utilisateur authentifié, ID récupéré:', userId, 'type:', typeof userId);
++					} else {
++						console.warn('Utilisateur non authentifié, la commande sera créée sans ID utilisateur');
++					}
++				} catch (authError) {
++					console.error('Erreur lors de la récupération de l\'ID utilisateur:', authError);
+ 				}
+-
++				
+ 				// Création de la commande dans WooCommerce et Supabase
+ 				const order = await createOrder(orderData, userId || '');

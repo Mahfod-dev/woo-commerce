@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useNotification } from '@/context/notificationContext';
 import { formatPrice } from '@/lib/wooClient';
+import '@/app/styles/account.css';
 
 // Types for order data
 interface OrderItem {
@@ -452,8 +453,8 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId }) => {
   const total = parseFloat(order.total);
 
   return (
-    <div className="bg-gray-50 min-h-screen py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="bg-gray-50 min-h-screen py-16 account-container">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 account-content">
         <motion.div
           variants={containerVariants}
           initial="hidden"

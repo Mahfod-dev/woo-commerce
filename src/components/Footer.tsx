@@ -184,7 +184,13 @@ export default function ImprovedFooter() {
 							<Link
 								href='/'
 								className='text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 inline-block mb-4'>
-								LOGO
+								<Image
+									src='/selectura.png'
+									alt='Logo de la boutique'
+									width={100}
+									height={100}
+									className='h-10 w-auto'
+								/>
 							</Link>
 							<p className='text-gray-400 mb-6 max-w-md'>
 								Votre boutique en ligne innovante qui redéfinit

@@ -1,0 +1,198 @@
+/* Styles spécifiques pour la page de connexion */
+
+/* Utiliser la police Geist définie dans le layout principal */
+.login-content {
+    font-family: var(--font-geist-sans);
+}
+
+.login-content code {
+    font-family: var(--font-geist-mono);
+}
+
+/* Animation lorsque l'utilisateur bascule entre connexion et inscription */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.auth-form-animation {
+    animation: fadeIn 0.4s ease forwards;
+}
+
+/* Styles pour améliorer l'UX des champs de formulaire */
+.form-input:focus {
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    transition: all 0.2s ease;
+}
+
+/* Style pour le bouton de soumission */
+.auth-submit-button {
+    transition: all 0.2s ease;
+}
+
+.auth-submit-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(79, 70, 229, 0.2);
+}
+
+.auth-submit-button:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: none;
+}
+
+/* Style pour les boutons de connexion sociale */
+.social-login-button {
+    transition: all 0.3s ease;
+}
+
+.social-login-button:hover {
+    background-color: #f3f4f6;
+    transform: translateY(-1px);
+}
+
+/* Amélioration de l'accessibilité */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: 2px solid rgba(79, 70, 229, 0.5);
+    outline-offset: 2px;
+}
+
+/* Animation pour les erreurs de formulaire */
+@keyframes shakeError {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+.form-error {
+    animation: shakeError 0.5s ease;
+}
+
+/* Style pour le basculement entre login et inscription */
+.auth-toggle-button {
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.auth-toggle-button::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 1px;
+    bottom: -1px;
+    left: 50%;
+    background-color: #4f46e5;
+    transition: all 0.3s ease;
+}
+
+.auth-toggle-button:hover::after {
+    width: 100%;
+    left: 0;
+}
+
+/* Animation du spinner de chargement */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-spinner {
+    animation: spin 1s linear infinite;
+}
+
+/* Style pour le logo */
+.logo-container {
+    transition: transform 0.3s ease;
+}
+
+.logo-container:hover {
+    transform: scale(1.05);
+}
+
+/* Responsive styles */
+@media (max-width: 640px) {
+    .auth-card {
+        border-radius: 0;
+        box-shadow: none;
+    }
+    
+    .auth-container {
+        padding: 0;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .login-content.dark-mode {
+        background-color: #1f2937;
+        color: #f3f4f6;
+    }
+    
+    .login-content.dark-mode .auth-card {
+        background-color: #374151;
+        border-color: #4b5563;
+    }
+    
+    .login-content.dark-mode input {
+        background-color: #1f2937;
+        border-color: #4b5563;
+        color: #f3f4f6;
+    }
+}
+
+/* Effet 3D subtil sur les boutons */
+.button-3d {
+    transform: translateY(0);
+    transition: transform 0.2s ease;
+}
+
+.button-3d:hover {
+    transform: translateY(-2px);
+}
+
+.button-3d:active {
+    transform: translateY(1px);
+}
+
+/* Style pour la case à cocher "Se souvenir de moi" */
+.remember-me-checkbox {
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.remember-me-checkbox:checked {
+    border-color: #4f46e5;
+    background-color: #4f46e5;
+}
+
+/* Animation pour les notifications */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notification {
+    animation: slideIn 0.3s forwards ease;
+}

@@ -18,10 +18,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: 'Votre Boutique en Ligne | Shop Exclusif',
+	title: 'Selectura | Shop Exclusif',
 	description:
 		"Découvrez notre collection unique qui redéfinit l'expérience shopping avec des produits soigneusement sélectionnés.",
-	keywords: 'boutique, e-commerce, produits, shopping, en ligne',
+	keywords: 'selectura, boutique, e-commerce, produits, shopping, en ligne',
+	icons: {
+		icon: '/favicon.ico',
+		apple: '/web-app-manifest-192x192.png',
+	},
+	manifest: '/manifest.json',
+	themeColor: '#ffffff',
+	metadataBase: new URL('https://selectura.shop'),
 };
 
 export default async function RootLayout({

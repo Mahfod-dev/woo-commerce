@@ -130,65 +130,33 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Endpoint pour récupérer les commandes utilisateur
+// Endpoint pour récupérer les informations de l'utilisateur via Supabase
 export async function GET(request: NextRequest) {
-  const token = request.headers.get('Authorization')?.replace('Bearer ', '');
+  try {
+    // Import dynamique pour éviter les erreurs de serveur
+    const { createClient } = await import('@/lib/supabase/server');
+    const { cookies } = await import('next/headers');
 
-  if (!token) {
+    // Récupérer le client Supabase avec await pour cookies()
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+
+    // Obtenir les informations de l'utilisateur authentifié
+    const { data } = await supabase.auth.getUser();
+
+    if (!data.user) {
+      return NextResponse.json(
+        { error: 'Utilisateur non authentifié' },
+        { status: 401 }
+      );
+    }
+
+    return NextResponse.json({ user: data.user });
+  } catch (error: any) {
+    console.error('Error getting user:', error);
     return NextResponse.json(
-      { error: 'Non autorisé' },
-      { status: 401 }
+      { error: error.message || 'Une erreur est survenue lors de la récupération des informations utilisateur' },
+      { status: 500 }
     );
   }
-
-  // Valider le token et retourner les commandes
-  // Pour la démo, nous retournons des commandes fictives
-  const demoOrders = [
-    {
-      id: 101,
-      status: 'completed',
-      date_created: '2023-12-15T14:30:45',
-      total: '159.99',
-      line_items: [
-        {
-          id: 1001,
-          name: 'Écouteurs Premium XS-700',
-          quantity: 1,
-          price: '129.99',
-          product_id: 101,
-        },
-        {
-          id: 1002,
-          name: 'Étui de protection',
-          quantity: 1,
-          price: '29.99',
-          product_id: 102,
-        },
-      ],
-    },
-    {
-      id: 102,
-      status: 'processing',
-      date_created: '2024-01-20T09:15:30',
-      total: '249.99',
-      line_items: [
-        {
-          id: 1003,
-          name: 'Lampe de Bureau Design',
-          quantity: 1,
-          price: '179.99',
-          product_id: 103,
-        },
-        {
-          id: 1004,
-          name: 'Ensemble Premium Accessoires Tech',
-          quantity: 1,
-          price: '69.99',
-          product_id: 104,
-        },
-      ],
-    },
-  ];
-
-  return NextResponse.json({ orders: demoOrders });
 }

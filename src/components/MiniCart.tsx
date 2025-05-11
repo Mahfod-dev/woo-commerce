@@ -308,14 +308,22 @@ export default function ImprovedMiniCart() {
 																</svg>
 															</button>
 														</div>
-														<span className='text-sm font-medium text-gray-900'>
-															{formatPrice(
-																parseFloat(
-																	item.price
-																) *
-																	item.quantity
+														<div className='text-right'>
+															{item.regular_price && parseFloat(item.regular_price) > parseFloat(item.price) ? (
+																<>
+																	<span className='text-xs line-through text-gray-500 block'>
+																		{formatPrice(parseFloat(item.regular_price) * item.quantity)}
+																	</span>
+																	<span className='text-sm font-medium text-red-600'>
+																		{formatPrice(parseFloat(item.price) * item.quantity)}
+																	</span>
+																</>
+															) : (
+																<span className='text-sm font-medium text-gray-900'>
+																	{formatPrice(parseFloat(item.price) * item.quantity)}
+																</span>
 															)}
-														</span>
+														</div>
 													</div>
 												</div>
 

@@ -204,8 +204,20 @@ class WooCommerceAPI {
 		}
 
 		// Appel à l'API
-		console.log(`[WooCommerce] Fetching ${endpoint}`);
+		console.log(`[WooCommerce] Fetching ${endpoint} from ${url.toString()}`);
 		try {
+			// Log de débug pour les requêtes importantes
+			if (endpoint.includes('products/') || endpoint === 'products') {
+				console.log(`[WooCommerce] API Request to ${url.toString()}`);
+				console.log(`[WooCommerce] Request options:`, {
+					method: requestOptions.method || 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+						...(requestOptions.headers || {}),
+					},
+				});
+			}
+
 			const res = await fetch(url.toString(), {
 				...requestOptions,
 				headers: {
@@ -215,12 +227,29 @@ class WooCommerceAPI {
 			});
 
 			if (!res.ok) {
+				const errorText = await res.text().catch(() => 'Could not read error response');
+				console.error(`[WooCommerce] Error response for ${endpoint}:`, {
+					status: res.status,
+					statusText: res.statusText,
+					body: errorText,
+				});
+
 				throw new Error(
 					`Error fetching ${endpoint}: ${res.status} ${res.statusText}`
 				);
 			}
 
 			const data = await res.json();
+
+			// Log de debug pour les données de produit
+			if (endpoint.includes('products/') && typeof data === 'object') {
+				console.log(`[WooCommerce] Product data received:`, {
+					id: data.id,
+					name: data.name,
+					price: data.price,
+					images: data.images ? data.images.length : 0,
+				});
+			}
 
 			// Mettre en cache
 			this.cache.set(cacheKey, { data, timestamp: now });
@@ -278,12 +307,27 @@ export const getProducts = cache(
 export const getProductById = cache(
 	async (id: number): Promise<WooProduct | null> => {
 		try {
+			console.log(`[woo] Fetching product with ID ${id}`);
 			const product = await wooInstance.fetch<WooProduct>(
 				`products/${id}`
 			);
+
+			if (!product || !product.id) {
+				console.warn(`[woo] Product with ID ${id} returned invalid data:`, product);
+				return null;
+			}
+
+			console.log(`[woo] Successfully retrieved product: ${product.name} (${product.id})`);
 			return product;
 		} catch (error) {
 			console.error(`[woo] Error fetching product with id ${id}:`, error);
+			// Informations de débogage supplémentaires
+			console.error(`[woo] API Configuration:`, {
+				baseUrl: process.env.URL_WORDPRESS || 'default URL',
+				hasConsumerKey: !!process.env.WOOCOMMERCE_CONSUMER_KEY,
+				hasConsumerSecret: !!process.env.WOOCOMMERCE_CONSUMER_SECRET,
+				environment: process.env.NODE_ENV
+			});
 			return null;
 		}
 	}

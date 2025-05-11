@@ -1,4 +1,16 @@
 /* Checkout Page Styles */
+
+/* Utiliser la police Geist définie dans le layout principal */
+.checkout-container,
+.checkout-grid,
+.checkout-form,
+.checkout-summary {
+  font-family: var(--font-geist-sans);
+}
+
+.checkout-container code {
+  font-family: var(--font-geist-mono);
+}
 .checkout-container {
   max-width: 1200px;
   margin: 2rem auto;

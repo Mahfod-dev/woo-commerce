@@ -1,5 +1,5 @@
 import { createClientFromRequest } from './server'
-import { createClient as createBrowserClient } from './client'
+import { supabase } from './client'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/cookies'
 
@@ -17,7 +17,7 @@ export type UserRegistration = AuthCredentials & {
  * Signs in a user using email and password
  */
 export async function signInWithEmail({ email, password }: AuthCredentials) {
-  const supabase = createBrowserClient()
+  // Utiliser le client supabase importé
   
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -35,7 +35,7 @@ export async function signInWithEmail({ email, password }: AuthCredentials) {
  * Signs up a new user with email and password
  */
 export async function signUpWithEmail({ email, password, firstName, lastName }: UserRegistration) {
-  const supabase = createBrowserClient()
+  // Utiliser le client supabase importé
   
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email,
@@ -77,7 +77,7 @@ export async function signUpWithEmail({ email, password, firstName, lastName }: 
  * Signs out the current user
  */
 export async function signOut() {
-  const supabase = createBrowserClient()
+  // Utiliser le client supabase importé
   const { error } = await supabase.auth.signOut()
   
   if (error) {
@@ -98,7 +98,7 @@ export async function getSession(req?: any, res?: any) {
   }
   
   // Fallback to browser client for client components
-  const supabase = createBrowserClient()
+  // Utiliser le client supabase importé
   const { data } = await supabase.auth.getSession()
   return data.session
 }
@@ -116,7 +116,7 @@ export async function getUser(req?: any, res?: any) {
   }
   
   // Fallback to browser client for client components
-  const supabase = createBrowserClient()
+  // Utiliser le client supabase importé
   const { data } = await supabase.auth.getUser()
   return data.user
 }
@@ -145,7 +145,7 @@ export async function requireAuth(req?: any, res?: any) {
  * Password reset request
  */
 export async function resetPassword(email: string) {
-  const supabase = createBrowserClient()
+  // Utiliser le client supabase importé
   
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${window.location.origin}/reset-password`,
@@ -160,7 +160,7 @@ export async function resetPassword(email: string) {
  * Update user password
  */
 export async function updatePassword(password: string) {
-  const supabase = createBrowserClient()
+  // Utiliser le client supabase importé
   
   const { error } = await supabase.auth.updateUser({
     password,
@@ -193,7 +193,7 @@ export async function getUserProfile(userId: string, req?: any, res?: any) {
   }
   
   // Fallback to browser client for client components
-  const supabase = createBrowserClient()
+  // Utiliser le client supabase importé
   const { data, error } = await supabase
     .from('profiles')
     .select('*')

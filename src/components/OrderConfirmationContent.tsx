@@ -118,6 +118,14 @@ const OrderConfirmationContent = () => {
           <span className="detail-label">Livraison estimée :</span>
           <span className="detail-value">{formattedDeliveryDate}</span>
         </div>
+        <div className="detail-row">
+          <span className="detail-label">Frais de livraison :</span>
+          <span className="detail-value">
+            <span className="font-medium bg-green-100 text-green-700 py-1 px-2 rounded-md text-xs">
+              GRATUITE
+            </span>
+          </span>
+        </div>
         {orderInfo.total && (
           <div className="detail-row">
             <span className="detail-label">Total :</span>

@@ -1,4 +1,19 @@
 /* Order Confirmation Styles */
+
+/* Utiliser la police Geist définie dans le layout principal */
+.confirmation-container,
+.confirmation-title,
+.confirmation-subtitle,
+.confirmation-details,
+.detail-label,
+.detail-value,
+.continue-shopping-btn {
+  font-family: var(--font-geist-sans);
+}
+
+.confirmation-container code {
+  font-family: var(--font-geist-mono);
+}
 .confirmation-container {
   max-width: 800px;
   margin: 3rem auto;

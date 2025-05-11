@@ -2,6 +2,7 @@
 import React from 'react';
 import LoginPage from '@/components/LoginPage';
 import type { Metadata } from 'next';
+import '@/app/styles/login.css';
 
 export const metadata: Metadata = {
   title: 'Connexion - Selectura',
