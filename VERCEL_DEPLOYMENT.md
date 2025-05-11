@@ -13,19 +13,26 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
-### 2. Stripe Configuration (if using payments)
+### 2. WooCommerce Configuration
+```
+NEXT_PUBLIC_URL_WORDPRESS=https://selectura.shop
+NEXT_PUBLIC_WOOCOMMERCE_CONSUMER_KEY=your-consumer-key
+NEXT_PUBLIC_WOOCOMMERCE_CONSUMER_SECRET=your-consumer-secret
+```
+
+### 3. Stripe Configuration (if using payments)
 ```
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key
 STRIPE_SECRET_KEY=your-stripe-secret-key
 ```
 
-### 3. NextAuth Configuration (if using authentication)
+### 4. NextAuth Configuration (if using authentication)
 ```
 NEXTAUTH_URL=https://your-deployed-url.vercel.app
 NEXTAUTH_SECRET=your-nextauth-secret
 ```
 
-### 4. Site URL
+### 5. Site URL
 ```
 NEXT_PUBLIC_SITE_URL=https://your-deployed-url.vercel.app
 ```
@@ -48,6 +55,32 @@ If some features are not working despite successful deployment:
 3. **Inspect Build Logs**: Look for any warnings or errors during build
 4. **Clear Cache and Redeploy**: Try a fresh deployment with cleared cache
 
+### CORS Issues with WooCommerce API
+If you're seeing CORS errors in the browser console:
+
+1. **Update WooCommerce CORS Settings**:
+   - Log in to your WordPress admin panel
+   - Navigate to WooCommerce → Settings → Advanced → REST API
+   - Add `https://www.selectura.co` to the allowed origins list
+   - If using a plugin for CORS, update its settings accordingly
+
+2. **Check Network Requests**:
+   - In your browser developer tools, look at the network requests
+   - Verify the `Origin` header is being sent correctly
+   - Check for preflight OPTIONS requests that might be failing
+
+### Missing Images
+If placeholder images or product images are not displaying:
+
+1. **Ensure Public Directory is Deployed**:
+   - Make sure your `/public` directory is included in your deployment
+   - Check that image paths are correct in your code
+   - Try adding a `public/_redirects` file to handle image redirects
+
+2. **Check Image URLs**:
+   - Images from WooCommerce might have different URLs in production
+   - If using relative URLs, they might need to be changed to absolute URLs
+
 ### Database Connection Issues
 If experiencing issues with Supabase connection:
 
@@ -61,6 +94,14 @@ If users cannot login or register:
 1. Verify NextAuth is properly configured
 2. Check that authentication-related API routes are working
 3. Ensure your Supabase Auth settings match your application
+
+### Product Fetching Issues
+If products cannot be fetched from WooCommerce:
+
+1. Verify your WooCommerce consumer keys have the correct permissions
+2. Check that your API URL is accessible from your deployment environment
+3. Ensure the WooCommerce REST API is enabled on your WordPress site
+4. Add console logs to debug API requests and responses
 
 ## Post-Deployment Verification
 

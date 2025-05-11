@@ -159,28 +159,30 @@ class WooCommerceAPI {
 
 	constructor() {
 		const defaultUrl = 'https://selectura.shop';
-		this.baseUrl = process.env.URL_WORDPRESS || defaultUrl;
+		// Make sure environment variables are properly used in production
+		this.baseUrl = process.env.NEXT_PUBLIC_URL_WORDPRESS || defaultUrl;
 		this.consumerKey =
-			process.env.WOOCOMMERCE_CONSUMER_KEY ||
+			process.env.NEXT_PUBLIC_WOOCOMMERCE_CONSUMER_KEY ||
 			'ck_57120178580c5210e18439965e0ed3bba5003573';
 		this.consumerSecret =
-			process.env.WOOCOMMERCE_CONSUMER_SECRET ||
+			process.env.NEXT_PUBLIC_WOOCOMMERCE_CONSUMER_SECRET ||
 			'cs_04a583bcbe220c50f6eaf7012aa4cc2f2c284211';
 		this.cache = new Map();
 
 		// Avertissement si on utilise les valeurs par défaut
 		if (this.baseUrl === defaultUrl) {
 			console.log(
-				'URL_WORDPRESS par défaut utilisée. Assurez-vous de définir URL_WORDPRESS dans votre .env.local pour la production.'
+				'[WooCommerce] URL_WORDPRESS par défaut utilisée. Assurez-vous de définir NEXT_PUBLIC_URL_WORDPRESS dans votre .env.local pour la production.'
 			);
 		}
 
-		console.log(
-			'WooCommerceAPI',
-			this.baseUrl,
-			this.consumerKey,
-			this.consumerSecret
-		);
+		// Log simplified configuration info
+		console.log('[WooCommerce] API Configuration:', {
+			baseUrl: this.baseUrl,
+			hasConsumerKey: !!this.consumerKey,
+			hasConsumerSecret: !!this.consumerSecret,
+			environment: process.env.NODE_ENV
+		});
 	}
 
 	/**
@@ -222,8 +224,13 @@ class WooCommerceAPI {
 				...requestOptions,
 				headers: {
 					'Content-Type': 'application/json',
+					// Add CORS headers for cross-origin requests
+					'Origin': typeof window !== 'undefined' ? window.location.origin : 'https://www.selectura.co',
 					...(requestOptions.headers || {}),
 				},
+				// Add credentials for CORS requests
+				credentials: 'same-origin',
+				mode: 'cors',
 			});
 
 			if (!res.ok) {
@@ -273,6 +280,9 @@ class WooCommerceAPI {
 
 		url.searchParams.append('consumer_key', this.consumerKey);
 		url.searchParams.append('consumer_secret', this.consumerSecret);
+
+		// Add a timestamp to prevent caching issues in the browser
+		url.searchParams.append('_ts', Date.now().toString());
 
 		return url;
 	}
