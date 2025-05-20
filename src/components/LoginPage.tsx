@@ -116,12 +116,12 @@ const LoginPageContent = () => {
           
           addNotification({
             type: 'success',
-            message: 'Connexion réussie ! Redirection vers votre compte...',
+            message: 'Connexion réussie ! Redirection vers la page d\'accueil...',
             duration: 3000,
           });
           
-          // Redirect after successful login
-          const callbackUrl = searchParams.get('callbackUrl') || '/account';
+          // Redirect after successful login to home page instead of account
+          const callbackUrl = searchParams.get('callbackUrl') || '/';
           router.push(callbackUrl);
         } catch (error: any) {
           throw error;
@@ -171,12 +171,12 @@ const LoginPageContent = () => {
           
           addNotification({
             type: 'success',
-            message: 'Compte créé avec succès ! Redirection vers votre compte...',
+            message: 'Compte créé avec succès ! Redirection vers la page d\'accueil...',
             duration: 3000,
           });
           
-          // Redirect to account page after successful registration
-          router.push('/account');
+          // Redirect to home page after successful registration
+          router.push('/');
         } catch (error: any) {
           throw error;
         }
