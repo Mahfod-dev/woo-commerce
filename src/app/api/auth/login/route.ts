@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { createClient } from '@/lib/supabase/server';
+import { createBrowserClient } from '@supabase/ssr';
+import { Database } from '@/lib/supabase/types';
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,14 +18,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Créer un client Supabase Admin (côté serveur)
+    const cookieStore = cookies();
+    
+    // Créer un client Supabase Admin (côté serveur) pour les opérations admin
     const supabaseAdmin = createAdminClient();
     
-    // Créer un client Supabase pour gérer les cookies
-    const cookieStore = cookies();
-    const supabase = createClient(cookieStore);
-
-    // Connexion avec Supabase
+    // Créer un client standard pour l'authentification
+    // Nous utilisons createBrowserClient car il permet de s'authentifier côté serveur
+    // mais sans essayer de gérer les cookies (nous le ferons manuellement)
+    const supabase = createBrowserClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    
+    // Utiliser ce client pour l'authentification avec password
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -38,7 +45,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Si la connexion est réussie, récupérer le profil utilisateur
+    // Si la connexion est réussie, récupérer le profil utilisateur avec le client admin
+    // pour avoir accès à toutes les données sans restrictions RLS
     let profile = null;
     if (authData.user) {
       const { data: profileData, error: profileError } = await supabaseAdmin
@@ -52,6 +60,27 @@ export async function POST(request: NextRequest) {
       } else {
         profile = profileData;
       }
+    }
+
+    // Configurer les cookies de session pour Supabase
+    // selon la documentation officielle 
+    if (authData.session) {
+      // Créer un cookie pour stocker la session
+      cookieStore.set('sb-access-token', authData.session.access_token, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7, // 1 semaine
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+      });
+      
+      cookieStore.set('sb-refresh-token', authData.session.refresh_token, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 30, // 30 jours
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+      });
     }
 
     // Retourner l'utilisateur connecté
