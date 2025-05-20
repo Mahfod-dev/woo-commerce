@@ -97,37 +97,89 @@ const LoginPageContent = () => {
     try {
       if (isLogin) {
         // Login with Supabase
-        await signInWithEmail({
-          email: formData.email,
-          password: formData.password
-        });
-        
-        addNotification({
-          type: 'success',
-          message: 'Connexion réussie ! Redirection vers votre compte...',
-          duration: 3000,
-        });
-
-        // Redirect after successful login
-        const callbackUrl = searchParams.get('callbackUrl') || '/account';
-        router.push(callbackUrl);
+        try {
+          // API route peut retourner des erreurs avec HTTP status
+          const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: formData.email,
+              password: formData.password
+            })
+          });
+          
+          const data = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(data.error || 'Échec de la connexion');
+          }
+          
+          addNotification({
+            type: 'success',
+            message: 'Connexion réussie ! Redirection vers votre compte...',
+            duration: 3000,
+          });
+          
+          // Redirect after successful login
+          const callbackUrl = searchParams.get('callbackUrl') || '/account';
+          router.push(callbackUrl);
+        } catch (error: any) {
+          throw error;
+        }
       } else {
-        // Register with Supabase
-        await signUpWithEmail({
-          email: formData.email,
-          password: formData.password,
-          firstName: formData.firstName,
-          lastName: formData.lastName
-        });
-        
-        addNotification({
-          type: 'success',
-          message: 'Compte créé avec succès ! Redirection vers votre compte...',
-          duration: 3000,
-        });
-
-        // Redirect to account page after successful registration
-        router.push('/account');
+        // Register using server-side API
+        try {
+          const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: formData.email,
+              password: formData.password,
+              firstName: formData.firstName,
+              lastName: formData.lastName
+            })
+          });
+          
+          const data = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(data.error || 'Échec de l\'inscription');
+          }
+          
+          // Login the user after successful registration
+          const loginResponse = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: formData.email,
+              password: formData.password
+            })
+          });
+          
+          const loginData = await loginResponse.json();
+          
+          if (!loginResponse.ok) {
+            // Registration succeeded but login failed
+            addNotification({
+              type: 'success',
+              message: 'Compte créé avec succès ! Veuillez vous connecter.',
+              duration: 3000,
+            });
+            setIsLogin(true);
+            return;
+          }
+          
+          addNotification({
+            type: 'success',
+            message: 'Compte créé avec succès ! Redirection vers votre compte...',
+            duration: 3000,
+          });
+          
+          // Redirect to account page after successful registration
+          router.push('/account');
+        } catch (error: any) {
+          throw error;
+        }
       }
     } catch (error: any) {
       console.error('Erreur d\'authentification:', error);

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createUser, findUserByEmail } from '@/lib/userService';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,8 +32,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Vérifier si l'email existe déjà
-    const existingUser = findUserByEmail(email);
+    // Créer un client Supabase Admin (côté serveur)
+    const supabaseAdmin = createAdminClient();
+
+    // Vérifier si l'utilisateur existe déjà
+    const { data: existingUser, error: userCheckError } = await supabaseAdmin.auth.admin.getUserByEmail(email);
+    
+    if (userCheckError && !userCheckError.message.includes('User not found')) {
+      console.error('Erreur lors de la vérification de l\'email:', userCheckError);
+      return NextResponse.json(
+        { error: 'Erreur lors de la vérification de l\'email' },
+        { status: 500 }
+      );
+    }
+
     if (existingUser) {
       return NextResponse.json(
         { error: 'Cet email est déjà utilisé' },
@@ -41,34 +53,61 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Créer l'utilisateur
-    try {
-      const newUser = createUser({
-        email,
-        password,
-        firstName,
-        lastName,
-      });
+    // Créer l'utilisateur avec Supabase Auth
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true, // Auto-confirmer l'email pour simplifier le développement
+      user_metadata: {
+        first_name: firstName,
+        last_name: lastName,
+      },
+    });
 
-      // Retourner l'utilisateur créé (sans le mot de passe)
+    if (authError) {
+      console.error('Erreur lors de la création de l\'utilisateur:', authError);
       return NextResponse.json(
-        { 
-          user: newUser,
-          message: 'Utilisateur créé avec succès' 
-        },
-        { status: 201 }
-      );
-    } catch (error: any) {
-      console.error('Erreur lors de la création de l\'utilisateur:', error);
-      return NextResponse.json(
-        { error: error.message || 'Erreur lors de la création de l\'utilisateur' },
+        { error: authError.message || 'Erreur lors de la création de l\'utilisateur' },
         { status: 400 }
       );
     }
-  } catch (error) {
+
+    // Si l'utilisateur est créé avec succès, créer également un enregistrement dans la table profiles
+    if (authData.user) {
+      const { error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .insert({
+          id: authData.user.id,
+          first_name: firstName,
+          last_name: lastName,
+          email: email,
+          created_at: new Date().toISOString(),
+        });
+
+      if (profileError) {
+        console.error('Erreur lors de la création du profil:', profileError);
+        // Le profil n'a pas pu être créé, mais l'authentification a réussi
+        // Nous pourrions supprimer l'utilisateur pour revenir en arrière, mais pour simplifier, nous continuons
+      }
+    }
+
+    // Retourner l'utilisateur créé
+    return NextResponse.json(
+      { 
+        user: {
+          id: authData.user?.id,
+          email: authData.user?.email,
+          firstName,
+          lastName,
+        },
+        message: 'Utilisateur créé avec succès' 
+      },
+      { status: 201 }
+    );
+  } catch (error: any) {
     console.error('Erreur lors du traitement de la requête:', error);
     return NextResponse.json(
-      { error: 'Erreur serveur' },
+      { error: error.message || 'Erreur serveur' },
       { status: 500 }
     );
   }
