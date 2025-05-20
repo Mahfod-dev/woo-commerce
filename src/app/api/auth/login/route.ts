@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { createAdminClient } from '@/lib/supabase/admin';
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/lib/supabase/types';
 
 export async function POST(request: NextRequest) {
@@ -18,55 +17,59 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const cookieStore = cookies();
-    
-    // Créer un client Supabase Admin (côté serveur) pour les opérations admin
-    const supabaseAdmin = createAdminClient();
-    
-    // Créer un client standard pour l'authentification
-    // Nous utilisons createBrowserClient car il permet de s'authentifier côté serveur
-    // mais sans essayer de gérer les cookies (nous le ferons manuellement)
-    const supabase = createBrowserClient<Database>(
+    // Créer un client Supabase directement avec les clés d'environnement
+    const supabase = createClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      process.env.SUPABASE_SERVICE_ROLE_KEY!, // Utiliser la clé service_role au lieu de anon
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        }
+      }
     );
     
-    // Utiliser ce client pour l'authentification avec password
+    // Authentifier l'utilisateur
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email,
-      password,
+      password
     });
 
     if (authError) {
-      console.error('Erreur lors de la connexion:', authError);
+      console.error('Erreur d\'authentification:', authError);
       return NextResponse.json(
         { error: authError.message || 'Email ou mot de passe incorrect' },
         { status: 401 }
       );
     }
-
-    // Si la connexion est réussie, récupérer le profil utilisateur avec le client admin
-    // pour avoir accès à toutes les données sans restrictions RLS
+    
+    if (!authData || !authData.user) {
+      return NextResponse.json(
+        { error: 'Échec de l\'authentification' },
+        { status: 401 }
+      );
+    }
+    
+    // Récupérer le profil utilisateur
     let profile = null;
-    if (authData.user) {
-      const { data: profileData, error: profileError } = await supabaseAdmin
-        .from('profiles')
-        .select('*')
-        .eq('id', authData.user.id)
-        .single();
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', authData.user.id)
+      .single();
 
-      if (profileError && !profileError.message.includes('No rows found')) {
-        console.error('Erreur lors de la récupération du profil:', profileError);
-      } else {
-        profile = profileData;
-      }
+    if (profileError && !profileError.message.includes('No rows found')) {
+      console.error('Erreur lors de la récupération du profil:', profileError);
+    } else {
+      profile = profileData;
     }
 
-    // Configurer les cookies de session pour Supabase
-    // selon la documentation officielle 
+    // Configurer les cookies de session pour persister la session
+    const cookieStore = cookies();
+    
+    // Stocker la session dans un cookie spécial pour Next.js + Supabase
     if (authData.session) {
-      // Créer un cookie pour stocker la session
-      cookieStore.set('sb-access-token', authData.session.access_token, {
+      cookieStore.set('sb-refresh-token', authData.session.refresh_token, {
         path: '/',
         maxAge: 60 * 60 * 24 * 7, // 1 semaine
         httpOnly: true,
@@ -74,22 +77,22 @@ export async function POST(request: NextRequest) {
         sameSite: 'lax',
       });
       
-      cookieStore.set('sb-refresh-token', authData.session.refresh_token, {
+      cookieStore.set('sb-access-token', authData.session.access_token, {
         path: '/',
-        maxAge: 60 * 60 * 24 * 30, // 30 jours
+        maxAge: 60 * 60 * 24, // 1 jour
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
       });
     }
 
-    // Retourner l'utilisateur connecté
+    // Retourner les informations de l'utilisateur au client
     return NextResponse.json({
       user: {
-        id: authData.user?.id,
-        email: authData.user?.email,
-        firstName: profile?.first_name || authData.user?.user_metadata?.first_name,
-        lastName: profile?.last_name || authData.user?.user_metadata?.last_name,
+        id: authData.user.id,
+        email: authData.user.email,
+        firstName: profile?.first_name || authData.user.user_metadata?.first_name,
+        lastName: profile?.last_name || authData.user.user_metadata?.last_name,
       },
       session: authData.session,
     });
