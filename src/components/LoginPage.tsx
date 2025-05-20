@@ -120,9 +120,8 @@ const LoginPageContent = () => {
             duration: 3000,
           });
           
-          // Redirect after successful login to home page instead of account
-          const callbackUrl = searchParams.get('callbackUrl') || '/';
-          router.push(callbackUrl);
+          // Always redirect to home page, ignoring any callbackUrl
+          router.push('/');
         } catch (error: any) {
           throw error;
         }
