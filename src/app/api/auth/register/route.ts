@@ -36,9 +36,9 @@ export async function POST(request: NextRequest) {
     const supabaseAdmin = createAdminClient();
 
     // Vérifier si l'utilisateur existe déjà
-    const { data: existingUser, error: userCheckError } = await supabaseAdmin.auth.admin.getUserByEmail(email);
+    const { data: usersData, error: userCheckError } = await supabaseAdmin.auth.admin.listUsers();
     
-    if (userCheckError && !userCheckError.message.includes('User not found')) {
+    if (userCheckError) {
       console.error('Erreur lors de la vérification de l\'email:', userCheckError);
       return NextResponse.json(
         { error: 'Erreur lors de la vérification de l\'email' },
@@ -46,6 +46,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const existingUser = usersData.users.find(user => user.email === email);
+    
     if (existingUser) {
       return NextResponse.json(
         { error: 'Cet email est déjà utilisé' },
