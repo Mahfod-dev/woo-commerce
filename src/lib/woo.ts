@@ -160,7 +160,7 @@ class WooCommerceAPI {
 	constructor() {
 		const defaultUrl = 'https://selectura.shop';
 		// Make sure environment variables are properly used in production
-		this.baseUrl = process.env.NEXT_PUBLIC_URL_WORDPRESS || defaultUrl;
+		this.baseUrl = process.env.NEXT_PUBLIC_URL_WORDPRESS || process.env.URL_WORDPRESS || defaultUrl;
 		this.consumerKey =
 			process.env.NEXT_PUBLIC_WOOCOMMERCE_CONSUMER_KEY ||
 			'ck_57120178580c5210e18439965e0ed3bba5003573';
@@ -172,7 +172,7 @@ class WooCommerceAPI {
 		// Avertissement si on utilise les valeurs par défaut
 		if (this.baseUrl === defaultUrl) {
 			console.log(
-				'[WooCommerce] URL_WORDPRESS par défaut utilisée. Assurez-vous de définir NEXT_PUBLIC_URL_WORDPRESS dans votre .env.local pour la production.'
+				'[WooCommerce] URL_WORDPRESS par défaut utilisée. Assurez-vous de définir NEXT_PUBLIC_URL_WORDPRESS dans votre .env.local ou URL_WORDPRESS sur Vercel.'
 			);
 		}
 

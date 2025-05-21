@@ -48,17 +48,19 @@ export interface Cart {
 
 // Utiliser les variables d'environnement publiques ou une valeur par défaut
 const defaultUrl = 'https://selectura.shop';
-const baseUrl = process.env.NEXT_PUBLIC_URL_WORDPRESS || defaultUrl;
+const baseUrl = process.env.NEXT_PUBLIC_URL_WORDPRESS || process.env.URL_WORDPRESS || defaultUrl;
 const isTestMode = process.env.NEXT_PUBLIC_TEST_MODE === 'true';
 
-// Log pour débogage
-console.log('[WooClient] Initialisation avec baseUrl:', baseUrl);
-
-// Vérification de la présence de l'URL
-if (baseUrl === defaultUrl) {
-	console.log(
-		'URL_WORDPRESS par défaut utilisée. Assurez-vous de définir NEXT_PUBLIC_URL_WORDPRESS dans votre .env.local pour la production.'
-	);
+// Log pour débogage en développement seulement
+if (process.env.NODE_ENV === 'development') {
+	console.log('[WooClient] Initialisation avec baseUrl:', baseUrl);
+	
+	// Vérification de la présence de l'URL
+	if (!process.env.NEXT_PUBLIC_URL_WORDPRESS && !process.env.URL_WORDPRESS) {
+		console.log(
+			'URL_WORDPRESS par défaut utilisée. Assurez-vous de définir NEXT_PUBLIC_URL_WORDPRESS dans votre .env.local ou URL_WORDPRESS sur Vercel.'
+		);
+	}
 }
 
 /**
