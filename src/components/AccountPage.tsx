@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
@@ -31,11 +31,13 @@ type AddressInfo = {
 
 const AccountPage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { addNotification } = useNotification();
   const { data: session, status } = useSession();
   
-  // Forcer l'affichage des commandes au démarrage pour déboguer
-  const [activeTab, setActiveTab] = useState('orders');
+  // Vérifier le paramètre tab dans l'URL
+  const tabFromUrl = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(tabFromUrl || 'profile');
   const [userData, setUserData] = useState<ProfileType | null>(null);
   const [orders, setOrders] = useState<OrderType[]>([]);
   const [claims, setClaims] = useState<any[]>([]); // For demo purposes
@@ -326,6 +328,14 @@ const AccountPage = () => {
 
     loadUserData();
   }, [session, status, router, addNotification]);
+
+  // Mettre à jour l'onglet actif quand l'URL change
+  useEffect(() => {
+    const newTab = searchParams.get('tab');
+    if (newTab && newTab !== activeTab) {
+      setActiveTab(newTab);
+    }
+  }, [searchParams, activeTab]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
