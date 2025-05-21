@@ -6,8 +6,6 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useNotification } from '@/context/notificationContext';
 import { useSession, signOut as nextAuthSignOut } from 'next-auth/react';
-import { getUserProfile } from '@/lib/supabase/auth';
-import { updateProfile, updateShippingAddress, updateBillingAddress } from '@/lib/supabase/profile';
 import { Database } from '@/lib/supabase/types';
 import '@/app/styles/account.css';
 
@@ -139,34 +137,28 @@ const AccountPage = () => {
 
         const user = session.user;
 
-        // Get user profile from Supabase
-        const profile = await getUserProfile(user.id);
-
-        if (profile) {
-          console.log('Profile Supabase trouvé:', profile);
-          setUserData(profile);
-          setFormData({
-            first_name: profile.first_name || '',
-            last_name: profile.last_name || '',
-            email: profile.email || '',
-            phone: profile.phone || '',
-            password: '',
-            confirm_password: '',
-          });
-          console.log('FormData mis à jour avec profil Supabase');
-        } else {
-          // Si pas de profil Supabase, utiliser les données NextAuth
-          console.log('Pas de profil Supabase, utilisation NextAuth:', user);
-          setFormData({
-            first_name: user.firstName || '',
-            last_name: user.lastName || '',
-            email: user.email || '',
-            phone: '',
-            password: '',
-            confirm_password: '',
-          });
-          console.log('FormData mis à jour avec NextAuth');
-        }
+        // Utiliser directement les données NextAuth pour le profil
+        console.log('Utilisation des données NextAuth:', user);
+        // Créer un objet userData à partir des données de session
+        const nextAuthUserData = {
+          id: user.id,
+          first_name: user.firstName || '',
+          last_name: user.lastName || '',
+          email: user.email || '',
+          created_at: new Date().toISOString(),
+          // Autres champs avec des valeurs par défaut si nécessaire
+        };
+        
+        setUserData(nextAuthUserData as ProfileType);
+        setFormData({
+          first_name: user.firstName || '',
+          last_name: user.lastName || '',
+          email: user.email || '',
+          phone: user.phone || '',
+          password: '',
+          confirm_password: '',
+        });
+        console.log('FormData mis à jour avec NextAuth');
 
         // Get user orders using improved fetching with retries
         const fetchOrders = async (retries = 3) => {
@@ -185,30 +177,31 @@ const AccountPage = () => {
                 setOrders(data.orders);
 
                 // Vérifier si le profil utilisateur a des adresses, sinon utiliser celles des commandes
-                const userProfile = await getUserProfile(user.id);
-                if (userProfile) {
+                if (userData) {
                   // Si l'utilisateur n'a pas d'adresse de facturation, utiliser celle de la dernière commande
-                  if (!userProfile.billing_address) {
+                  if (!userData.billing_address) {
                     const lastBillingAddress = getLatestAddress(data.orders, 'billing');
                     if (lastBillingAddress) {
-                      await updateBillingAddress(user.id, lastBillingAddress);
-                      console.log('Adresse de facturation mise à jour depuis la dernière commande');
+                      // Mise à jour locale du state
+                      setUserData(prev => ({
+                        ...prev,
+                        billing_address: lastBillingAddress
+                      }));
+                      console.log('Adresse de facturation mise à jour localement depuis la dernière commande');
                     }
                   }
 
                   // Si l'utilisateur n'a pas d'adresse de livraison, utiliser celle de la dernière commande
-                  if (!userProfile.shipping_address) {
+                  if (!userData.shipping_address) {
                     const lastShippingAddress = getLatestAddress(data.orders, 'shipping');
                     if (lastShippingAddress) {
-                      await updateShippingAddress(user.id, lastShippingAddress);
-                      console.log('Adresse de livraison mise à jour depuis la dernière commande');
+                      // Mise à jour locale du state
+                      setUserData(prev => ({
+                        ...prev,
+                        shipping_address: lastShippingAddress
+                      }));
+                      console.log('Adresse de livraison mise à jour localement depuis la dernière commande');
                     }
-                  }
-
-                  // Rafraîchir les données utilisateur après la mise à jour
-                  const updatedProfile = await getUserProfile(user.id);
-                  if (updatedProfile) {
-                    setUserData(updatedProfile);
                   }
                 }
 
@@ -231,26 +224,28 @@ const AccountPage = () => {
                 setOrders(stdData.orders || []);
 
                 // Même logique de récupération d'adresses avec l'API standard
-                if (stdData.orders && stdData.orders.length > 0) {
-                  const userProfile = await getUserProfile(user.id);
-                  if (userProfile) {
-                    if (!userProfile.billing_address) {
-                      const lastBillingAddress = getLatestAddress(stdData.orders, 'billing');
-                      if (lastBillingAddress) {
-                        await updateBillingAddress(user.id, lastBillingAddress);
-                      }
+                if (stdData.orders && stdData.orders.length > 0 && userData) {
+                  if (!userData.billing_address) {
+                    const lastBillingAddress = getLatestAddress(stdData.orders, 'billing');
+                    if (lastBillingAddress) {
+                      // Mise à jour locale du state
+                      setUserData(prev => ({
+                        ...prev,
+                        billing_address: lastBillingAddress
+                      }));
+                      console.log('Adresse de facturation mise à jour localement depuis la dernière commande');
                     }
+                  }
 
-                    if (!userProfile.shipping_address) {
-                      const lastShippingAddress = getLatestAddress(stdData.orders, 'shipping');
-                      if (lastShippingAddress) {
-                        await updateShippingAddress(user.id, lastShippingAddress);
-                      }
-                    }
-
-                    const updatedProfile = await getUserProfile(user.id);
-                    if (updatedProfile) {
-                      setUserData(updatedProfile);
+                  if (!userData.shipping_address) {
+                    const lastShippingAddress = getLatestAddress(stdData.orders, 'shipping');
+                    if (lastShippingAddress) {
+                      // Mise à jour locale du state
+                      setUserData(prev => ({
+                        ...prev,
+                        shipping_address: lastShippingAddress
+                      }));
+                      console.log('Adresse de livraison mise à jour localement depuis la dernière commande');
                     }
                   }
                 }
@@ -365,25 +360,27 @@ const AccountPage = () => {
     if (!userData) return;
     
     try {
-      const profileData: Partial<ProfileType> = {
+      // Pour l'instant, nous mettons simplement à jour l'état local
+      // Dans une implémentation complète, vous devriez ajouter un endpoint API
+      // pour mettre à jour les informations de profil via NextAuth
+      const updatedUserData = {
+        ...userData,
         first_name: formData.first_name,
         last_name: formData.last_name,
         email: formData.email,
         phone: formData.phone,
       };
       
-      const updatedProfile = await updateProfile(userData.id, profileData);
+      setUserData(updatedUserData);
+      setIsEditing(false);
       
-      if (updatedProfile) {
-        setUserData(updatedProfile);
-        setIsEditing(false);
-        
-        addNotification({
-          type: 'success',
-          message: 'Profil mis à jour avec succès',
-          duration: 3000,
-        });
-      }
+      addNotification({
+        type: 'success',
+        message: 'Profil mis à jour avec succès (mode local)',
+        duration: 3000,
+      });
+      
+      console.log('Mise à jour du profil (local uniquement):', updatedUserData);
     } catch (error: any) {
       console.error('Error updating profile:', error);
       addNotification({
@@ -1248,30 +1245,24 @@ const AccountPage = () => {
                             e.preventDefault();
                             if (!userData) return;
 
-                            const updateFunction = editingAddress.type === 'shipping'
-                              ? updateShippingAddress
-                              : updateBillingAddress;
-
-                            updateFunction(userData.id, editingAddress.data)
-                              .then((updatedProfile) => {
-                                if (updatedProfile) {
-                                  setUserData(updatedProfile);
-                                  setEditingAddress(null);
-                                  addNotification({
-                                    type: 'success',
-                                    message: `Adresse ${editingAddress.type === 'shipping' ? 'de livraison' : 'de facturation'} mise à jour avec succès`,
-                                    duration: 3000,
-                                  });
-                                }
-                              })
-                              .catch((error) => {
-                                console.error('Error updating address:', error);
-                                addNotification({
-                                  type: 'error',
-                                  message: `Impossible de mettre à jour l'adresse: ${error.message}`,
-                                  duration: 5000,
-                                });
-                              });
+                            // Mise à jour locale du state
+                            setUserData(prev => {
+                              if (!prev) return prev;
+                              
+                              return {
+                                ...prev,
+                                [editingAddress.type === 'shipping' ? 'shipping_address' : 'billing_address']: editingAddress.data
+                              };
+                            });
+                            
+                            setEditingAddress(null);
+                            addNotification({
+                              type: 'success',
+                              message: `Adresse ${editingAddress.type === 'shipping' ? 'de livraison' : 'de facturation'} mise à jour avec succès (mode local)`,
+                              duration: 3000,
+                            });
+                            
+                            console.log(`Mise à jour de l'adresse ${editingAddress.type} (local uniquement):`, editingAddress.data);
                           }}>
                             <div className="grid grid-cols-2 gap-4">
                               <div>
