@@ -1,18 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserOrders } from '@/lib/orders';
-import { createClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { standardizeUserId } from '@/lib/utils';
 
 export async function GET(req: NextRequest) {
   try {
-    // Récupérer le client Supabase avec await pour cookies()
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
-
-    // Vérifier si l'utilisateur est authentifié
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) {
+    // Vérifier si l'utilisateur est authentifié avec NextAuth
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Utilisateur non authentifié' },
         { status: 401 }
@@ -20,7 +16,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Récupérer et standardiser l'ID de l'utilisateur
-    const rawUserId = data.user.id;
+    const rawUserId = session.user.id;
     const userId = standardizeUserId(rawUserId);
     console.log('API user-orders - ID brut:', rawUserId, 'ID standardisé:', userId);
 
