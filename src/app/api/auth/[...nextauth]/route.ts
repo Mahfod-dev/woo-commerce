@@ -2,12 +2,13 @@ import { NextAuthOptions } from "next-auth";
 import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import { authenticateUser, findUserByEmail } from "@/lib/userService";
+import { createClient } from '@supabase/supabase-js';
+import { Database } from '@/lib/supabase/types';
 
 // Configuration de NextAuth
 export const authOptions: NextAuthOptions = {
   providers: [
-    // Authentification par email/mot de passe
+    // Authentification par email/mot de passe avec Supabase
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -19,18 +20,48 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        // Utiliser notre service d'authentification
-        const user = authenticateUser(
-          credentials.email,
-          credentials.password
-        );
+        try {
+          // Créer un client Supabase pour l'authentification
+          const supabase = createClient<Database>(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!,
+            {
+              auth: {
+                autoRefreshToken: false,
+                persistSession: false,
+              }
+            }
+          );
 
-        if (user) {
-          // Le mot de passe est déjà retiré dans le service d'authentification
-          return user as any;
+          // Authentifier avec Supabase
+          const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+            email: credentials.email,
+            password: credentials.password
+          });
+
+          if (authError || !authData.user) {
+            console.error('Supabase auth error:', authError);
+            return null;
+          }
+
+          // Récupérer le profil utilisateur
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', authData.user.id)
+            .single();
+
+          return {
+            id: authData.user.id,
+            email: authData.user.email!,
+            firstName: profile?.first_name || authData.user.user_metadata?.first_name || '',
+            lastName: profile?.last_name || authData.user.user_metadata?.last_name || '',
+            avatar: profile?.avatar_url || authData.user.user_metadata?.avatar_url,
+          };
+        } catch (error) {
+          console.error('NextAuth authorize error:', error);
+          return null;
         }
-
-        return null;
       },
     }),
     // Pour ajouter l'authentification Google en production:
@@ -70,7 +101,7 @@ export const authOptions: NextAuthOptions = {
     // Ajouter des informations supplémentaires à la session
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id as number;
+        session.user.id = token.id as string;
         session.user.firstName = token.firstName as string;
         session.user.lastName = token.lastName as string;
         session.user.avatar = token.avatar as string | undefined;

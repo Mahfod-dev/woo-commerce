@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useSession, signOut } from 'next-auth/react';
 
 // Types pour l'utilisateur et les commandes
 export interface UserOrder {
@@ -18,11 +19,10 @@ export interface UserOrder {
 }
 
 export interface User {
-  id: number;
+  id: string;
   email: string;
   firstName: string;
   lastName: string;
-  token: string;
   avatar?: string;
   orders?: UserOrder[];
 }
@@ -34,7 +34,7 @@ interface AuthContextType {
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   clearError: () => void;
   updateUser: (userData: Partial<User>) => void;
   getOrders: () => Promise<UserOrder[]>;
@@ -48,7 +48,7 @@ const defaultAuthContext: AuthContextType = {
   error: null,
   login: async () => {},
   register: async () => {},
-  logout: () => {},
+  logout: async () => {},
   clearError: () => {},
   updateUser: () => {},
   getOrders: async () => [],
@@ -59,26 +59,6 @@ const AuthContext = createContext<AuthContextType>(defaultAuthContext);
 
 // Hook personnalisé pour utiliser le contexte d'authentification
 export const useAuth = () => useContext(AuthContext);
-
-// Données utilisateur de démo pour tester l'authentification
-const DEMO_USERS = [
-  {
-    id: 1,
-    email: 'demo@example.com',
-    password: 'password',
-    firstName: 'John',
-    lastName: 'Doe',
-    avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-  },
-  {
-    id: 2,
-    email: 'test@example.com',
-    password: 'password',
-    firstName: 'Jane',
-    lastName: 'Smith',
-    avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
-  },
-];
 
 // Commandes de démo
 const DEMO_ORDERS: UserOrder[] = [
@@ -133,107 +113,66 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const { data: session, status } = useSession();
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Vérifier s'il y a un utilisateur stocké dans localStorage au chargement
+  // Convertir la session NextAuth en user local
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      } catch (err) {
-        console.error('Error parsing stored user:', err);
-        localStorage.removeItem('user');
-      }
+    if (session?.user) {
+      const userData: User = {
+        id: session.user.id,
+        email: session.user.email || '',
+        firstName: session.user.firstName || '',
+        lastName: session.user.lastName || '',
+        avatar: session.user.avatar || session.user.image || undefined,
+      };
+      setUser(userData);
+    } else {
+      setUser(null);
     }
-    setIsLoading(false);
-  }, []);
+  }, [session]);
 
-  // Fonction de connexion
+  // Ces fonctions sont maintenant des placeholders car NextAuth gère l'authentification
   const login = async (email: string, password: string) => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Simuler un appel API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Vérifier les identifiants avec nos utilisateurs de démo
-      const foundUser = DEMO_USERS.find(
-        user => user.email === email && user.password === password
-      );
-
-      if (foundUser) {
-        // Créer l'objet utilisateur sans le mot de passe
-        const { password, ...userWithoutPassword } = foundUser;
-        const authenticatedUser: User = {
-          ...userWithoutPassword,
-          token: `demo-token-${foundUser.id}`,
-        };
-
-        // Stocker l'utilisateur dans localStorage
-        localStorage.setItem('user', JSON.stringify(authenticatedUser));
-        setUser(authenticatedUser);
-      } else {
-        throw new Error('Email ou mot de passe incorrect');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
-      console.error('Erreur de connexion:', err);
-    } finally {
-      setIsLoading(false);
-    }
+    // LoginPage utilise directement signIn de NextAuth
+    // Cette fonction est garde pour la compatibilité
+    throw new Error('Utilisez signIn de NextAuth dans LoginPage');
   };
 
-  // Fonction d'inscription
   const register = async (
     email: string,
     password: string,
     firstName: string,
     lastName: string
   ) => {
-    setIsLoading(true);
     setError(null);
 
     try {
-      // Simuler un appel API
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Vérifier si l'email existe déjà
-      if (DEMO_USERS.some(user => user.email === email)) {
-        throw new Error('Cet email est déjà utilisé');
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, firstName, lastName })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Échec de l\'inscription');
       }
-
-      // Créer un nouvel utilisateur (simulation)
-      const newUser: User = {
-        id: Math.floor(Math.random() * 1000) + 10, // ID aléatoire
-        email,
-        firstName,
-        lastName,
-        token: `new-user-token-${Date.now()}`,
-        avatar: `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? 'men' : 'women'}/${
-          Math.floor(Math.random() * 99) + 1
-        }.jpg`,
-      };
-
-      // Stocker l'utilisateur dans localStorage
-      localStorage.setItem('user', JSON.stringify(newUser));
-      setUser(newUser);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue lors de l\'inscription');
-      console.error('Erreur d\'inscription:', err);
-    } finally {
-      setIsLoading(false);
+      throw err;
     }
   };
 
   // Fonction de déconnexion
-  const logout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
+  const logout = async () => {
+    try {
+      await signOut({ redirect: true, callbackUrl: '/' });
+    } catch (err) {
+      console.error('Error signing out:', err);
+    }
   };
 
   // Fonction pour effacer les erreurs
@@ -245,7 +184,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const updateUser = (userData: Partial<User>) => {
     if (user) {
       const updatedUser = { ...user, ...userData };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
       setUser(updatedUser);
     }
   };
@@ -263,8 +201,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const value = {
     user,
-    isLoading,
-    isAuthenticated: !!user,
+    isLoading: status === 'loading',
+    isAuthenticated: !!session?.user,
     error,
     login,
     register,

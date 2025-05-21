@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useNotification } from '@/context/notificationContext';
 import Image from 'next/image';
-import { signInWithEmail, signUpWithEmail } from '@/lib/supabase/auth';
+import { signIn } from 'next-auth/react';
 import '@/app/styles/login.css';
 
 const LoginPageContent = () => {
@@ -96,22 +96,16 @@ const LoginPageContent = () => {
     
     try {
       if (isLogin) {
-        // Login with Supabase
+        // Login with NextAuth
         try {
-          // API route peut retourner des erreurs avec HTTP status
-          const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: formData.email,
-              password: formData.password
-            })
+          const result = await signIn('credentials', {
+            email: formData.email,
+            password: formData.password,
+            redirect: false,
           });
           
-          const data = await response.json();
-          
-          if (!response.ok) {
-            throw new Error(data.error || 'Échec de la connexion');
+          if (result?.error) {
+            throw new Error('Email ou mot de passe incorrect');
           }
           
           addNotification({
@@ -120,7 +114,7 @@ const LoginPageContent = () => {
             duration: 3000,
           });
           
-          // Always redirect to home page, ignoring any callbackUrl
+          // Always redirect to home page
           router.push('/');
         } catch (error: any) {
           throw error;

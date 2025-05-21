@@ -6,7 +6,7 @@ declare module "next-auth" {
    */
   interface Session {
     user: {
-      id: number;
+      id: string;
       name?: string | null;
       email?: string | null;
       image?: string | null;
@@ -20,7 +20,7 @@ declare module "next-auth" {
    * Extension du type User de Next-Auth
    */
   interface User {
-    id: number;
+    id: string;
     email: string;
     firstName: string;
     lastName: string;
@@ -33,7 +33,7 @@ declare module "next-auth/jwt" {
    * Extension de l'objet JWT de Next-Auth
    */
   interface JWT {
-    id: number;
+    id: string;
     firstName: string;
     lastName: string;
     avatar?: string;
