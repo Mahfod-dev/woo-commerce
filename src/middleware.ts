@@ -11,12 +11,21 @@ export default withAuth(
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl;
         
+        // Debug en développement
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[Middleware] Route: ${pathname}, Token exists: ${!!token}`);
+        }
+        
         // Pages qui nécessitent une authentification
         const protectedRoutes = ['/account', '/checkout'];
         
         // Si la route est protégée, vérifier le token
         if (protectedRoutes.some((route) => pathname.startsWith(route))) {
-          return !!token;
+          if (!token) {
+            console.log(`[Middleware] Access denied to ${pathname} - no token`);
+            return false;
+          }
+          return true;
         }
         
         // Pour toutes les autres routes, autoriser l'accès

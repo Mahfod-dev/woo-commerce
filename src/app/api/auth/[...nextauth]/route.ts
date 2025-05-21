@@ -83,7 +83,29 @@ export const authOptions: NextAuthOptions = {
         sameSite: "lax",
         path: "/",
         secure: process.env.NODE_ENV === "production",
+        domain: process.env.NODE_ENV === "production" ? ".selectura.co" : undefined,
         maxAge: 30 * 24 * 60 * 60 // 30 jours
+      }
+    },
+    callbackUrl: {
+      name: `next-auth.callback-url`,
+      options: {
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        domain: process.env.NODE_ENV === "production" ? ".selectura.co" : undefined,
+        maxAge: 30 * 24 * 60 * 60
+      }
+    },
+    csrfToken: {
+      name: `next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        domain: process.env.NODE_ENV === "production" ? ".selectura.co" : undefined,
+        maxAge: 30 * 24 * 60 * 60
       }
     },
   },
