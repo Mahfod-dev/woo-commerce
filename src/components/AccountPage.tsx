@@ -143,6 +143,7 @@ const AccountPage = () => {
         const profile = await getUserProfile(user.id);
 
         if (profile) {
+          console.log('Profile Supabase trouvé:', profile);
           setUserData(profile);
           setFormData({
             first_name: profile.first_name || '',
@@ -152,8 +153,10 @@ const AccountPage = () => {
             password: '',
             confirm_password: '',
           });
+          console.log('FormData mis à jour avec profil Supabase');
         } else {
           // Si pas de profil Supabase, utiliser les données NextAuth
+          console.log('Pas de profil Supabase, utilisation NextAuth:', user);
           setFormData({
             first_name: user.firstName || '',
             last_name: user.lastName || '',
@@ -162,6 +165,7 @@ const AccountPage = () => {
             password: '',
             confirm_password: '',
           });
+          console.log('FormData mis à jour avec NextAuth');
         }
 
         // Get user orders using improved fetching with retries
@@ -323,6 +327,7 @@ const AccountPage = () => {
         });
       } finally {
         setIsLoading(false);
+        console.log('AccountPage chargé, formData final:', formData);
       }
     }
 
