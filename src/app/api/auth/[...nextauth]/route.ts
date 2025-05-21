@@ -21,7 +21,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          // Créer un client Supabase pour l'authentification
+          // Créer un client Supabase SANS authentification pour éviter les conflits
           const supabase = createClient<Database>(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -33,11 +33,16 @@ export const authOptions: NextAuthOptions = {
             }
           );
 
-          // Authentifier avec Supabase
+          // Vérifier les credentials avec Supabase mais SANS créer de session Supabase
           const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
             email: credentials.email,
             password: credentials.password
           });
+
+          // Déconnecter immédiatement Supabase pour éviter les conflits de session
+          if (authData.user) {
+            await supabase.auth.signOut();
+          }
 
           if (authError || !authData.user) {
             console.error('Supabase auth error:', authError);
@@ -74,41 +79,7 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 jours
   },
-  // Configurer les cookies pour une sécurité et persistance optimales
-  cookies: {
-    sessionToken: {
-      name: `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-        domain: process.env.NODE_ENV === "production" ? ".selectura.co" : undefined,
-        maxAge: 30 * 24 * 60 * 60 // 30 jours
-      }
-    },
-    callbackUrl: {
-      name: `next-auth.callback-url`,
-      options: {
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-        domain: process.env.NODE_ENV === "production" ? ".selectura.co" : undefined,
-        maxAge: 30 * 24 * 60 * 60
-      }
-    },
-    csrfToken: {
-      name: `next-auth.csrf-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-        domain: process.env.NODE_ENV === "production" ? ".selectura.co" : undefined,
-        maxAge: 30 * 24 * 60 * 60
-      }
-    },
-  },
+  // Laisser NextAuth gérer les cookies avec ses optimisations par défaut
   callbacks: {
     // Ajouter des informations supplémentaires au token JWT
     async jwt({ token, user }) {

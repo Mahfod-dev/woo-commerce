@@ -96,26 +96,20 @@ const LoginPageContent = () => {
     
     try {
       if (isLogin) {
-        // Login with NextAuth
+        // Login with NextAuth - laisser NextAuth gérer la redirection
         try {
           const result = await signIn('credentials', {
             email: formData.email,
             password: formData.password,
-            redirect: false,
+            callbackUrl: searchParams.get('callbackUrl') || '/',
           });
           
+          // Si on arrive ici avec redirect: true, c'est qu'il y a eu une erreur
           if (result?.error) {
             throw new Error('Email ou mot de passe incorrect');
           }
           
-          addNotification({
-            type: 'success',
-            message: 'Connexion réussie ! Redirection vers la page d\'accueil...',
-            duration: 3000,
-          });
-          
-          // Always redirect to home page
-          router.push('/');
+          // NextAuth gère la redirection automatiquement
         } catch (error: any) {
           throw error;
         }
