@@ -136,29 +136,51 @@ const AccountPage = () => {
         }
 
         const user = session.user;
+        console.log('Session utilisateur NextAuth:', user);
 
-        // Utiliser directement les données NextAuth pour le profil
-        console.log('Utilisation des données NextAuth:', user);
-        // Créer un objet userData à partir des données de session
-        const nextAuthUserData = {
-          id: user.id,
-          first_name: user.firstName || '',
-          last_name: user.lastName || '',
-          email: user.email || '',
-          created_at: new Date().toISOString(),
-          // Autres champs avec des valeurs par défaut si nécessaire
-        };
+        // Récupérer le profil complet depuis Supabase via notre API
+        const response = await fetch('/api/get-profile');
         
-        setUserData(nextAuthUserData as ProfileType);
-        setFormData({
-          first_name: user.firstName || '',
-          last_name: user.lastName || '',
-          email: user.email || '',
-          phone: user.phone || '',
-          password: '',
-          confirm_password: '',
-        });
-        console.log('FormData mis à jour avec NextAuth');
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Erreur lors de la récupération du profil:', errorData);
+          
+          // Si échec, utiliser les données de base de NextAuth
+          const basicUserData = {
+            id: user.id,
+            first_name: user.firstName || '',
+            last_name: user.lastName || '',
+            email: user.email || '',
+            created_at: new Date().toISOString(),
+            // Autres champs avec des valeurs par défaut si nécessaire
+          };
+          
+          setUserData(basicUserData as ProfileType);
+          setFormData({
+            first_name: user.firstName || '',
+            last_name: user.lastName || '',
+            email: user.email || '',
+            phone: '',
+            password: '',
+            confirm_password: '',
+          });
+          console.log('FormData mis à jour avec données NextAuth basiques');
+        } else {
+          // Utiliser le profil complet de Supabase
+          const { profile } = await response.json();
+          console.log('Profil Supabase récupéré:', profile);
+          
+          setUserData(profile);
+          setFormData({
+            first_name: profile.first_name || user.firstName || '',
+            last_name: profile.last_name || user.lastName || '',
+            email: profile.email || user.email || '',
+            phone: profile.phone || '',
+            password: '',
+            confirm_password: '',
+          });
+          console.log('FormData mis à jour avec profil Supabase complet');
+        }
 
         // Get user orders using improved fetching with retries
         const fetchOrders = async (retries = 3) => {
@@ -360,27 +382,42 @@ const AccountPage = () => {
     if (!userData) return;
     
     try {
-      // Pour l'instant, nous mettons simplement à jour l'état local
-      // Dans une implémentation complète, vous devriez ajouter un endpoint API
-      // pour mettre à jour les informations de profil via NextAuth
-      const updatedUserData = {
-        ...userData,
+      // Préparation des données à envoyer à l'API
+      const profileData = {
         first_name: formData.first_name,
         last_name: formData.last_name,
         email: formData.email,
         phone: formData.phone,
       };
       
-      setUserData(updatedUserData);
+      // Appel à notre nouvelle API route qui utilise NextAuth pour l'authentication
+      // et Supabase service_role pour mettre à jour le profil
+      const response = await fetch('/api/update-profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileData),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erreur lors de la mise à jour du profil');
+      }
+      
+      const result = await response.json();
+      
+      // Mise à jour de l'état local avec les données actualisées
+      setUserData(result.profile);
       setIsEditing(false);
       
       addNotification({
         type: 'success',
-        message: 'Profil mis à jour avec succès (mode local)',
+        message: 'Profil mis à jour avec succès',
         duration: 3000,
       });
       
-      console.log('Mise à jour du profil (local uniquement):', updatedUserData);
+      console.log('Profil mis à jour:', result.profile);
     } catch (error: any) {
       console.error('Error updating profile:', error);
       addNotification({
@@ -1245,24 +1282,47 @@ const AccountPage = () => {
                             e.preventDefault();
                             if (!userData) return;
 
-                            // Mise à jour locale du state
-                            setUserData(prev => {
-                              if (!prev) return prev;
+                            // Déterminer l'endpoint à appeler en fonction du type d'adresse
+                            const endpoint = editingAddress.type === 'shipping' 
+                              ? '/api/update-shipping-address' 
+                              : '/api/update-billing-address';
+                            
+                            try {
+                              // Appel à l'API pour la mise à jour de l'adresse
+                              const response = await fetch(endpoint, {
+                                method: 'POST',
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(editingAddress.data),
+                              });
                               
-                              return {
-                                ...prev,
-                                [editingAddress.type === 'shipping' ? 'shipping_address' : 'billing_address']: editingAddress.data
-                              };
-                            });
-                            
-                            setEditingAddress(null);
-                            addNotification({
-                              type: 'success',
-                              message: `Adresse ${editingAddress.type === 'shipping' ? 'de livraison' : 'de facturation'} mise à jour avec succès (mode local)`,
-                              duration: 3000,
-                            });
-                            
-                            console.log(`Mise à jour de l'adresse ${editingAddress.type} (local uniquement):`, editingAddress.data);
+                              if (!response.ok) {
+                                const errorData = await response.json();
+                                throw new Error(errorData.error || `Erreur lors de la mise à jour de l'adresse`);
+                              }
+                              
+                              const result = await response.json();
+                              
+                              // Mise à jour de l'état local avec les données actualisées
+                              setUserData(result.profile);
+                              setEditingAddress(null);
+                              
+                              addNotification({
+                                type: 'success',
+                                message: `Adresse ${editingAddress.type === 'shipping' ? 'de livraison' : 'de facturation'} mise à jour avec succès`,
+                                duration: 3000,
+                              });
+                              
+                              console.log(`Mise à jour de l'adresse ${editingAddress.type}:`, editingAddress.data);
+                            } catch (error: any) {
+                              console.error(`Erreur de mise à jour d'adresse:`, error);
+                              addNotification({
+                                type: 'error',
+                                message: error.message || `Impossible de mettre à jour l'adresse`,
+                                duration: 5000,
+                              });
+                            }
                           }}>
                             <div className="grid grid-cols-2 gap-4">
                               <div>
