@@ -5,7 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useNotification } from '@/context/notificationContext';
-import { getUser, signOut, getUserProfile } from '@/lib/supabase/auth';
+import { useSession, signOut as nextAuthSignOut } from 'next-auth/react';
+import { getUserProfile } from '@/lib/supabase/auth';
 import { updateProfile, updateShippingAddress, updateBillingAddress } from '@/lib/supabase/profile';
 import { Database } from '@/lib/supabase/types';
 import '@/app/styles/account.css';
@@ -31,6 +32,7 @@ type AddressInfo = {
 const AccountPage = () => {
   const router = useRouter();
   const { addNotification } = useNotification();
+  const { data: session, status } = useSession();
   
   // Forcer l'affichage des commandes au démarrage pour déboguer
   const [activeTab, setActiveTab] = useState('orders');
@@ -116,13 +118,13 @@ const AccountPage = () => {
   // Load user data
   useEffect(() => {
     async function loadUserData() {
+      if (status === 'loading') return; // Attendre que le status soit déterminé
+      
       setIsLoading(true);
 
       try {
-        // Get the current user from Supabase
-        const user = await getUser();
-
-        if (!user) {
+        // Check NextAuth session
+        if (!session?.user) {
           // User not authenticated, redirect to login
           addNotification({
             type: 'warning',
@@ -132,6 +134,8 @@ const AccountPage = () => {
           router.push('/login');
           return;
         }
+
+        const user = session.user;
 
         // Get user profile from Supabase
         const profile = await getUserProfile(user.id);
@@ -143,6 +147,16 @@ const AccountPage = () => {
             last_name: profile.last_name || '',
             email: profile.email || '',
             phone: profile.phone || '',
+            password: '',
+            confirm_password: '',
+          });
+        } else {
+          // Si pas de profil Supabase, utiliser les données NextAuth
+          setFormData({
+            first_name: user.firstName || '',
+            last_name: user.lastName || '',
+            email: user.email || '',
+            phone: '',
             password: '',
             confirm_password: '',
           });
@@ -311,7 +325,7 @@ const AccountPage = () => {
     }
 
     loadUserData();
-  }, [router, addNotification]);
+  }, [session, status, router, addNotification]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -444,7 +458,7 @@ const AccountPage = () => {
     // Short delay to allow notification to be processed
     setTimeout(async () => {
       try {
-        await signOut();
+        await nextAuthSignOut({ callbackUrl: '/' });
         router.push('/');
       } catch (error) {
         console.error('Error signing out:', error);
