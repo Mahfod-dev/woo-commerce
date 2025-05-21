@@ -257,7 +257,7 @@ const AccountPage = () => {
                 // Tenter à nouveau si des tentatives restent
                 if (retries > 0) {
                   console.log(`Nouvelle tentative de récupération (${retries} tentatives restantes)...`);
-                  setTimeout(() => fetchOrders(retries - 1), 1000);
+                  // Pas de retry automatique pour éviter les boucles
                 } else {
                   setOrders([]);
                   addNotification({
@@ -273,7 +273,7 @@ const AccountPage = () => {
               // Tenter à nouveau si des tentatives restent
               if (retries > 0) {
                 console.log(`Nouvelle tentative de récupération (${retries} tentatives restantes)...`);
-                setTimeout(() => fetchOrders(retries - 1), 1000);
+                // Pas de retry automatique pour éviter les boucles
               } else {
                 setOrders([]);
               }
@@ -284,7 +284,7 @@ const AccountPage = () => {
             // Tenter à nouveau si des tentatives restent
             if (retries > 0) {
               console.log(`Nouvelle tentative de récupération (${retries} tentatives restantes)...`);
-              setTimeout(() => fetchOrders(retries - 1), 1000);
+              // Pas de retry automatique pour éviter les boucles
             } else {
               setOrders([]);
             }
@@ -327,15 +327,15 @@ const AccountPage = () => {
     }
 
     loadUserData();
-  }, [session, status, router, addNotification]);
+  }, [session, status]);
 
   // Mettre à jour l'onglet actif quand l'URL change
   useEffect(() => {
     const newTab = searchParams.get('tab');
-    if (newTab && newTab !== activeTab) {
+    if (newTab) {
       setActiveTab(newTab);
     }
-  }, [searchParams, activeTab]);
+  }, [searchParams]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
