@@ -9,7 +9,7 @@ import { usePathname } from 'next/navigation';
 import { useCart } from './CartProvider';
 import MiniCart from './MiniCart';
 import MegaMenu from './MegaMenu';
-import { getUser, getUserProfile } from '@/lib/supabase/auth';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 
 // Interface pour les catégories
@@ -34,11 +34,10 @@ export default function Header({ categories }: HeaderProps) {
 	const [isSearchOpen, setIsSearchOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [scrolled, setScrolled] = useState(false);
-	const [userProfile, setUserProfile] = useState<any>(null);
-	const [isLoading, setIsLoading] = useState(true);
 	const pathname = usePathname();
 	const searchRef = useRef<HTMLDivElement>(null);
 	const { itemCount } = useCart();
+	const { data: session, status } = useSession();
 
 	// Détection du scroll pour changer l'apparence du header
 	useEffect(() => {
@@ -53,25 +52,8 @@ export default function Header({ categories }: HeaderProps) {
 		return () => window.removeEventListener('scroll', handleScroll);
 	}, [scrolled]);
 
-	// Chargement du profil utilisateur connecté
-	useEffect(() => {
-		async function loadUserProfile() {
-			setIsLoading(true);
-			try {
-				const user = await getUser();
-				if (user) {
-					const profile = await getUserProfile(user.id);
-					setUserProfile(profile);
-				}
-			} catch (error) {
-				console.error('Erreur lors du chargement du profil:', error);
-			} finally {
-				setIsLoading(false);
-			}
-		}
-
-		loadUserProfile();
-	}, []);
+	// Le profil utilisateur vient maintenant de session NextAuth
+	const userProfile = session?.user;
 
 	// Fermer le menu et la barre de recherche lors du changement de page
 	useEffect(() => {
@@ -231,7 +213,7 @@ export default function Header({ categories }: HeaderProps) {
 							{userProfile ? (
 								<>
 									<span className='hidden sm:inline-block mr-2 text-sm font-medium'>
-										{userProfile.first_name || 'Compte'}
+										{userProfile.firstName || 'Compte'}
 									</span>
 									<FaUser size={16} />
 								</>
@@ -361,9 +343,9 @@ export default function Header({ categories }: HeaderProps) {
 									<div className='ml-3'>
 										<div className='text-base font-medium text-gray-800'>
 											{userProfile
-												? userProfile.first_name +
+												? userProfile.firstName +
 												  ' ' +
-												  userProfile.last_name
+												  userProfile.lastName
 												: 'Mon compte'}
 										</div>
 										<div className='text-sm font-medium text-gray-500'>
