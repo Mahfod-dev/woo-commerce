@@ -608,7 +608,7 @@ const AccountPage = () => {
             <div className="md:flex md:items-center">
               <div className="relative h-20 w-20 rounded-full overflow-hidden border-4 border-white mx-auto md:mx-0 mb-4 md:mb-0">
                 <Image
-                  src={userData?.avatar_url || '/profile-placeholder.jpg'}
+                  src={userData?.avatar_url || '/selectura.png'}
                   alt="Profile"
                   fill
                   className="object-cover"

@@ -188,7 +188,7 @@ const LoginPageContent = () => {
           <Link href="/" className="logo-container">
             <div className="relative h-12 w-36">
               <Image
-                src="/next.svg"
+                src="/selectura.png"
                 alt="Selectura"
                 fill
                 priority

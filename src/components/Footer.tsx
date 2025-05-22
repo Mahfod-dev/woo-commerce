@@ -685,77 +685,70 @@ export default function ImprovedFooter() {
 								</ul>
 							</div>
 
-							<div className='flex flex-col md:items-end justify-center space-y-4'>
+							<div className='flex flex-col md:items-end justify-center space-y-6'>
 								<div>
 									<h3 className='text-lg font-semibold text-white mb-3'>
-										Méthodes de paiement
+										Paiement sécurisé
 									</h3>
-									<div className='flex space-x-3'>
+									<div className='flex flex-wrap gap-2 mb-2'>
+										{/* Visa */}
 										<div className='bg-white p-2 rounded w-12 h-8 flex items-center justify-center'>
-											<Image
-												src='/visa.svg'
-												alt='Visa'
-												width={30}
-												height={20}
-											/>
+											<div className='text-blue-600 font-bold text-xs'>VISA</div>
 										</div>
+										{/* Mastercard */}
 										<div className='bg-white p-2 rounded w-12 h-8 flex items-center justify-center'>
-											<Image
-												src='/mastercard.svg'
-												alt='Mastercard'
-												width={30}
-												height={20}
-											/>
+											<div className='flex space-x-0.5'>
+												<div className='w-2 h-2 rounded-full bg-red-500'></div>
+												<div className='w-2 h-2 rounded-full bg-yellow-500'></div>
+											</div>
 										</div>
+										{/* PayPal */}
 										<div className='bg-white p-2 rounded w-12 h-8 flex items-center justify-center'>
-											<Image
-												src='/paypal.svg'
-												alt='PayPal'
-												width={30}
-												height={20}
-											/>
+											<div className='text-blue-600 font-bold text-xs'>PayPal</div>
 										</div>
+										{/* Apple Pay */}
 										<div className='bg-white p-2 rounded w-12 h-8 flex items-center justify-center'>
-											<Image
-												src='/apple-pay.svg'
-												alt='Apple Pay'
-												width={30}
-												height={20}
-											/>
+											<div className='text-black text-xs'>🍎 Pay</div>
+										</div>
+										{/* Stripe */}
+										<div className='bg-white p-2 rounded w-12 h-8 flex items-center justify-center'>
+											<div className='text-indigo-600 font-bold text-xs'>S</div>
 										</div>
 									</div>
+									<p className='text-xs text-gray-400 italic max-w-xs md:text-right'>
+										"Paiements 100% sécurisés - Plus de 50,000 clients nous font confiance"
+									</p>
 								</div>
 
 								<div>
 									<h3 className='text-lg font-semibold text-white mb-3'>
-										Livraison par
+										Livraison rapide
 									</h3>
-									<div className='flex space-x-3'>
-										<div className='bg-white p-2 rounded w-12 h-8 flex items-center justify-center'>
-											<Image
-												src='/dhl.svg'
-												alt='DHL'
-												width={30}
-												height={20}
-											/>
+									<div className='flex flex-wrap gap-2 mb-2'>
+										{/* Colissimo */}
+										<div className='bg-yellow-400 p-2 rounded w-12 h-8 flex items-center justify-center'>
+											<div className='text-blue-800 font-bold text-xs'>📦</div>
 										</div>
-										<div className='bg-white p-2 rounded w-12 h-8 flex items-center justify-center'>
-											<Image
-												src='/ups.svg'
-												alt='UPS'
-												width={30}
-												height={20}
-											/>
+										{/* Chronopost */}
+										<div className='bg-red-600 p-2 rounded w-12 h-8 flex items-center justify-center'>
+											<div className='text-white font-bold text-xs'>⚡</div>
 										</div>
-										<div className='bg-white p-2 rounded w-12 h-8 flex items-center justify-center'>
-											<Image
-												src='/fedex.svg'
-												alt='FedEx'
-												width={30}
-												height={20}
-											/>
+										{/* UPS */}
+										<div className='bg-yellow-600 p-2 rounded w-12 h-8 flex items-center justify-center'>
+											<div className='text-white font-bold text-xs'>UPS</div>
+										</div>
+										{/* DHL */}
+										<div className='bg-red-500 p-2 rounded w-12 h-8 flex items-center justify-center'>
+											<div className='text-yellow-400 font-bold text-xs'>DHL</div>
+										</div>
+										{/* Point Relais */}
+										<div className='bg-green-600 p-2 rounded w-12 h-8 flex items-center justify-center'>
+											<div className='text-white font-bold text-xs'>🏪</div>
 										</div>
 									</div>
+									<p className='text-xs text-gray-400 italic max-w-xs md:text-right'>
+										"Livraison en 24-48h - 98% de satisfaction client selon nos avis"
+									</p>
 								</div>
 							</div>
 						</div>
