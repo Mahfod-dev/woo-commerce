@@ -47,6 +47,67 @@ const extractFeaturesFromHTML = (htmlContent: string): string[] => {
 	return features;
 };
 
+// Fonction pour obtenir l'icône appropriée selon le type de document
+const getDocumentIcon = (type: ProductDocument['type']) => {
+	switch (type) {
+		case 'pdf':
+			return (
+				<path
+					strokeLinecap='round'
+					strokeLinejoin='round'
+					strokeWidth={2}
+					d='M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z'
+				/>
+			);
+		case 'doc':
+			return (
+				<path
+					strokeLinecap='round'
+					strokeLinejoin='round'
+					strokeWidth={2}
+					d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+				/>
+			);
+		case 'image':
+			return (
+				<path
+					strokeLinecap='round'
+					strokeLinejoin='round'
+					strokeWidth={2}
+					d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
+				/>
+			);
+		case 'video':
+			return (
+				<path
+					strokeLinecap='round'
+					strokeLinejoin='round'
+					strokeWidth={2}
+					d='M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z'
+				/>
+			);
+		default:
+			return (
+				<path
+					strokeLinecap='round'
+					strokeLinejoin='round'
+					strokeWidth={2}
+					d='M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z'
+				/>
+			);
+	}
+};
+
+// Type pour les documents
+interface ProductDocument {
+	id: string;
+	name: string;
+	description: string;
+	url: string;
+	size: string;
+	type: 'pdf' | 'doc' | 'image' | 'video' | 'other';
+}
+
 // Type pour les produits
 interface Product {
 	id: number;
@@ -81,6 +142,8 @@ interface Product {
 		variation: boolean;
 		options: string[];
 	}[];
+	// Documents et ressources
+	documents?: ProductDocument[];
 }
 
 interface AppleStyleProductDetailProps {
@@ -1827,70 +1890,46 @@ export default function AppleStyleProductDetail({
 							</div>
 						</div>
 
-						{/* Téléchargements et documents */}
-						<div className='mt-12'>
-							<h3 className='text-lg font-medium text-gray-900 mb-4'>
-								Documents et ressources
-							</h3>
-							<div className='bg-white rounded-xl shadow-sm p-6'>
-								<ul className='divide-y divide-gray-200'>
-									<li className='py-4 flex'>
-										<svg
-											className='h-6 w-6 text-gray-400 mr-4'
-											fill='none'
-											viewBox='0 0 24 24'
-											stroke='currentColor'>
-											<path
-												strokeLinecap='round'
-												strokeLinejoin='round'
-												strokeWidth={2}
-												d='M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z'
-											/>
-										</svg>
-										<div className='ml-3'>
-											<p className='text-sm font-medium text-gray-900'>
-												Guide d'utilisation
-											</p>
-											<p className='text-sm text-gray-500'>
-												PDF, 2.4 MB
-											</p>
-										</div>
-										<div className='ml-auto'>
-											<button className='text-sm font-medium text-indigo-600 hover:text-indigo-500'>
-												Télécharger
-											</button>
-										</div>
-									</li>
-									<li className='py-4 flex'>
-										<svg
-											className='h-6 w-6 text-gray-400 mr-4'
-											fill='none'
-											viewBox='0 0 24 24'
-											stroke='currentColor'>
-											<path
-												strokeLinecap='round'
-												strokeLinejoin='round'
-												strokeWidth={2}
-												d='M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z'
-											/>
-										</svg>
-										<div className='ml-3'>
-											<p className='text-sm font-medium text-gray-900'>
-												Fiche technique
-											</p>
-											<p className='text-sm text-gray-500'>
-												PDF, 1.8 MB
-											</p>
-										</div>
-										<div className='ml-auto'>
-											<button className='text-sm font-medium text-indigo-600 hover:text-indigo-500'>
-												Télécharger
-											</button>
-										</div>
-									</li>
-								</ul>
+						{/* Téléchargements et documents - Conditionnel */}
+						{product.documents && product.documents.length > 0 && (
+							<div className='mt-12'>
+								<h3 className='text-lg font-medium text-gray-900 mb-4'>
+									Documents et ressources
+								</h3>
+								<div className='bg-white rounded-xl shadow-sm p-6'>
+									<ul className='divide-y divide-gray-200'>
+										{product.documents.map((document) => (
+											<li key={document.id} className='py-4 flex items-center'>
+												<svg
+													className='h-6 w-6 text-gray-400 mr-4 flex-shrink-0'
+													fill='none'
+													viewBox='0 0 24 24'
+													stroke='currentColor'>
+													{getDocumentIcon(document.type)}
+												</svg>
+												<div className='ml-3 flex-grow'>
+													<p className='text-sm font-medium text-gray-900'>
+														{document.name}
+													</p>
+													<p className='text-sm text-gray-500'>
+														{document.description} • {document.size}
+													</p>
+												</div>
+												<div className='ml-auto'>
+													<a
+														href={document.url}
+														target='_blank'
+														rel='noopener noreferrer'
+														className='text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors duration-200'>
+														Télécharger
+													</a>
+												</div>
+											</li>
+										))}
+									</ul>
+								</div>
 							</div>
-						</div>
+						)}
 					</div>
 				</section>
 

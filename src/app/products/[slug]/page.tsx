@@ -11,6 +11,16 @@ interface PageProps {
   }>;
 }
 
+// Type pour les documents
+interface ProductDocument {
+  id: string;
+  name: string;
+  description: string;
+  url: string;
+  size: string;
+  type: 'pdf' | 'doc' | 'image' | 'video' | 'other';
+}
+
 // Interface pour le type Product défini dans ProductDetailContent
 interface Product {
   id: number;
@@ -30,13 +40,79 @@ interface Product {
   rating_count?: number;
   featured?: boolean;
   tags: { id: number; name: string; slug: string }[];
+  // Documents et ressources
+  documents?: ProductDocument[];
+}
+
+// Fonction pour générer des documents selon le produit
+function generateDocuments(wooProduct: WooProduct): ProductDocument[] {
+  const documents: ProductDocument[] = [];
+  
+  // Ajouter des documents selon certaines conditions
+  // Par exemple, si le produit est premium ou de certaines catégories
+  const isPremium = wooProduct.tags?.some(tag => tag.name.toLowerCase().includes('premium'));
+  const isElectronic = wooProduct.categories?.some(cat => 
+    cat.name.toLowerCase().includes('électronique') || 
+    cat.name.toLowerCase().includes('electronic')
+  );
+  
+  // Document guide d'utilisation pour tous les produits premium ou électroniques
+  if (isPremium || isElectronic) {
+    documents.push({
+      id: `guide-${wooProduct.id}`,
+      name: 'Guide d\'utilisation',
+      description: 'Manuel complet d\'utilisation',
+      url: '#', // En production, ici serait l'URL réelle du document
+      size: '2.4 MB',
+      type: 'pdf'
+    });
+  }
+  
+  // Fiche technique pour les produits premium
+  if (isPremium) {
+    documents.push({
+      id: `specs-${wooProduct.id}`,
+      name: 'Fiche technique détaillée',
+      description: 'Spécifications techniques complètes',
+      url: '#',
+      size: '1.8 MB',
+      type: 'pdf'
+    });
+  }
+  
+  // Certificat de garantie pour certains produits
+  if (parseFloat(wooProduct.price) > 100) { // Produits > 100€
+    documents.push({
+      id: `warranty-${wooProduct.id}`,
+      name: 'Certificat de garantie',
+      description: 'Conditions de garantie et support',
+      url: '#',
+      size: '450 KB',
+      type: 'pdf'
+    });
+  }
+  
+  // Vidéo de démonstration pour les produits avec des images multiples
+  if (wooProduct.images && wooProduct.images.length > 2) {
+    documents.push({
+      id: `demo-${wooProduct.id}`,
+      name: 'Vidéo de démonstration',
+      description: 'Présentation complète du produit',
+      url: '#',
+      size: '15.2 MB',
+      type: 'video'
+    });
+  }
+  
+  return documents;
 }
 
 // Fonction pour convertir WooProduct en Product
 function convertToProduct(wooProduct: WooProduct): Product {
   return {
     ...wooProduct,
-    stock_quantity: wooProduct.stock_quantity ?? undefined
+    stock_quantity: wooProduct.stock_quantity ?? undefined,
+    documents: generateDocuments(wooProduct)
   };
 }
 

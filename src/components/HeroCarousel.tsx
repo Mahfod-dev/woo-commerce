@@ -124,27 +124,35 @@ const HeroCarousel = () => {
 
 								{/* Particules animées pour plus de dynamisme */}
 								<div className='absolute inset-0 overflow-hidden'>
-									{[...Array(6)].map((_, i) => (
-										<motion.div
-											key={i}
-											className='absolute w-2 h-2 bg-white rounded-full opacity-20'
-											animate={{
-												x: [Math.random() * window.innerWidth, Math.random() * window.innerWidth],
-												y: [Math.random() * window.innerHeight, Math.random() * window.innerHeight],
-											}}
-											transition={{
-												duration: 20 + Math.random() * 10,
-												repeat: Infinity,
-												repeatType: 'reverse',
-												ease: 'linear',
-												delay: i * 2,
-											}}
-											style={{
-												left: Math.random() * 100 + '%',
-												top: Math.random() * 100 + '%',
-											}}
-										/>
-									))}
+									{[...Array(6)].map((_, i) => {
+										// Valeurs par défaut pour le rendu serveur
+										const defaultWidth = 1920;
+										const defaultHeight = 1080;
+										const windowWidth = typeof window !== 'undefined' ? window.innerWidth : defaultWidth;
+										const windowHeight = typeof window !== 'undefined' ? window.innerHeight : defaultHeight;
+
+										return (
+											<motion.div
+												key={i}
+												className='absolute w-2 h-2 bg-white rounded-full opacity-20'
+												animate={{
+													x: [Math.random() * windowWidth, Math.random() * windowWidth],
+													y: [Math.random() * windowHeight, Math.random() * windowHeight],
+												}}
+												transition={{
+													duration: 20 + Math.random() * 10,
+													repeat: Infinity,
+													repeatType: 'reverse',
+													ease: 'linear',
+													delay: i * 2,
+												}}
+												style={{
+													left: Math.random() * 100 + '%',
+													top: Math.random() * 100 + '%',
+												}}
+											/>
+										);
+									})}
 								</div>
 
 								{/* Contenu principal */}
