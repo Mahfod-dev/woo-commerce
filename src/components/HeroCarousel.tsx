@@ -86,7 +86,7 @@ const HeroCarousel = () => {
 	};
 
 	return (
-		<section className='relative h-screen overflow-hidden'>
+		<section className='relative h-[70vh] md:h-screen overflow-hidden'>
 			{/* Slides avec arrière-plan d'image pour plus d'immersion */}
 			<AnimatePresence mode='wait'>
 				{slides.map(
@@ -168,7 +168,7 @@ const HeroCarousel = () => {
 													className='space-y-8'>
 													<div>
 														<motion.h1 
-															className='text-6xl lg:text-8xl font-black text-white leading-none'
+															className='text-4xl sm:text-6xl lg:text-8xl font-black text-white leading-none'
 															initial={{ opacity: 0, y: 50 }}
 															animate={{ opacity: 1, y: 0 }}
 															transition={{ duration: 0.8, delay: 0.5 }}
@@ -182,7 +182,7 @@ const HeroCarousel = () => {
 													</div>
 
 													<motion.p 
-														className='text-xl lg:text-2xl text-white/90 leading-relaxed max-w-lg'
+														className='text-lg sm:text-xl lg:text-2xl text-white/90 leading-relaxed max-w-lg'
 														initial={{ opacity: 0, y: 30 }}
 														animate={{ opacity: 1, y: 0 }}
 														transition={{ duration: 0.8, delay: 0.7 }}
@@ -240,7 +240,7 @@ const HeroCarousel = () => {
 													animate={{ opacity: 1, y: 0 }}
 													transition={{ duration: 1, delay: 0.3 }}
 													className='space-y-6'>
-													<h1 className='text-7xl lg:text-9xl font-black text-white leading-none'>
+													<h1 className='text-5xl sm:text-7xl lg:text-9xl font-black text-white leading-none'>
 														{slide.title}
 														<br />
 														<span className='bg-gradient-to-r from-blue-300 via-purple-300 to-pink-300 bg-clip-text text-transparent'>
@@ -248,7 +248,7 @@ const HeroCarousel = () => {
 														</span>
 													</h1>
 													
-													<p className='text-xl lg:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed'>
+													<p className='text-lg sm:text-xl lg:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed'>
 														{slide.subtitle}
 													</p>
 												</motion.div>
@@ -313,7 +313,7 @@ const HeroCarousel = () => {
 													animate={{ opacity: 1, x: 0 }}
 													transition={{ duration: 1, delay: 0.3 }}
 													className='relative z-20 max-w-2xl space-y-8'>
-													<h1 className='text-6xl lg:text-8xl font-black text-white leading-none'>
+													<h1 className='text-4xl sm:text-6xl lg:text-8xl font-black text-white leading-none'>
 														{slide.title}
 														<br />
 														<span className='bg-gradient-to-r from-rose-300 via-pink-300 to-purple-300 bg-clip-text text-transparent'>
@@ -321,7 +321,7 @@ const HeroCarousel = () => {
 														</span>
 													</h1>
 													
-													<p className='text-xl lg:text-2xl text-white/90 leading-relaxed'>
+													<p className='text-lg sm:text-xl lg:text-2xl text-white/90 leading-relaxed'>
 														{slide.subtitle}
 													</p>
 
