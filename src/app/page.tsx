@@ -11,31 +11,31 @@ import { WooProduct } from '@/lib/woo';
 
 // Interface pour le type Product utilisé dans FocusedProductShowcase
 interface Product {
-  id: number;
-  name: string;
-  slug: string;
-  price: string;
-  regular_price?: string;
-  sale_price?: string;
-  on_sale?: boolean;
-  stock_status: 'instock' | 'outofstock' | 'onbackorder';
-  stock_quantity?: number;
-  short_description: string;
-  description: string;
-  images: { src: string; alt: string }[];
-  categories: { id: number; name: string; slug: string }[];
-  average_rating?: string;
-  rating_count?: number;
-  featured?: boolean;
-  tags: { id: number; name: string; slug: string }[];
+	id: number;
+	name: string;
+	slug: string;
+	price: string;
+	regular_price?: string;
+	sale_price?: string;
+	on_sale?: boolean;
+	stock_status: 'instock' | 'outofstock' | 'onbackorder';
+	stock_quantity?: number;
+	short_description: string;
+	description: string;
+	images: { src: string; alt: string }[];
+	categories: { id: number; name: string; slug: string }[];
+	average_rating?: string;
+	rating_count?: number;
+	featured?: boolean;
+	tags: { id: number; name: string; slug: string }[];
 }
 
 // Fonction pour convertir WooProduct en Product
 function convertToProduct(wooProduct: WooProduct): Product {
-  return {
-    ...wooProduct,
-    stock_quantity: wooProduct.stock_quantity ?? undefined
-  };
+	return {
+		...wooProduct,
+		stock_quantity: wooProduct.stock_quantity ?? undefined,
+	};
 }
 
 export default async function OptimizedHomePage() {
@@ -271,7 +271,7 @@ export default async function OptimizedHomePage() {
 						<div className='mt-10 lg:mt-0'>
 							<div className='aspect-w-3 aspect-h-2 rounded-lg overflow-hidden'>
 								<Image
-									src='/img/quality-focus.jpg'
+									src='/images/quality-focus.png'
 									alt='Sélection de qualité'
 									className='w-full h-full object-cover'
 									width={500}

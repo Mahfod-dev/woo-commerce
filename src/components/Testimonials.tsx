@@ -18,7 +18,7 @@ export default function Testimonials() {
 			author: 'Sophie',
 			role: 'Cliente fidèle',
 			text: "La personnalisation et l'expérience unique m'ont vraiment convaincue. Une boutique qui ose sortir des sentiers battus et propose des produits d'une qualité exceptionnelle !",
-			image: '/images/testimonial-1.jpg', // Remplacer par vos images ou utiliser une image par défaut
+			image: '/images/sophie.png', // Remplacer par vos images ou utiliser une image par défaut
 			rating: 5,
 		},
 		{
@@ -26,7 +26,7 @@ export default function Testimonials() {
 			author: 'Thomas',
 			role: 'Client depuis 2 ans',
 			text: "Un design frais et des produits de qualité, le service client est irréprochable et les livraisons toujours à l'heure. Je recommande vivement !",
-			image: '/images/testimonial-2.jpg',
+			image: '/images/marc.png',
 			rating: 5,
 		},
 		{
@@ -34,7 +34,7 @@ export default function Testimonials() {
 			author: 'Émilie',
 			role: 'Nouvelle cliente',
 			text: "L'interface est un pur plaisir à parcourir, et l'attention aux détails fait toute la différence. Mes commandes sont toujours parfaitement emballées et livrées rapidement.",
-			image: '/images/testimonial-3.jpg',
+			image: '/images/emilie.png',
 			rating: 4,
 		},
 		{
@@ -42,7 +42,7 @@ export default function Testimonials() {
 			author: 'David',
 			role: 'Acheteur régulier',
 			text: 'Innovant et élégant, ce site change totalement la donne en matière de shopping en ligne. Les produits sont toujours conformes aux descriptions et de très bonne qualité.',
-			image: '/images/testimonial-4.jpg',
+			image: '/images/pierre.png',
 			rating: 5,
 		},
 	];
