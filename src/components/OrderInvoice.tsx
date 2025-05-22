@@ -32,7 +32,7 @@ interface Order {
   currency: string;
   payment_method: string;
   payment_method_title: string;
-  billing: {
+  billing_address: {
     first_name: string;
     last_name: string;
     company: string;
@@ -358,15 +358,15 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
               <div>
                 <h3 className="text-gray-900 font-medium mb-2">Facturer à :</h3>
-                <p className="text-gray-700">{order.billing.first_name} {order.billing.last_name}</p>
-                {order.billing.company && <p className="text-gray-700">{order.billing.company}</p>}
-                <p className="text-gray-700">{order.billing.address_1}</p>
-                {order.billing.address_2 && <p className="text-gray-700">{order.billing.address_2}</p>}
-                <p className="text-gray-700">{order.billing.postcode} {order.billing.city}</p>
-                {order.billing.state && <p className="text-gray-700">{order.billing.state}</p>}
-                <p className="text-gray-700">{order.billing.country}</p>
-                <p className="text-gray-700 mt-2">{order.billing.email}</p>
-                <p className="text-gray-700">{order.billing.phone}</p>
+                <p className="text-gray-700">{order.billing_address.first_name} {order.billing_address.last_name}</p>
+                {order.billing_address.company && <p className="text-gray-700">{order.billing_address.company}</p>}
+                <p className="text-gray-700">{order.billing_address.address_1}</p>
+                {order.billing_address.address_2 && <p className="text-gray-700">{order.billing_address.address_2}</p>}
+                <p className="text-gray-700">{order.billing_address.postcode} {order.billing_address.city}</p>
+                {order.billing_address.state && <p className="text-gray-700">{order.billing_address.state}</p>}
+                <p className="text-gray-700">{order.billing_address.country}</p>
+                <p className="text-gray-700 mt-2">{order.billing_address.email}</p>
+                <p className="text-gray-700">{order.billing_address.phone}</p>
               </div>
               
               <div>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Testimonials() {
 	const [currentTestimonial, setCurrentTestimonial] = useState(0);
@@ -331,11 +332,11 @@ export default function Testimonials() {
 					viewport={{ once: true }}
 					transition={{ duration: 0.5, delay: 0.3 }}
 					className='mt-16 text-center'>
-					<a
-						href='#'
+					<Link
+						href='/products'
 						className='inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 md:py-4 md:text-lg md:px-10 transition-all duration-300 shadow-lg hover:shadow-xl'>
 						Rejoindre nos clients satisfaits
-					</a>
+					</Link>
 				</motion.div>
 			</div>
 		</section>

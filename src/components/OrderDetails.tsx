@@ -32,7 +32,7 @@ interface Order {
   currency: string;
   payment_method: string;
   payment_method_title: string;
-  billing: {
+  billing_address: {
     first_name: string;
     last_name: string;
     company: string;
@@ -653,16 +653,16 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId }) => {
                     <div>
                       <h3 className="text-sm font-medium text-gray-900 mb-2">Adresse de facturation</h3>
                       <address className="text-sm text-gray-600 not-italic">
-                        {order.billing.first_name} {order.billing.last_name}<br />
-                        {order.billing.company && <>{order.billing.company}<br /></>}
-                        {order.billing.address_1}<br />
-                        {order.billing.address_2 && <>{order.billing.address_2}<br /></>}
-                        {order.billing.postcode} {order.billing.city}<br />
-                        {order.billing.state && <>{order.billing.state}<br /></>}
-                        {order.billing.country}<br />
+                        {order.billing_address.first_name} {order.billing_address.last_name}<br />
+                        {order.billing_address.company && <>{order.billing_address.company}<br /></>}
+                        {order.billing_address.address_1}<br />
+                        {order.billing_address.address_2 && <>{order.billing_address.address_2}<br /></>}
+                        {order.billing_address.postcode} {order.billing_address.city}<br />
+                        {order.billing_address.state && <>{order.billing_address.state}<br /></>}
+                        {order.billing_address.country}<br />
                         <div className="mt-2">
-                          <div>{order.billing.email}</div>
-                          <div>{order.billing.phone}</div>
+                          <div>{order.billing_address.email}</div>
+                          <div>{order.billing_address.phone}</div>
                         </div>
                       </address>
                     </div>
