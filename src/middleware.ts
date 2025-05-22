@@ -15,6 +15,15 @@ export default withAuth(
 );
 
 export const config = {
-  // Protéger seulement les routes qui ont besoin d'authentification
-  matcher: ['/account/:path*', '/checkout/:path*']
+  // Protéger toutes les routes qui nécessitent une authentification
+  matcher: [
+    '/account/:path*', 
+    '/checkout/:path*',
+    '/api/create-order',
+    '/api/get-profile',
+    '/api/update-profile',
+    '/api/user-orders',
+    '/api/update-billing-address',
+    '/api/update-shipping-address'
+  ]
 };

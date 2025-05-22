@@ -23,7 +23,27 @@ export function standardizeUserId(userId: any): string {
 }
 
 /**
- * Récupère l'ID utilisateur depuis Supabase
+ * Récupère l'ID utilisateur depuis NextAuth (côté serveur)
+ * @returns Promise d'ID utilisateur ou null
+ */
+export async function getCurrentUserIdFromSession(): Promise<string | null> {
+  try {
+    const { getServerSession } = await import('next-auth');
+    const { authOptions } = await import('@/app/api/auth/[...nextauth]/route');
+    
+    const session = await getServerSession(authOptions);
+    if (session?.user?.id) {
+      return standardizeUserId(session.user.id);
+    }
+  } catch (error) {
+    console.error('Erreur lors de la récupération de la session utilisateur:', error);
+  }
+  
+  return null;
+}
+
+/**
+ * Récupère l'ID utilisateur depuis Supabase (côté client)
  * @returns Promise d'ID utilisateur ou chaîne vide
  */
 export async function getCurrentUserId(): Promise<string> {

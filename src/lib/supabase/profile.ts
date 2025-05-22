@@ -1,5 +1,4 @@
-import { createClientFromRequest } from './server'
-import { supabase } from './client'
+// This file now only contains types and uses NextAuth APIs instead of direct Supabase calls
 import { Database } from './types'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
@@ -19,138 +18,104 @@ export type AddressInfo = {
 }
 
 /**
- * Get user profile by user ID
+ * Get user profile by user ID - Uses NextAuth API
  */
-export async function getProfile(userId: string, req?: any, res?: any): Promise<Profile | null> {
-  // Use appropriate client based on context
-  const client = req
-    ? createClientFromRequest(req, res)
-    : supabase;
-  
-  const { data, error } = await client
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single()
-  
-  if (error) {
-    console.error('Error fetching profile:', error)
-    return null
+export async function getProfile(userId: string): Promise<Profile | null> {
+  try {
+    const response = await fetch('/api/get-profile', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      console.error('Error fetching profile:', response.statusText);
+      return null;
+    }
+
+    const data = await response.json();
+    return data.profile;
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    return null;
   }
-  
-  return data
 }
 
 /**
- * Update user profile
+ * Update user profile - Uses NextAuth API
  */
 export async function updateProfile(userId: string, profileData: Partial<Profile>) {
-  // Utiliser le client Supabase importé
+  try {
+    const response = await fetch('/api/update-profile', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(profileData),
+    });
 
-  const { data, error } = await supabase
-    .from('profiles')
-    .update({
-      ...profileData,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', userId)
-    .select()
-    .single()
-  
-  if (error) {
-    throw new Error(error.message)
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to update profile');
+    }
+
+    const data = await response.json();
+    return data.profile;
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    throw error;
   }
-  
-  return data
 }
 
 /**
- * Update shipping address
+ * Update shipping address - Uses NextAuth API
  */
 export async function updateShippingAddress(userId: string, address: AddressInfo) {
-  // Utiliser le client Supabase importé
-  const { data, error } = await supabase
-    .from('profiles')
-    .update({
-      shipping_address: address,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', userId)
-    .select()
-    .single()
+  try {
+    const response = await fetch('/api/update-shipping-address', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ shipping_address: address }),
+    });
 
-  if (error) {
-    throw new Error(error.message)
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to update shipping address');
+    }
+
+    const data = await response.json();
+    return data.profile;
+  } catch (error) {
+    console.error('Error updating shipping address:', error);
+    throw error;
   }
-
-  return data
 }
 
 /**
- * Update billing address
+ * Update billing address - Uses NextAuth API  
  */
 export async function updateBillingAddress(userId: string, address: AddressInfo) {
-  // Utiliser le client Supabase importé
-  const { data, error } = await supabase
-    .from('profiles')
-    .update({
-      billing_address: address,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', userId)
-    .select()
-    .single()
-  
-  if (error) {
-    throw new Error(error.message)
-  }
-  
-  return data
-}
+  try {
+    const response = await fetch('/api/update-billing-address', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ billing_address: address }),
+    });
 
-/**
- * Get user orders
- */
-export async function getUserOrders(userId: string, req?: any, res?: any) {
-  // Use appropriate client based on context
-  const client = req
-    ? createClientFromRequest(req, res)
-    : supabase;
-  
-  const { data, error } = await client
-    .from('orders')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-  
-  if (error) {
-    console.error('Error fetching orders:', error)
-    return []
-  }
-  
-  return data
-}
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to update billing address');
+    }
 
-/**
- * Get order by ID
- */
-export async function getOrderById(orderId: number, userId: string, req?: any, res?: any) {
-  // Use appropriate client based on context
-  const client = req
-    ? createClientFromRequest(req, res)
-    : supabase;
-  
-  const { data, error } = await client
-    .from('orders')
-    .select('*')
-    .eq('id', orderId)
-    .eq('user_id', userId)
-    .single()
-  
-  if (error) {
-    console.error('Error fetching order:', error)
-    return null
+    const data = await response.json();
+    return data.profile;
+  } catch (error) {
+    console.error('Error updating billing address:', error);
+    throw error;
   }
-  
-  return data
 }

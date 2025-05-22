@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { updatePassword } from '@/lib/supabase/auth';
+// import { updatePassword } from '@/lib/supabase/auth'; // Removed - using NextAuth only
 import { useNotification } from '@/context/notificationContext';
 
 function ResetPasswordContent() {
@@ -58,11 +58,12 @@ function ResetPasswordContent() {
     setIsLoading(true);
     
     try {
-      await updatePassword(password);
+      // TODO: Implement password reset with NextAuth or external service
+      // await updatePassword(password);
       setIsSuccess(true);
       addNotification({
-        type: 'success',
-        message: 'Mot de passe mis à jour avec succès !',
+        type: 'info',
+        message: 'Fonctionnalité temporairement désactivée. Contactez le support.',
         duration: 5000,
       });
       

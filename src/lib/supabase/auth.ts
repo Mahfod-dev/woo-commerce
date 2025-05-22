@@ -1,6 +1,5 @@
-import { createClientFromRequest } from './server';
-import { supabase } from './client';
-import { redirect } from 'next/navigation';
+// This file is deprecated - we now use NextAuth for authentication
+// All functions here are placeholders or removed to prevent Supabase Auth conflicts
 
 export type AuthCredentials = {
 	email: string;
@@ -13,25 +12,14 @@ export type UserRegistration = AuthCredentials & {
 };
 
 /**
- * Signs in a user using email and password
+ * @deprecated Use NextAuth signIn instead
  */
 export async function signInWithEmail({ email, password }: AuthCredentials) {
-	// Utiliser le client supabase importé
-
-	const { data, error } = await supabase.auth.signInWithPassword({
-		email,
-		password,
-	});
-
-	if (error) {
-		throw new Error(error.message);
-	}
-
-	return data;
+	throw new Error('Use NextAuth signIn instead - this function is deprecated');
 }
 
 /**
- * Signs up a new user with email and password
+ * @deprecated Use NextAuth and API routes instead
  */
 export async function signUpWithEmail({
 	email,
@@ -39,173 +27,33 @@ export async function signUpWithEmail({
 	firstName,
 	lastName,
 }: UserRegistration) {
-	// Utiliser le client supabase importé
-
-	const { data: authData, error: authError } = await supabase.auth.signUp({
-		email,
-		password,
-		options: {
-			data: {
-				first_name: firstName,
-				last_name: lastName,
-			},
-		},
-	});
-
-	if (authError) {
-		throw new Error(authError.message);
-	}
-
-	// Create a profile record for the user
-	if (authData.user) {
-		const { error: profileError } = await supabase.from('profiles').insert({
-			id: authData.user.id,
-			first_name: firstName,
-			last_name: lastName,
-			email: email,
-			created_at: new Date().toISOString(),
-		});
-
-		if (profileError) {
-			console.error('Error creating profile:', profileError);
-			// Consider what to do if profile creation fails but auth succeeds
-		}
-	}
-
-	return authData;
+	throw new Error('Use /api/auth/register instead - this function is deprecated');
 }
 
 /**
- * Signs out the current user
+ * @deprecated Use NextAuth signOut instead
  */
 export async function signOut() {
-	// Utiliser le client supabase importé
-	const { error } = await supabase.auth.signOut();
-
-	if (error) {
-		throw new Error(error.message);
-	}
+	throw new Error('Use NextAuth signOut instead - this function is deprecated');
 }
 
 /**
- * Gets the current user session (server-side)
- * Can be used from getServerSideProps or API routes
- */
-export async function getSession(req?: any, res?: any) {
-	// If req is provided, use it to create a server client
-	if (req) {
-		const supabase = createClientFromRequest(req, res);
-		const { data } = await supabase.auth.getSession();
-		return data.session;
-	}
-
-	// Fallback to browser client for client components
-	// Utiliser le client supabase importé
-	const { data } = await supabase.auth.getSession();
-	return data.session;
-}
-
-/**
- * Gets the current user (server-side)
- * Can be used from getServerSideProps or API routes
- */
-export async function getUser(req?: any, res?: any) {
-	// If req is provided, use it to create a server client
-	if (req) {
-		const supabase = createClientFromRequest(req, res);
-		const { data } = await supabase.auth.getUser();
-		return data.user;
-	}
-
-	// Fallback to browser client for client components
-	// Utiliser le client supabase importé
-	const { data } = await supabase.auth.getUser();
-	return data.user;
-}
-
-/**
- * Server action to require authentication
- * Redirects to login if user is not authenticated
- */
-export async function requireAuth(req?: any, res?: any) {
-	const session = await getSession(req, res);
-
-	if (!session) {
-		if (typeof window === 'undefined' && !req) {
-			// Server-side redirect in App Router
-			redirect('/login');
-		} else {
-			// Client-side redirect or Pages Router
-			window.location.href = '/login';
-		}
-	}
-
-	return session;
-}
-
-/**
- * Password reset request
+ * @deprecated Password reset functionality temporarily disabled
  */
 export async function resetPassword(email: string) {
-	// Utiliser le client supabase importé
-
-	const { error } = await supabase.auth.resetPasswordForEmail(email, {
-		redirectTo: `${window.location.origin}/reset-password`,
-	});
-
-	if (error) {
-		throw new Error(error.message);
-	}
+	throw new Error('Password reset functionality temporarily disabled - contact support');
 }
 
 /**
- * Update user password
+ * @deprecated Password update functionality temporarily disabled  
  */
 export async function updatePassword(password: string) {
-	// Utiliser le client supabase importé
-
-	const { error } = await supabase.auth.updateUser({
-		password,
-	});
-
-	if (error) {
-		throw new Error(error.message);
-	}
+	throw new Error('Password update functionality temporarily disabled - contact support');
 }
 
 /**
- * Get user profile data
+ * @deprecated Use NextAuth session instead
  */
-export async function getUserProfile(userId: string, req?: any, res?: any) {
-	// If req is provided, use it to create a server client
-	if (req) {
-		const supabase = createClientFromRequest(req, res);
-		const { data, error } = await supabase
-			.from('profiles')
-			.select('*')
-			.eq('id', userId)
-			.single();
-
-		if (error) {
-			console.error('Error fetching profile:', error);
-			return null;
-		}
-
-		return data;
-	}
-
-	// Fallback to browser client for client components
-	// Utiliser le client supabase importé
-	const { data, error } = await supabase
-		.from('profiles')
-		.select('*')
-		.eq('id', userId)
-		.single();
-
-	if (error) {
-		console.error('Error fetching profile:', error);
-		return null;
-	}
-
-	return data;
+export async function getCurrentUser() {
+	throw new Error('Use NextAuth useSession instead - this function is deprecated');
 }

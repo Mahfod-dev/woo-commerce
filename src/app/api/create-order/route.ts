@@ -1,18 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { createClient as createServerClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { createOrder as createWooOrder } from '@/lib/woo';
+import { standardizeUserId } from '@/lib/utils';
 
 export async function POST(req: NextRequest) {
   try {
-    // Récupérer le client Supabase avec await pour cookies()
-    const cookieStore = await cookies();
-    const supabase = createServerClient(cookieStore);
-
-    // Vérifier si l'utilisateur est authentifié avec getUser (plus sécurisé)
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) {
+    // Vérifier si l'utilisateur est authentifié avec NextAuth
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Utilisateur non authentifié' },
         { status: 401 }
@@ -20,7 +17,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Récupérer l'ID de l'utilisateur
-    const userId = data.user.id;
+    const userId = standardizeUserId(session.user.id);
 
     // Récupérer les données de la commande depuis le corps de la requête
     const orderData = await req.json();

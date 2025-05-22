@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { resetPassword } from '@/lib/supabase/auth';
+// import { resetPassword } from '@/lib/supabase/auth'; // Removed - using NextAuth only
 import { useNotification } from '@/context/notificationContext';
 
 export default function ForgotPasswordClient() {
@@ -29,11 +29,12 @@ export default function ForgotPasswordClient() {
     setIsLoading(true);
     
     try {
-      await resetPassword(email);
+      // TODO: Implement forgot password with NextAuth or external service
+      // await resetPassword(email);
       setEmailSent(true);
       addNotification({
-        type: 'success',
-        message: 'Instructions envoyées ! Vérifiez votre boîte de réception.',
+        type: 'info',
+        message: 'Fonctionnalité temporairement désactivée. Contactez le support.',
         duration: 5000,
       });
     } catch (error: any) {
