@@ -167,7 +167,7 @@ const faqData = {
 				{
 					id: 'technical-support',
 					question: 'Comment contacter votre support technique ?',
-					answer: 'Notre équipe de support technique est disponible par email à support@votreboutique.com, par téléphone au 01 23 45 67 89 (du lundi au vendredi, 9h-18h) ou via le chat en ligne sur notre site. Nous proposons également une base de connaissances et des tutoriels détaillés dans la section Support de notre site.',
+					answer: 'Notre équipe de support technique est disponible par email à support@flowcontent.io, par téléphone au +19136759287 (du lundi au vendredi, 9h-18h) ou via le chat en ligne sur notre site. Nous proposons également une base de connaissances et des tutoriels détaillés dans la section Support de notre site.',
 				},
 			],
 		},
@@ -210,13 +210,13 @@ const faqData = {
 				icon: 'email',
 				title: 'Par email',
 				description: 'Réponse sous 24h ouvrées',
-				action: 'contact@votreboutique.com',
+				action: 'support@flowcontent.io',
 			},
 			{
 				icon: 'phone',
 				title: 'Par téléphone',
 				description: 'Lun-Ven, 9h-18h',
-				action: '01 23 45 67 89',
+				action: '+19136759287',
 			},
 			{
 				icon: 'chat',

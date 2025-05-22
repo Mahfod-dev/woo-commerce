@@ -263,10 +263,10 @@ const returnsData = {
 			content: `
         <p>Pour toute question concernant notre politique de retour ou pour un suivi spécifique de votre retour en cours, notre équipe est à votre disposition :</p>
         <ul>
-          <li><strong>Par email</strong> : returns@votreboutique.com</li>
-          <li><strong>Par téléphone</strong> : 01 23 45 67 89 (du lundi au vendredi, de 9h à 18h)</li>
+          <li><strong>Par email</strong> : support@flowcontent.io</li>
+          <li><strong>Par téléphone</strong> : +19136759287 (du lundi au vendredi, de 9h à 18h)</li>
           <li><strong>Par chat</strong> : Disponible sur notre site du lundi au samedi, de 9h à 20h</li>
-          <li><strong>Par courrier</strong> : Votre Boutique - Service Retours, 123 Avenue du Commerce, 75001 Paris</li>
+          <li><strong>Par courrier</strong> : Votre Boutique - Service Retours, 254 rue Vendôme Lyon 003</li>
         </ul>
         <p>Pour un traitement plus rapide de votre demande, merci de toujours mentionner votre numéro de commande et/ou votre numéro de retour.</p>
         <p>Nous nous engageons à répondre à toutes vos demandes dans un délai maximum de 48 heures ouvrées.</p>

@@ -184,9 +184,9 @@ const aboutData = {
 		title: 'Contactez-nous',
 		description:
 			'Vous avez des questions ou des suggestions ? Notre équipe est là pour vous.',
-		email: 'contact@votreboutique.com',
-		phone: '01 23 45 67 89',
-		address: '15 rue de la Qualité, 69002 Lyon, France',
+		email: 'support@flowcontent.io',
+		phone: '+19136759287',
+		address: '254 rue Vendôme Lyon 003',
 	},
 };
 

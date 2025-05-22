@@ -660,7 +660,7 @@ export default function ImprovedFooter() {
 									<li className='flex items-start'>
 										<FaMapMarkerAlt className='text-indigo-400 mt-1 mr-3 flex-shrink-0' />
 										<span className='text-gray-300'>
-											123 Rue du Commerce, 75000 Paris,
+											254 rue Vendôme Lyon 69003,
 											France
 										</span>
 									</li>

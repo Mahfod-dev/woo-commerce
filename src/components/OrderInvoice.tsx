@@ -337,10 +337,10 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
                     className="object-contain"
                   />
                 </div>
-                <p className="text-gray-500 text-sm">Selectura Shop</p>
-                <p className="text-gray-500 text-sm">123 Rue du Commerce</p>
-                <p className="text-gray-500 text-sm">75001 Paris, France</p>
-                <p className="text-gray-500 text-sm">support@selectura.shop</p>
+                <p className="text-gray-500 text-sm">Selectura</p>
+                <p className="text-gray-500 text-sm">15442 Venture Blvd.,201</p>
+                <p className="text-gray-500 text-sm">Sherman Oaks, California CA 91403</p>
+                <p className="text-gray-500 text-sm">support@flowcontent.io</p>
               </div>
               
               <div className="text-right">
@@ -471,8 +471,8 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
 
           {/* Pied de page */}
           <motion.div variants={itemVariants} className="text-center text-gray-500 text-sm mt-8 print:mt-12">
-            <p>Selectura Shop • TVA : FR12345678900 • RCS Paris B 123 456 789</p>
-            <p>123 Rue du Commerce, 75001 Paris, France</p>
+            <p>Selectura (operated by DevHighway) • Tax ID : US123456789</p>
+            <p>15442 Venture Blvd.,201, Sherman Oaks, California CA 91403</p>
             <p className="print:hidden">Cette facture a été générée le {new Date().toLocaleDateString('fr-FR')}</p>
           </motion.div>
         </motion.div>

@@ -190,7 +190,7 @@ const shippingData = {
           <li><strong>Retard de livraison</strong> : Si votre colis dépasse significativement les délais annoncés, contactez notre service client en indiquant votre numéro de commande et le délai dépassé.</li>
           <li><strong>Colis incomplet ou erreur de produit</strong> : Contactez-nous dans les 48 heures suivant la réception avec votre numéro de commande et les détails de l'anomalie constatée.</li>
         </ul>
-        <p>Notre service client est à votre disposition pour résoudre tout problème de livraison dans les meilleurs délais. Vous pouvez nous contacter par email à support@votreboutique.com ou par téléphone au 01 23 45 67 89 (du lundi au vendredi, de 9h à 18h).</p>
+        <p>Notre service client est à votre disposition pour résoudre tout problème de livraison dans les meilleurs délais. Vous pouvez nous contacter par email à support@flowcontent.io ou par téléphone au +19136759287 (du lundi au vendredi, de 9h à 18h).</p>
       `,
 		},
 		{
@@ -245,10 +245,10 @@ const shippingData = {
 			content: `
         <p>Pour toute question concernant notre politique de livraison ou pour un suivi spécifique de votre commande, notre équipe est à votre disposition :</p>
         <ul>
-          <li><strong>Par email</strong> : delivery@votreboutique.com</li>
-          <li><strong>Par téléphone</strong> : 01 23 45 67 89 (du lundi au vendredi, de 9h à 18h)</li>
+          <li><strong>Par email</strong> : support@flowcontent.io</li>
+          <li><strong>Par téléphone</strong> : +19136759287 (du lundi au vendredi, de 9h à 18h)</li>
           <li><strong>Par chat</strong> : Disponible sur notre site du lundi au samedi, de 9h à 20h</li>
-          <li><strong>Par courrier</strong> : Votre Boutique - Service Livraison, 123 Avenue du Commerce, 75001 Paris</li>
+          <li><strong>Par courrier</strong> : Votre Boutique - Service Livraison, 254 rue Vendôme Lyon 003</li>
         </ul>
         <p>Pour un traitement plus rapide de votre demande, merci de toujours mentionner votre numéro de commande et/ou votre numéro de suivi.</p>
         <p>Nous nous engageons à répondre à toutes vos demandes dans un délai maximum de 48 heures ouvrées.</p>

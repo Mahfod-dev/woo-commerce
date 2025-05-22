@@ -64,7 +64,7 @@ const termsData = {
 			content: `
         <p>Dans les présentes conditions générales, les termes suivants ont la signification qui leur est donnée ci-après :</p>
         <ul>
-          <li><strong>"Nous", "Notre", "Nos"</strong> : désigne Votre Boutique, [raison sociale], dont le siège social est situé [adresse], immatriculée au Registre du Commerce et des Sociétés sous le numéro [numéro RCS].</li>
+          <li><strong>"Nous", "Notre", "Nos"</strong> : désigne Selectura, exploité par DevHighway, société dont le siège social est situé 15442 Venture Blvd.,201, Sherman Oaks, California CA 91403.</li>
           <li><strong>"Vous", "Votre", "Vos"</strong> : désigne toute personne physique ou morale utilisant le site ou effectuant un achat sur le site.</li>
           <li><strong>"Site"</strong> : désigne le site web accessible à l'adresse www.votreboutique.com.</li>
           <li><strong>"Produits"</strong> : désigne l'ensemble des biens proposés à la vente sur le site.</li>
@@ -152,7 +152,7 @@ const termsData = {
 			title: 'Retours et remboursements',
 			content: `
         <p>Conformément à la législation en vigueur, vous disposez d'un délai de rétractation de 14 jours à compter de la réception de votre commande pour retourner un produit et demander un remboursement, sans avoir à justifier de motifs ni à payer de pénalités.</p>
-        <p>Pour exercer votre droit de rétractation, vous devez nous notifier votre décision par email à returns@votreboutique.com ou via le formulaire disponible dans votre espace client. Les produits doivent nous être retournés dans leur état d'origine, non utilisés, avec tous leurs accessoires et dans leur emballage d'origine.</p>
+        <p>Pour exercer votre droit de rétractation, vous devez nous notifier votre décision par email à support@flowcontent.io ou via le formulaire disponible dans votre espace client. Les produits doivent nous être retournés dans leur état d'origine, non utilisés, avec tous leurs accessoires et dans leur emballage d'origine.</p>
         <p>Les frais de retour sont à votre charge, sauf en cas de produit défectueux ou non conforme à votre commande. Dans ce cas, nous vous rembourserons également les frais de retour sur présentation d'un justificatif.</p>
         <p>Le remboursement sera effectué dans un délai de 14 jours suivant la réception des produits retournés, par le même moyen de paiement que celui utilisé lors de votre achat.</p>
         <p>Certains produits ne peuvent faire l'objet d'un droit de rétractation pour des raisons d'hygiène ou de protection de la santé. Ces exclusions sont clairement indiquées dans la description des produits concernés.</p>
@@ -165,7 +165,7 @@ const termsData = {
         <p>Tous nos produits bénéficient de la garantie légale de conformité et de la garantie des vices cachés, conformément aux dispositions légales en vigueur.</p>
         <p>La garantie légale de conformité s'applique pendant une durée de 2 ans à compter de la délivrance du produit et vous permet d'obtenir gratuitement la réparation ou le remplacement du produit non conforme.</p>
         <p>Certains de nos produits bénéficient également d'une garantie commerciale supplémentaire dont les conditions sont précisées dans la documentation accompagnant le produit ou sur sa fiche descriptive.</p>
-        <p>Pour mettre en œuvre une garantie, veuillez contacter notre service client à l'adresse support@votreboutique.com en précisant votre numéro de commande et en décrivant le problème rencontré.</p>
+        <p>Pour mettre en œuvre une garantie, veuillez contacter notre service client à l'adresse support@flowcontent.io en précisant votre numéro de commande et en décrivant le problème rencontré.</p>
         <p>Les garanties ne couvrent pas les dommages résultant d'une utilisation anormale ou non conforme aux instructions du fabricant, d'un défaut d'entretien, d'une usure normale ou d'un accident.</p>
       `,
 		},
@@ -173,7 +173,7 @@ const termsData = {
 			id: 'intellectual-property',
 			title: 'Propriété intellectuelle',
 			content: `
-        <p>L'ensemble des éléments de notre site (textes, images, logos, vidéos, sons, logiciels, etc.) sont protégés par les lois relatives à la propriété intellectuelle et sont la propriété exclusive de Votre Boutique ou de ses partenaires.</p>
+        <p>L'ensemble des éléments de notre site (textes, images, logos, vidéos, sons, logiciels, etc.) sont protégés par les lois relatives à la propriété intellectuelle et sont la propriété exclusive de Selectura/DevHighway ou de ses partenaires.</p>
         <p>Toute reproduction, représentation, modification, publication ou adaptation de tout ou partie de ces éléments, quel que soit le moyen ou le procédé utilisé, est interdite sans autorisation préalable écrite de notre part.</p>
         <p>Les marques et logos figurant sur le site sont des marques déposées. Leur reproduction ou utilisation, de quelque manière que ce soit, est interdite sans notre accord préalable écrit.</p>
         <p>L'utilisation du site à des fins commerciales ou publicitaires est strictement interdite.</p>
@@ -185,7 +185,7 @@ const termsData = {
 			content: `
         <p>Dans le cadre de l'utilisation de notre site et de nos services, nous sommes amenés à collecter et traiter certaines de vos données personnelles. Nous nous engageons à respecter la confidentialité de ces données conformément au Règlement Général sur la Protection des Données (RGPD) et à la législation nationale applicable.</p>
         <p>Les informations collectées sont nécessaires au traitement de vos commandes, à la gestion de votre compte client et, avec votre consentement, à l'envoi d'informations commerciales. Elles peuvent être transmises aux prestataires qui contribuent à la réalisation de ces finalités (transporteurs, services de paiement, etc.).</p>
-        <p>Vous disposez d'un droit d'accès, de rectification, d'effacement et de portabilité de vos données, ainsi que d'un droit d'opposition et de limitation du traitement. Pour exercer ces droits, vous pouvez nous contacter à l'adresse privacy@votreboutique.com ou par courrier à l'adresse de notre siège social.</p>
+        <p>Vous disposez d'un droit d'accès, de rectification, d'effacement et de portabilité de vos données, ainsi que d'un droit d'opposition et de limitation du traitement. Pour exercer ces droits, vous pouvez nous contacter à l'adresse support@flowcontent.io ou par courrier à l'adresse de notre siège social.</p>
         <p>Pour plus d'informations sur la façon dont nous traitons vos données personnelles, veuillez consulter notre <a href="/privacy" className="text-indigo-600 hover:text-indigo-800">Politique de confidentialité</a>.</p>
       `,
 		},
@@ -220,9 +220,9 @@ const termsData = {
 			content: `
         <p>Pour toute question relative aux présentes conditions générales ou pour toute réclamation, vous pouvez nous contacter :</p>
         <ul>
-          <li>Par email : contact@votreboutique.com</li>
+          <li>Par email : support@flowcontent.io</li>
           <li>Par téléphone : [numéro de téléphone] (du lundi au vendredi, de 9h à 18h)</li>
-          <li>Par courrier : Votre Boutique - Service Client, [adresse postale]</li>
+          <li>Par courrier : Selectura - Service Client, c/o DevHighway, 15442 Venture Blvd.,201, Sherman Oaks, California CA 91403</li>
         </ul>
         <p>Nous nous efforçons de répondre à toutes les demandes dans un délai de 48 heures ouvrées.</p>
       `,

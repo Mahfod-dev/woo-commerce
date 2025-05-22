@@ -85,17 +85,17 @@ const contactData = {
 		title: 'Nos coordonnées',
 		email: {
 			label: 'Email',
-			value: 'contact@votreboutique.com',
+			value: 'support@flowcontent.io',
 			description: 'Nous répondons généralement sous 24h ouvrées',
 		},
 		phone: {
 			label: 'Téléphone',
-			value: '01 23 45 67 89',
+			value: '+19136759287',
 			description: 'Lun-Ven, 9h-18h',
 		},
 		address: {
 			label: 'Adresse',
-			value: '15 rue de la Qualité, 69002 Lyon, France',
+			value: '254 rue Vendôme Lyon 003',
 			description: 'Showroom ouvert sur rendez-vous uniquement',
 		},
 	},
@@ -139,7 +139,7 @@ const contactData = {
 	},
 	map: {
 		title: 'Nous trouver',
-		address: '15 rue de la Qualité, 69002 Lyon, France',
+		address: '254 rue Vendôme Lyon 69003',
 		embedUrl:
 			'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2783.0876656555713!2d4.8299631!3d45.7578137!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47f4ea56197f0eb3%3A0x6186a4c0b373d4d2!2sLyon%2C%20France!5e0!3m2!1sen!2sus!4v1651270228267!5m2!1sen!2sus',
 	},
