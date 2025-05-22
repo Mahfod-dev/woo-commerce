@@ -1,13 +1,64 @@
-// app/page.tsx
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Metadata } from 'next';
 import HeroCarousel from '@/components/HeroCarousel';
 import FocusedProductShowcase from '@/components/FocusedProductShowcase';
 import ImprovedCategoriesSection from '@/components/CategoriesSection';
 import ImprovedTestimonials from '@/components/Testimonials';
 import NewsletterSection from '@/components/NewsletterSection';
 import { WooProduct } from '@/lib/woo';
+
+export const metadata: Metadata = {
+	title: 'Selectura | Boutique Premium de Produits Sélectionnés avec Expertise',
+	description: 'Découvrez notre sélection exclusive de produits de qualité supérieure. Une approche différente du commerce en ligne : moins de choix, mais l\'excellence garantie. Qualité testée, support premium.',
+	keywords: [
+		'boutique premium', 
+		'produits qualité supérieure', 
+		'sélection exclusive', 
+		'commerce responsable',
+		'expertise produits',
+		'qualité garantie',
+		'support client premium',
+		'satisfaction garantie'
+	],
+	openGraph: {
+		title: 'Selectura | Boutique Premium de Produits Sélectionnés',
+		description: 'Une approche différente du commerce : moins de produits, mais des produits exceptionnels. Qualité garantie, expertise inégalée.',
+		type: 'website',
+		locale: 'fr_FR',
+		url: 'https://selectura.shop',
+		siteName: 'Selectura',
+		images: [
+			{
+				url: '/images/quality-focus.png',
+				width: 1200,
+				height: 630,
+				alt: 'Selectura - Sélection de qualité et expertise produits',
+			},
+		],
+	},
+	twitter: {
+		card: 'summary_large_image',
+		title: 'Selectura | Boutique Premium de Produits Sélectionnés',
+		description: 'Moins de choix, mais l\'excellence garantie. Découvrez notre approche unique du commerce en ligne.',
+		images: ['/images/quality-focus.png'],
+	},
+	alternates: {
+		canonical: 'https://selectura.shop',
+	},
+	robots: {
+		index: true,
+		follow: true,
+		googleBot: {
+			index: true,
+			follow: true,
+			'max-video-preview': -1,
+			'max-image-preview': 'large',
+			'max-snippet': -1,
+		},
+	},
+};
 
 // Interface pour le type Product utilisé dans FocusedProductShowcase
 interface Product {

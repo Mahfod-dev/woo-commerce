@@ -1,7 +1,44 @@
-// app/products/page.tsx
 import { Suspense } from 'react';
+import { Metadata } from 'next';
 import FocusedProductsPage from '@/components/FocusedProductPage';
 import { getProducts, WooProduct } from '@/lib/woo';
+
+export const metadata: Metadata = {
+	title: 'Nos Produits | Catalogue Premium Selectura - Sélection Experte',
+	description: 'Explorez notre catalogue soigneusement sélectionné de produits de qualité supérieure. Chaque produit est testé et approuvé par nos experts pour sa qualité exceptionnelle et sa durabilité.',
+	keywords: [
+		'catalogue produits premium',
+		'sélection qualité supérieure', 
+		'produits testés experts',
+		'qualité exceptionnelle',
+		'high-tech premium',
+		'accessoires qualité',
+		'durabilité garantie',
+		'expertise produits'
+	],
+	openGraph: {
+		title: 'Catalogue Produits Premium | Selectura',
+		description: 'Découvrez notre sélection rigoureuse de produits exceptionnels. Qualité testée, expertise garantie.',
+		type: 'website',
+		images: [
+			{
+				url: '/images/collections.png',
+				width: 1200,
+				height: 630,
+				alt: 'Catalogue de produits premium Selectura',
+			},
+		],
+	},
+	twitter: {
+		card: 'summary_large_image',
+		title: 'Catalogue Produits Premium | Selectura',
+		description: 'Sélection rigoureuse de produits exceptionnels. Qualité testée par nos experts.',
+		images: ['/images/collections.png'],
+	},
+	alternates: {
+		canonical: 'https://selectura.shop/products',
+	},
+};
 
 // Interface pour le type Product utilisé dans FocusedProductPage
 interface Product {
