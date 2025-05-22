@@ -667,13 +667,13 @@ export default function ImprovedFooter() {
 									<li className='flex items-start'>
 										<FaPhone className='text-indigo-400 mt-1 mr-3 flex-shrink-0' />
 										<span className='text-gray-300'>
-											+33 1 23 45 67 89
+											(913) 675-9287
 										</span>
 									</li>
 									<li className='flex items-start'>
 										<FaEnvelope className='text-indigo-400 mt-1 mr-3 flex-shrink-0' />
 										<span className='text-gray-300'>
-											contact@votre-boutique.fr
+											support@flowcontent.io
 										</span>
 									</li>
 									<li className='flex items-start'>
@@ -722,32 +722,32 @@ export default function ImprovedFooter() {
 
 								<div>
 									<h3 className='text-lg font-semibold text-white mb-3'>
-										Livraison rapide
+										Produits de qualité
 									</h3>
 									<div className='flex flex-wrap gap-2 mb-2'>
-										{/* Colissimo */}
-										<div className='bg-yellow-400 p-2 rounded w-12 h-8 flex items-center justify-center'>
-											<div className='text-blue-800 font-bold text-xs'>📦</div>
+										{/* Électronique */}
+										<div className='bg-blue-500 p-2 rounded w-12 h-8 flex items-center justify-center'>
+											<div className='text-white font-bold text-xs'>📱</div>
 										</div>
-										{/* Chronopost */}
-										<div className='bg-red-600 p-2 rounded w-12 h-8 flex items-center justify-center'>
-											<div className='text-white font-bold text-xs'>⚡</div>
+										{/* Mode */}
+										<div className='bg-pink-500 p-2 rounded w-12 h-8 flex items-center justify-center'>
+											<div className='text-white font-bold text-xs'>👗</div>
 										</div>
-										{/* UPS */}
-										<div className='bg-yellow-600 p-2 rounded w-12 h-8 flex items-center justify-center'>
-											<div className='text-white font-bold text-xs'>UPS</div>
+										{/* Maison */}
+										<div className='bg-green-500 p-2 rounded w-12 h-8 flex items-center justify-center'>
+											<div className='text-white font-bold text-xs'>🏠</div>
 										</div>
-										{/* DHL */}
-										<div className='bg-red-500 p-2 rounded w-12 h-8 flex items-center justify-center'>
-											<div className='text-yellow-400 font-bold text-xs'>DHL</div>
+										{/* Sport */}
+										<div className='bg-orange-500 p-2 rounded w-12 h-8 flex items-center justify-center'>
+											<div className='text-white font-bold text-xs'>⚽</div>
 										</div>
-										{/* Point Relais */}
-										<div className='bg-green-600 p-2 rounded w-12 h-8 flex items-center justify-center'>
-											<div className='text-white font-bold text-xs'>🏪</div>
+										{/* Beauté */}
+										<div className='bg-purple-500 p-2 rounded w-12 h-8 flex items-center justify-center'>
+											<div className='text-white font-bold text-xs'>💄</div>
 										</div>
 									</div>
 									<p className='text-xs text-gray-400 italic max-w-xs md:text-right'>
-										"Livraison en 24-48h - 98% de satisfaction client selon nos avis"
+										"Plus de 10,000 produits sélectionnés pour leur qualité exceptionnelle"
 									</p>
 								</div>
 							</div>
