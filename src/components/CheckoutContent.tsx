@@ -5,16 +5,17 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import '@/app/styles/checkout.css';
 import { formatPrice } from '@/lib/wooClient';
-import { createOrder } from '@/lib/orders';
 import { useCart } from './CartProvider';
 import { useNotification } from '@/context/notificationContext';
 import StripePaymentForm from './StripePaymentForm';
 import { supabase } from '@/lib/supabase/client';
+import { useSession } from 'next-auth/react';
 
 const CheckoutContent = () => {
 	const router = useRouter();
 	const { items, clearCart } = useCart();
 	const { addNotification } = useNotification();
+	const { data: session } = useSession();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [orderError, setOrderError] = useState('');
 	const [formData, setFormData] = useState({
@@ -149,10 +150,10 @@ const CheckoutContent = () => {
 				]
 			};
 
-			// Récupération de l'ID utilisateur
-			const userResponse = await fetch('/api/auth');
-			const userData = await userResponse.json();
-			const userId = userData?.user?.id;
+			// Récupération de l'ID utilisateur via NextAuth
+			const userId = session?.user?.id;
+			console.log('Session:', session);
+			console.log('User ID from session:', userId);
 
 			if (!userId) {
 				console.warn('Utilisateur non connecté, la commande sera créée sans ID utilisateur');
@@ -200,8 +201,33 @@ const CheckoutContent = () => {
 				}
 			}
 
-			// Création de la commande dans WooCommerce et Supabase
-			const order = await createOrder(orderData, userId || '');
+			// Création de la commande via l'API qui contourne RLS
+			const orderResponse = await fetch('/api/create-order', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					total: total,
+					items: items.map(item => ({
+						product_id: item.id,
+						product_name: item.name,
+						quantity: item.quantity,
+						price: item.price,
+						subtotal: item.price * item.quantity,
+						image_url: item.image || '/images/placeholder.jpg'
+					})),
+					billing_address: orderData.billing,
+					shipping_address: orderData.shipping
+				})
+			});
+
+			if (!orderResponse.ok) {
+				const errorData = await orderResponse.json();
+				throw new Error(errorData.error || 'Erreur lors de la création de la commande');
+			}
+
+			const { order } = await orderResponse.json();
 
 			if (!order) {
 				throw new Error('Échec de création de la commande');

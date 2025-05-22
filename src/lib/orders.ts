@@ -40,12 +40,25 @@ export async function createOrder(orderData: Omit<Order, 'id' | 'created_at'>) {
     console.log('Supabase createOrder - orderData:', orderData);
     console.log('Supabase createOrder - user_id:', orderData.user_id, 'type:', typeof orderData.user_id);
 
+    // Transformer les données pour correspondre exactement au schéma de la base de données
+    const sourceData = orderData as any;
+    
+    const dbOrderData = {
+      user_id: sourceData.user_id,
+      status: sourceData.status || 'processing',
+      total: sourceData.total,
+      items: sourceData.items,
+      billing_address: sourceData.billing || sourceData.billing_address,
+      shipping_address: sourceData.shipping || sourceData.shipping_address,
+      payment_intent: sourceData.payment_intent || null,
+      created_at: new Date().toISOString()
+    };
+
+    console.log('Transformed order data for DB:', dbOrderData);
+
     const { data, error } = await supabase
       .from('orders')
-      .insert({
-        ...orderData,
-        created_at: new Date().toISOString()
-      })
+      .insert(dbOrderData)
       .select()
       .single();
 

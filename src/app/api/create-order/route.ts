@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
+import { createOrder as createWooOrder } from '@/lib/woo';
 
 export async function POST(req: NextRequest) {
   try {
@@ -42,7 +43,32 @@ export async function POST(req: NextRequest) {
     // S'assurer que l'utilisateur est le propriétaire de la commande
     orderData.user_id = userId;
 
-    // Créer la commande dans Supabase en utilisant directement le client admin
+    // 1. D'abord créer la commande dans WooCommerce
+    const wooOrderData = {
+      payment_method: 'card-direct',
+      payment_method_title: 'Carte bancaire',
+      set_paid: false,
+      billing: orderData.billing_address,
+      shipping: orderData.shipping_address,
+      line_items: orderData.items.map(item => ({
+        product_id: item.product_id,
+        quantity: item.quantity
+      })),
+      shipping_lines: [{
+        method_id: 'flat_rate',
+        method_title: 'Livraison gratuite',
+        total: '0'
+      }]
+    };
+
+    const wooOrder = await createWooOrder(wooOrderData);
+    if (!wooOrder) {
+      throw new Error('Échec de création de la commande dans WooCommerce');
+    }
+
+    console.log('WooCommerce order created:', wooOrder);
+
+    // 2. Puis créer la commande dans Supabase en utilisant directement le client admin
     // qui contourne les politiques RLS en utilisant la clé de service
     const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -78,8 +104,14 @@ export async function POST(req: NextRequest) {
       throw new Error(`Impossible de créer la commande dans Supabase: ${error.message}`);
     }
 
-    // Retourner la commande créée
-    return NextResponse.json({ order }, { status: 201 });
+    // Retourner la commande créée avec les données combinées
+    return NextResponse.json({ 
+      order: {
+        ...wooOrder,
+        id: wooOrder.id,
+        supabaseOrderId: order.id
+      }
+    }, { status: 201 });
   } catch (error: any) {
     console.error('Error creating order:', error);
     return NextResponse.json(
