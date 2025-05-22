@@ -115,7 +115,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId }) => {
           currency: 'EUR',
           payment_method: 'stripe',
           payment_method_title: 'Credit Card (Stripe)',
-          billing: {
+          billing_address: {
             first_name: 'Jean',
             last_name: 'Dupont',
             company: 'Company Inc.',
