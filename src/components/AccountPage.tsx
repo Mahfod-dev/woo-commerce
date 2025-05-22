@@ -1278,7 +1278,7 @@ const AccountPage = () => {
                           <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
                             {editingAddress.type === 'shipping' ? 'Adresse de livraison' : 'Adresse de facturation'}
                           </h3>
-                          <form className="mt-5 space-y-4" onSubmit={(e) => {
+                          <form className="mt-5 space-y-4" onSubmit={async (e) => {
                             e.preventDefault();
                             if (!userData) return;
 
