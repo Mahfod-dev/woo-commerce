@@ -358,7 +358,7 @@ export default function ReturnsContent({ returnsData }: ReturnsContentProps) {
 											d='M5 13l4 4L19 7'
 										/>
 									</svg>
-									<p>30 jours pour changer d&apos;avis</p>
+									<p>14 jours pour changer d&apos;avis</p>
 								</div>
 								<div className='flex items-start'>
 									<svg

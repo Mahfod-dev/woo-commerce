@@ -2289,7 +2289,7 @@ export default function AppleStyleProductDetail({
 									Retours gratuits
 								</h3>
 								<p className='text-sm text-gray-600'>
-									30 jours pour changer d'avis
+									14 jours pour changer d'avis
 								</p>
 							</div>
 						</div>

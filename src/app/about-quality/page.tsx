@@ -206,7 +206,7 @@ const aboutQualityData = {
 		content: `
             <p>Notre confiance dans notre processus de sélection nous permet d'offrir des garanties exceptionnelles :</p>
             <ul>
-                <li><strong>Garantie satisfaction 30 jours</strong> : Si vous n'êtes pas entièrement satisfait de votre achat, nous vous remboursons intégralement, sans question et sans condition.</li>
+                <li><strong>Garantie satisfaction 14 jours</strong> : Si vous n'êtes pas entièrement satisfait de votre achat, nous vous remboursons intégralement, sans question et sans condition.</li>
                 <li><strong>Garantie étendue 3 ans</strong> : Tous nos produits bénéficient d'une garantie fabricant étendue à 3 ans minimum, bien au-delà des standards du marché.</li>
                 <li><strong>Support dédié</strong> : Une équipe spécialisée est à votre disposition pour répondre à toutes vos questions concernant l'utilisation et l'entretien de vos produits.</li>
                 <li><strong>Engagement de suivi</strong> : Si un défaut est découvert après votre achat, nous vous contactons proactivement pour vous proposer un remplacement ou une solution.</li>

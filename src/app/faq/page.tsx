@@ -134,7 +134,7 @@ const faqData = {
 				{
 					id: 'return-policy',
 					question: 'Quelle est votre politique de retour ?',
-					answer: "Nous offrons un droit de retour de 30 jours à compter de la réception de votre commande. Les produits doivent être retournés dans leur état d'origine, non utilisés et dans leur emballage d'origine. Les frais de retour sont à votre charge sauf en cas de produit défectueux ou d'erreur de notre part.",
+					answer: "Nous offrons un droit de retour de 14 jours à compter de la réception de votre commande. Les produits doivent être retournés dans leur état d'origine, non utilisés et dans leur emballage d'origine. Les frais de retour sont à votre charge sauf en cas de produit défectueux ou d'erreur de notre part.",
 				},
 				{
 					id: 'refund-process',

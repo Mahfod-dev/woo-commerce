@@ -328,7 +328,7 @@ export default function EnhancedProductShowcase({
 										d='M5 13l4 4L19 7'
 									/>
 								</svg>
-								Retours sous 30 jours
+								Retours sous 14 jours
 							</div>
 						</div>
 

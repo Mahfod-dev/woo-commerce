@@ -735,7 +735,7 @@ export default function PromotionsContent({
 							{
 								question:
 									'Les produits en promotion sont-ils éligibles aux retours ?',
-								answer: "Absolument ! Tous les produits en promotion bénéficient de notre politique de retour standard de 30 jours. Si vous n'êtes pas satisfait, vous pouvez renvoyer le produit dans son état d'origine.",
+								answer: "Absolument ! Tous les produits en promotion bénéficient de notre politique de retour standard de 14 jours. Si vous n'êtes pas satisfait, vous pouvez renvoyer le produit dans son état d'origine.",
 							},
 							{
 								question:

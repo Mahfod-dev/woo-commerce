@@ -121,7 +121,7 @@ export default async function OptimizedHomePage() {
 								Satisfait ou remboursé
 							</h3>
 							<p className='text-indigo-100'>
-								30 jours pour changer d&apos;avis, sans
+								14 jours pour changer d&apos;avis, sans
 								condition
 							</p>
 						</div>

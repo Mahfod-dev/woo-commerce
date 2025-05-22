@@ -362,7 +362,7 @@ export default async function BestSellersPage() {
 				{
 					question:
 						'Puis-je retourner un produit best-seller si je ne suis pas satisfait?',
-					answer: 'Bien sûr! Comme tous nos produits, les best-sellers bénéficient de notre politique de retour "satisfait ou remboursé" pendant 30 jours. Vous pouvez retourner le produit dans son état d\'origine pour un remboursement intégral ou un échange.',
+					answer: 'Bien sûr! Comme tous nos produits, les best-sellers bénéficient de notre politique de retour "satisfait ou remboursé" pendant 14 jours. Vous pouvez retourner le produit dans son état d\'origine pour un remboursement intégral ou un échange.',
 				},
 				{
 					question:

@@ -108,7 +108,7 @@ const contactData = {
 			},
 			{
 				question: 'Comment faire un retour ?',
-				answer: 'Vous disposez de 30 jours à compter de la réception pour retourner un produit. Rendez-vous dans votre espace client ou contactez-nous directement pour initier le processus de retour. Nous vous enverrons une étiquette de retour prépayée.',
+				answer: 'Vous disposez de 14 jours à compter de la réception pour retourner un produit. Rendez-vous dans votre espace client ou contactez-nous directement pour initier le processus de retour. Nous vous enverrons une étiquette de retour prépayée.',
 			},
 			{
 				question:

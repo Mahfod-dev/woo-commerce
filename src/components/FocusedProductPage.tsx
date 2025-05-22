@@ -741,7 +741,7 @@ const FocusedProductsPage = ({ products, accessories }: FocusedProductsPageProps
 											/>
 										</svg>
 										<span className='text-sm text-gray-600'>
-											Satisfait ou remboursé sous 30 jours
+											Satisfait ou remboursé sous 14 jours
 										</span>
 									</div>
 									<div className='flex items-start'>

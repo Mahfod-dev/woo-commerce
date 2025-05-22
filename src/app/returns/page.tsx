@@ -65,7 +65,7 @@ const returnsData = {
         <p>Conformément à la législation européenne et française en vigueur, vous disposez d'un droit de rétractation pour tout achat effectué sur notre site :</p>
         <ul>
           <li><strong>Délai</strong> : Vous avez 14 jours calendaires à compter de la réception de votre commande pour nous notifier votre décision de vous rétracter, sans avoir à justifier de motifs ni à payer de pénalités.</li>
-          <li><strong>Extension de garantie</strong> : Chez Votre Boutique, nous étendons ce délai légal à 30 jours pour vous offrir plus de flexibilité dans votre décision.</li>
+          <li><strong>Extension de garantie</strong> : Chez Votre Boutique, nous respectons le délai légal de 14 jours conformément à la réglementation.</li>
           <li><strong>Notification</strong> : Pour exercer ce droit, vous devez nous informer de votre décision de vous rétracter avant l'expiration du délai, soit en utilisant le formulaire de rétractation disponible dans votre espace client, soit par email ou courrier.</li>
         </ul>
         <p><strong>Exceptions</strong> : Conformément à la loi, certains produits ne peuvent faire l'objet d'un droit de rétractation :</p>
@@ -217,7 +217,7 @@ const returnsData = {
 			content: `
         <p>Pour les commandes expédiées hors de l'Union Européenne, les retours sont soumis à des conditions particulières :</p>
         <ul>
-          <li><strong>Délai</strong> : Le délai de rétractation reste de 30 jours, mais compte tenu des délais postaux internationaux, nous vous recommandons d'initier votre demande de retour dès que possible.</li>
+          <li><strong>Délai</strong> : Le délai de rétractation reste de 14 jours, mais compte tenu des délais postaux internationaux, nous vous recommandons d'initier votre demande de retour dès que possible.</li>
           <li><strong>Frais</strong> : Les frais de retour international sont à votre charge, sauf en cas de produit défectueux ou non conforme. Ces frais peuvent être significatifs, nous vous conseillons donc de vous renseigner auprès des services postaux avant d'effectuer votre retour.</li>
           <li><strong>Douanes</strong> : Pour les retours internationaux, vous êtes responsable de toutes les formalités douanières liées au retour. Assurez-vous que le colis est correctement déclaré comme "Retour de marchandise" pour éviter des frais supplémentaires.</li>
         </ul>
@@ -232,7 +232,7 @@ const returnsData = {
         <div class="space-y-6">
           <div>
             <h3 class="text-lg font-medium text-gray-900 mb-2">Combien de temps ai-je pour retourner un article ?</h3>
-            <p>Vous disposez de 30 jours calendaires à compter de la réception de votre commande pour nous notifier votre souhait de retourner un article. Ce délai est une extension commerciale du délai légal de rétractation de 14 jours.</p>
+            <p>Vous disposez de 14 jours calendaires à compter de la réception de votre commande pour nous notifier votre souhait de retourner un article, conformément au délai légal de rétractation.</p>
           </div>
           
           <div>
