@@ -2,11 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { WooCategory, WooProduct } from '@/lib/woo';
 import ProductsGrid from '@/components/ProductsGrid';
-import { useCart } from '@/components/CartProvider';
 
 interface CategoryPageContentProps {
 	category: WooCategory;
@@ -24,7 +22,6 @@ export default function CategoryPageContent({
 	const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
 	const [showFilters, setShowFilters] = useState(false);
 	const [filterChanged, setFilterChanged] = useState(false);
-	const { addToCart } = useCart();
 
 	// Filtrer et trier les produits
 	useEffect(() => {
@@ -108,17 +105,6 @@ export default function CategoryPageContent({
 		}));
 	};
 
-	// Animation variants
-	const containerVariants = {
-		hidden: { opacity: 0 },
-		visible: {
-			opacity: 1,
-			transition: {
-				when: 'beforeChildren',
-				staggerChildren: 0.1,
-			},
-		},
-	};
 
 	return (
 		<div className='bg-gray-50 min-h-screen category-content' data-print-date={new Date().toLocaleDateString()}>
