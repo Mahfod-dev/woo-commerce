@@ -1,12 +1,70 @@
-/* Styles spécifiques pour la page de politique de confidentialité */
+/* Styles spécifiques pour les pages de politique de confidentialité et cookies */
 
 /* Utiliser la police Geist définie dans le layout principal */
-.privacy-content {
+.privacy-content, .cookie-policy-content {
     font-family: var(--font-geist-sans);
 }
 
-.privacy-content code {
+.privacy-content code, .cookie-content code {
     font-family: var(--font-geist-mono);
+}
+
+/* Styles pour le contenu des cookies */
+.cookie-content h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.cookie-content h4 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #4b5563;
+}
+
+.cookie-content table {
+    font-size: 0.875rem;
+}
+
+.cookie-content table th {
+    background-color: #f9fafb;
+    font-weight: 600;
+}
+
+.cookie-content table td {
+    vertical-align: top;
+}
+
+.cookie-content ol {
+    counter-reset: step-counter;
+    list-style: none;
+    padding-left: 0;
+}
+
+.cookie-content ol li {
+    counter-increment: step-counter;
+    margin-bottom: 0.5rem;
+    padding-left: 2rem;
+    position: relative;
+}
+
+.cookie-content ol li::before {
+    content: counter(step-counter);
+    position: absolute;
+    left: 0;
+    top: 0;
+    background-color: #4f46e5;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Styles d'impression */
