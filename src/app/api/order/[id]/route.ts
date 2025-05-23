@@ -72,8 +72,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 // PUT - Mettre à jour le statut d'une commande
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const resolvedParams = await params;
+    
     // Vérifier si l'utilisateur est authentifié avec NextAuth
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {

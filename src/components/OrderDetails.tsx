@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { useNotification } from '@/context/notificationContext';
 import { formatPrice } from '@/lib/wooClient';
 import '@/app/styles/account.css';
@@ -70,6 +71,7 @@ interface OrderDetailsProps {
 
 const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId }) => {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const { addNotification } = useNotification();
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -89,11 +91,12 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId }) => {
 
   useEffect(() => {
     const fetchOrder = async () => {
+      if (status === 'loading') return; // Attendre que le status soit déterminé
+      
       setIsLoading(true);
       try {
-        // Check for authentication
-        const isLoggedIn = localStorage.getItem('userToken');
-        if (!isLoggedIn) {
+        // Check NextAuth session
+        if (!session?.user) {
           addNotification({
             type: 'warning',
             message: 'Veuillez vous connecter pour voir les détails de votre commande',
@@ -141,7 +144,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId }) => {
     };
     
     fetchOrder();
-  }, [orderId, addNotification, router]);
+  }, [orderId, session, status, addNotification, router]);
 
   // Update order status based on status string
   const updateOrderStatus = (status: string) => {

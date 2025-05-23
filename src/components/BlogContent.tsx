@@ -107,12 +107,10 @@ export default function BlogContent({ articles }: BlogContentProps) {
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.5 }}>
 						<h1 className='text-3xl md:text-5xl font-bold mb-4'>
-							Notre Blog
+							Notre Vision
 						</h1>
 						<p className='text-indigo-100 max-w-2xl text-lg'>
-							Découvrez nos derniers articles, guides et conseils
-							pour rester informé des tendances et innovations
-							dans notre domaine.
+							Découvrez notre philosophie de curation, nos secrets de sélection et pourquoi nous croyons qu'en matière de qualité, "moins mais mieux" est la clé.
 						</p>
 					</motion.div>
 
@@ -366,12 +364,10 @@ export default function BlogContent({ articles }: BlogContentProps) {
 					<div className='md:flex md:items-center md:justify-between'>
 						<div className='md:w-2/3 mb-6 md:mb-0 md:pr-8'>
 							<h3 className='text-2xl font-bold mb-2'>
-								Restez informé
+								Restez informé de notre vision
 							</h3>
 							<p className='text-indigo-100'>
-								Inscrivez-vous à notre newsletter pour recevoir
-								nos derniers articles et conseils directement
-								dans votre boîte mail.
+								Inscrivez-vous à notre newsletter pour découvrir nos coulisses, nos nouveaux articles et notre approche unique de la qualité.
 							</p>
 						</div>
 						<div className='md:w-1/3'>
