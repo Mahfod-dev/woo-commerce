@@ -159,7 +159,7 @@ const aboutData = {
 				name: 'Thomas Dubois',
 				role: 'Responsable Service Client',
 				bio: "Fort d'une expérience dans le service client haut de gamme, Thomas veille à ce que chaque interaction avec nos clients soit exceptionnelle.",
-				imageUrl: '/images/pierre.png',
+				imageUrl: '/images/thomas.png',
 			},
 		],
 	},

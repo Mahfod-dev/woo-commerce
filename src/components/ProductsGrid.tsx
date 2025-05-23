@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatPrice } from '@/lib/wooClient';
 import { useCart } from '@/components/CartProvider';
+import { useAddToCart } from '@/hooks/queries';
 import { WooProduct } from '@/lib/woo';
 
 interface ProductsGridProps {
@@ -20,7 +21,8 @@ export default function ProductsGrid({
 }: ProductsGridProps) {
   const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
   const [visibleProducts, setVisibleProducts] = useState<WooProduct[]>([]);
-  const { addToCart, isLoading } = useCart();
+  const { isLoading } = useCart(); // Garder pour compatibilité
+  const addToCartMutation = useAddToCart();
   const gridRef = useRef<HTMLDivElement>(null);
   const [notification, setNotification] = useState({
     visible: false,
@@ -88,7 +90,7 @@ export default function ProductsGrid({
     },
   };
 
-  // Handle adding to cart
+  // Handle adding to cart with TanStack Query
   const handleAddToCart = async (
     e: React.MouseEvent,
     product: WooProduct
@@ -96,35 +98,41 @@ export default function ProductsGrid({
     e.preventDefault();
     setSelectedProduct(product.id);
 
-    try {
-      await addToCart(product.id, 1);
+    addToCartMutation.mutate(
+      { productId: product.id, quantity: 1 },
+      {
+        onSuccess: () => {
+          // Show success notification
+          setNotification({
+            visible: true,
+            message: 'Produit ajouté au panier',
+            productName: product.name,
+          });
 
-      // Show notification
-      setNotification({
-        visible: true,
-        message: 'Produit ajouté au panier',
-        productName: product.name,
-      });
+          // Hide after 3 seconds
+          setTimeout(() => {
+            setNotification((prev) => ({ ...prev, visible: false }));
+          }, 3000);
+          
+          setSelectedProduct(null);
+        },
+        onError: (error) => {
+          console.error("Error adding to cart:", error);
 
-      // Hide after 3 seconds
-      setTimeout(() => {
-        setNotification((prev) => ({ ...prev, visible: false }));
-      }, 3000);
-    } catch (error) {
-      console.error("Error adding to cart:", error);
+          setNotification({
+            visible: true,
+            message: "Erreur lors de l'ajout au panier",
+            productName: product.name,
+          });
 
-      setNotification({
-        visible: true,
-        message: "Erreur lors de l'ajout au panier",
-        productName: product.name,
-      });
-
-      setTimeout(() => {
-        setNotification((prev) => ({ ...prev, visible: false }));
-      }, 3000);
-    } finally {
-      setSelectedProduct(null);
-    }
+          setTimeout(() => {
+            setNotification((prev) => ({ ...prev, visible: false }));
+          }, 3000);
+          
+          setSelectedProduct(null);
+        },
+      }
+    );
   };
 
   // Calculate discount percentage
@@ -262,12 +270,12 @@ export default function ProductsGrid({
                         handleAddToCart(e, product)
                       }
                       disabled={
-                        isLoading ||
+                        addToCartMutation.isPending ||
                         selectedProduct === product.id
                       }
                       className='bg-white text-indigo-600 rounded-full p-2 shadow-md hover:bg-indigo-600 hover:text-white transition-colors disabled:bg-gray-300 disabled:text-gray-500'
                       whileTap={{ scale: 0.9 }}>
-                      {isLoading &&
+                      {addToCartMutation.isPending &&
                       selectedProduct === product.id ? (
                         <svg
                           className='animate-spin h-5 w-5'
@@ -356,11 +364,11 @@ export default function ProductsGrid({
               <motion.button
                 onClick={(e) => handleAddToCart(e, product)}
                 disabled={
-                  isLoading || selectedProduct === product.id
+                  addToCartMutation.isPending || selectedProduct === product.id
                 }
                 className='w-full py-2 px-4 flex items-center justify-center rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors disabled:bg-gray-300 disabled:text-gray-500'
                 whileTap={{ scale: 0.97 }}>
-                {isLoading && selectedProduct === product.id ? (
+                {addToCartMutation.isPending && selectedProduct === product.id ? (
                   <>
                     <svg
                       className='animate-spin h-5 w-5 mr-2'
