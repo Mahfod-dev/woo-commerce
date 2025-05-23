@@ -774,7 +774,7 @@ export default function ImprovedFooter() {
 								Politique de confidentialité
 							</Link>
 							<Link
-								href='/cookies'
+								href='/cookie-policy'
 								className='hover:text-white transition-colors'>
 								Politique de cookies
 							</Link>

@@ -267,8 +267,10 @@ export default function CookiePolicyContent({ cookiePolicyData }: CookiePolicyCo
 												<li>
 													<button
 														onClick={() => {
-															// Fonction pour ouvrir le centre de préférences des cookies
-															console.log('Ouvrir centre de préférences cookies');
+															// Supprimer le consentement pour forcer l'affichage du bandeau
+															localStorage.removeItem('cookie-consent');
+															// Recharger la page pour afficher le bandeau
+															window.location.reload();
 														}}
 														className='text-indigo-600 hover:text-indigo-800 transition-colors text-left'>
 														Gérer mes cookies
