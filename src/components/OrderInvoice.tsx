@@ -56,7 +56,7 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
               duration: 5000,
             });
           }
-          router.push('/account/orders');
+          router.push('/account');
           return;
         }
 
