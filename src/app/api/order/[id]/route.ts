@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOrderById, updateOrderStatus } from '@/lib/orders';
+import { updateOrderStatus } from '@/lib/orders';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { standardizeUserId } from '@/lib/utils';
+import { createClient } from '@supabase/supabase-js';
+import { Database } from '@/lib/supabase/types';
 
 // GET - Récupérer une commande par ID
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
@@ -28,9 +30,28 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       );
     }
 
+    // Créer un client Supabase avec la clé service_role pour contourner les RLS
+    const supabase = createClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    );
+
     // Récupérer la commande
-    const order = await getOrderById(orderId, userId);
-    if (!order) {
+    const { data: order, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', orderId)
+      .eq('user_id', userId) // Sécurité: vérifier que l'utilisateur est bien propriétaire de la commande
+      .single();
+
+    if (error) {
+      console.error('Error fetching order:', error);
       return NextResponse.json(
         { error: 'Commande non trouvée' },
         { status: 404 }
