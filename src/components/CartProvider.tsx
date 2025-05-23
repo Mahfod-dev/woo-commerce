@@ -129,7 +129,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 			return { success: true };
 		} catch (err) {
 			console.error('Error adding product to cart:', err);
-			setError('Error adding to cart');
+			setError('Erreur lors de l\'ajout au panier');
 
 			// Fallback to mock data in case of error (for development)
 			if (process.env.NODE_ENV === 'development') {

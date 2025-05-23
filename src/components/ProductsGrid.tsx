@@ -102,7 +102,7 @@ export default function ProductsGrid({
       // Show notification
       setNotification({
         visible: true,
-        message: 'Product added to cart',
+        message: 'Produit ajouté au panier',
         productName: product.name,
       });
 
@@ -115,7 +115,7 @@ export default function ProductsGrid({
 
       setNotification({
         visible: true,
-        message: "Error adding to cart",
+        message: "Erreur lors de l'ajout au panier",
         productName: product.name,
       });
 
@@ -380,7 +380,7 @@ export default function ProductsGrid({
                         d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
                       />
                     </svg>
-                    Adding...
+                    Ajout...
                   </>
                 ) : (
                   <>
@@ -396,7 +396,7 @@ export default function ProductsGrid({
                         d='M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z'
                       />
                     </svg>
-                    Add to cart
+                    Ajouter au panier
                   </>
                 )}
               </motion.button>

@@ -109,22 +109,73 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
 	};
 
 	// Gérer le téléchargement de la facture au format PDF
-	const handleDownload = () => {
-		// Dans une vraie application, cela générerait et téléchargerait un PDF
-		// Pour la démo, nous afficherons simplement une notification
-		addNotification({
-			type: 'info',
-			message: 'Téléchargement du PDF de la facture...',
-			duration: 3000,
-		});
+	const handleDownload = async () => {
+		try {
+			addNotification({
+				type: 'info',
+				message: 'Génération du PDF en cours...',
+				duration: 2000,
+			});
 
-		setTimeout(() => {
+			// Import des modules de génération PDF
+			const { default: jsPDF } = await import('jspdf');
+			const { default: html2canvas } = await import('html2canvas');
+
+			// Créer une copie de l'élément à capturer
+			const element = document.querySelector('.invoice-content');
+			if (!element) {
+				throw new Error('Élément de facture non trouvé');
+			}
+
+			// Configuration pour html2canvas
+			const canvas = await html2canvas(element as HTMLElement, {
+				scale: 2,
+				useCORS: true,
+				logging: false,
+				backgroundColor: '#ffffff',
+				allowTaint: false,
+			});
+
+			const imgData = canvas.toDataURL('image/png');
+			const pdf = new jsPDF('p', 'mm', 'a4');
+			
+			// Calculer les dimensions pour adapter au format A4
+			const imgWidth = 210; // A4 width in mm
+			const pageHeight = 295; // A4 height in mm
+			const imgHeight = (canvas.height * imgWidth) / canvas.width;
+			let heightLeft = imgHeight;
+
+			let position = 0;
+
+			// Ajouter la première page
+			pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+			heightLeft -= pageHeight;
+
+			// Ajouter des pages supplémentaires si nécessaire
+			while (heightLeft >= 0) {
+				position = heightLeft - imgHeight;
+				pdf.addPage();
+				pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+				heightLeft -= pageHeight;
+			}
+
+			// Télécharger le PDF
+			const invoiceNumber = generateInvoiceNumber(order.id);
+			pdf.save(`${invoiceNumber}.pdf`);
+
 			addNotification({
 				type: 'success',
 				message: 'Facture téléchargée avec succès',
 				duration: 3000,
 			});
-		}, 1500);
+		} catch (error) {
+			console.error('Erreur lors de la génération du PDF:', error);
+			addNotification({
+				type: 'error',
+				message: 'Erreur lors de la génération du PDF',
+				duration: 5000,
+			});
+		}
 	};
 
 	if (isLoading) {
@@ -308,7 +359,7 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
 					{/* Contenu de la facture */}
 					<motion.div
 						variants={itemVariants}
-						className='bg-white rounded-lg shadow-lg overflow-hidden mb-8 p-8 print:shadow-none print:p-0'>
+						className='invoice-content bg-white rounded-lg shadow-lg overflow-hidden mb-8 p-8 print:shadow-none print:p-0'>
 						{/* En-tête de facture avec logo */}
 						<div className='flex flex-col md:flex-row md:justify-between md:items-start mb-10'>
 							<div className='mb-6 md:mb-0'>
