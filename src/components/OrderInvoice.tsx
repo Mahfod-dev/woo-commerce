@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { useSession } from 'next-auth/react';
 import { useNotification } from '@/context/notificationContext';
 import { formatPrice } from '@/lib/wooClient';
 import '@/app/styles/account.css';
@@ -70,6 +71,7 @@ interface OrderInvoiceProps {
 
 const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const { addNotification } = useNotification();
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -77,11 +79,13 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
 
   useEffect(() => {
     const fetchOrder = async () => {
+      // Attendre que NextAuth soit chargé
+      if (status === 'loading') return;
+      
       setIsLoading(true);
       try {
-        // Vérifier l'authentification
-        const isLoggedIn = localStorage.getItem('userToken');
-        if (!isLoggedIn) {
+        // Vérifier l'authentification avec NextAuth
+        if (!session?.user) {
           addNotification({
             type: 'warning',
             message: 'Veuillez vous connecter pour voir les détails de votre commande',
@@ -164,7 +168,7 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
     };
     
     fetchOrder();
-  }, [orderId, addNotification, router]);
+  }, [orderId, session, status, addNotification, router]);
 
   // Formater la date pour l'affichage
   const formatDate = (dateString: string) => {
