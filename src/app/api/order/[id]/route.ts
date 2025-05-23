@@ -7,8 +7,10 @@ import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/lib/supabase/types';
 
 // GET - Récupérer une commande par ID
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const resolvedParams = await params;
+    
     // Vérifier si l'utilisateur est authentifié avec NextAuth
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -22,7 +24,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     const userId = standardizeUserId(session.user.id);
 
     // Récupérer l'ID de la commande
-    const orderId = parseInt(params.id);
+    const orderId = parseInt(resolvedParams.id);
     if (isNaN(orderId)) {
       return NextResponse.json(
         { error: 'ID de commande invalide' },
@@ -85,7 +87,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     const userId = standardizeUserId(session.user.id);
 
     // Récupérer l'ID de la commande
-    const orderId = parseInt(params.id);
+    const orderId = parseInt(resolvedParams.id);
     if (isNaN(orderId)) {
       return NextResponse.json(
         { error: 'ID de commande invalide' },

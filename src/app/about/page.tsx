@@ -48,7 +48,7 @@ const aboutData = {
 		title: 'Notre histoire et notre philosophie',
 		description:
 			'Découvrez ce qui nous anime et pourquoi nous proposons une sélection limitée mais exceptionnelle de produits.',
-		imageUrl: '/img/about-header.jpg',
+		imageUrl: '/images/collections.png',
 	},
 	history: {
 		title: 'Notre histoire',
@@ -57,7 +57,7 @@ const aboutData = {
 			<p>Notre fondateur, Pierre Martin, ingénieur de formation et passionné par la qualité, a décidé de créer une boutique différente : un lieu où chaque produit proposé serait rigoureusement sélectionné, testé et approuvé avant d'être présenté aux clients.</p>
 			<p>Ce qui a commencé comme une petite boutique en ligne s'est rapidement transformé en une référence pour les consommateurs exigeants à la recherche de produits de qualité supérieure, sans avoir à passer des heures à comparer des dizaines d'options quasiment identiques.</p>
 		`,
-		imageUrl: '/img/about-founder.jpg',
+		imageUrl: '/images/dubois.png',
 	},
 	philosophy: {
 		title: 'Notre philosophie',
@@ -147,19 +147,19 @@ const aboutData = {
 				name: 'Pierre Martin',
 				role: 'Fondateur & CEO',
 				bio: "Ingénieur de formation, Pierre a travaillé 15 ans dans l'industrie du luxe avant de fonder Votre Boutique, réalisant ainsi sa vision d'une plateforme dédiée à l'excellence.",
-				imageUrl: '/img/team-pierre.jpg',
+				imageUrl: '/images/dubois.png',
 			},
 			{
 				name: 'Sophie Leroy',
 				role: 'Directrice Produits',
 				bio: 'Avec son expertise en design et sa passion pour la qualité, Sophie dirige notre processus de sélection et de test des produits.',
-				imageUrl: '/img/team-sophie.jpg',
+				imageUrl: '/images/femme.png',
 			},
 			{
 				name: 'Thomas Dubois',
 				role: 'Responsable Service Client',
 				bio: "Fort d'une expérience dans le service client haut de gamme, Thomas veille à ce que chaque interaction avec nos clients soit exceptionnelle.",
-				imageUrl: '/img/team-thomas.jpg',
+				imageUrl: '/images/pierre.png',
 			},
 		],
 	},

@@ -60,53 +60,6 @@ const AuthContext = createContext<AuthContextType>(defaultAuthContext);
 // Hook personnalisé pour utiliser le contexte d'authentification
 export const useAuth = () => useContext(AuthContext);
 
-// Commandes de démo
-const DEMO_ORDERS: UserOrder[] = [
-  {
-    id: 101,
-    status: 'completed',
-    date_created: '2023-12-15T14:30:45',
-    total: '159.99',
-    line_items: [
-      {
-        id: 1001,
-        name: 'Écouteurs Premium XS-700',
-        quantity: 1,
-        price: '129.99',
-        product_id: 101,
-      },
-      {
-        id: 1002,
-        name: 'Étui de protection',
-        quantity: 1,
-        price: '29.99',
-        product_id: 102,
-      },
-    ],
-  },
-  {
-    id: 102,
-    status: 'processing',
-    date_created: '2024-01-20T09:15:30',
-    total: '249.99',
-    line_items: [
-      {
-        id: 1003,
-        name: 'Lampe de Bureau Design',
-        quantity: 1,
-        price: '179.99',
-        product_id: 103,
-      },
-      {
-        id: 1004,
-        name: 'Ensemble Premium Accessoires Tech',
-        quantity: 1,
-        price: '69.99',
-        product_id: 104,
-      },
-    ],
-  },
-];
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -192,11 +145,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const getOrders = async (): Promise<UserOrder[]> => {
     if (!user) return [];
 
-    // Simuler un appel API
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    // Retourner les commandes de démo
-    return DEMO_ORDERS;
+    try {
+      const response = await fetch('/api/user-orders');
+      if (!response.ok) {
+        throw new Error('Erreur lors de la récupération des commandes');
+      }
+      const { orders } = await response.json();
+      return orders || [];
+    } catch (error) {
+      console.error('Erreur lors de la récupération des commandes:', error);
+      return [];
+    }
   };
 
   const value = {

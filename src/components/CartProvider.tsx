@@ -131,27 +131,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 			console.error('Error adding product to cart:', err);
 			setError('Erreur lors de l\'ajout au panier');
 
-			// Fallback to mock data in case of error (for development)
-			if (process.env.NODE_ENV === 'development') {
-				// Create a unique key for this item
-				const itemKey = `item_${productId}_${Date.now()}`;
-
-				// Calculer un prix réaliste (entre 19.99€ et 129.99€)
-				const basePrice = (productId % 11) * 10 + 19.99;
-
-				// Fallback product data
-				const productData: CartItem = {
-					id: productId,
-					key: itemKey,
-					name: `Product #${productId}`,
-					price: basePrice.toFixed(2),
-					quantity: quantity,
-					image: '/images/placeholder.jpg',
-				};
-
-				setItems((prevItems) => [...prevItems, productData]);
-				return { success: true };
-			}
 
 			throw err;
 		} finally {
@@ -167,16 +146,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
 		setError(null);
 
 		try {
-			// Simulate API call
-			await new Promise((resolve) => setTimeout(resolve, 400));
-
+			// En production, ceci devrait appeler une API pour mettre à jour la quantité
+			// Pour l'instant, on met juste à jour l'état local
 			setItems((prevItems) =>
 				prevItems.map((item) =>
 					item.key === itemKey ? { ...item, quantity } : item
 				)
 			);
 		} catch (err) {
-			setError('Error updating quantity');
+			setError('Erreur lors de la mise à jour de la quantité');
 			throw err;
 		} finally {
 			setIsLoading(false);
@@ -189,14 +167,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
 		setError(null);
 
 		try {
-			// Simulate API call
-			await new Promise((resolve) => setTimeout(resolve, 400));
-
+			// En production, ceci devrait appeler une API pour supprimer l'article
+			// Pour l'instant, on met juste à jour l'état local
 			setItems((prevItems) =>
 				prevItems.filter((item) => item.key !== itemKey)
 			);
 		} catch (err) {
-			setError('Error removing item');
+			setError('Erreur lors de la suppression de l\'article');
 			throw err;
 		} finally {
 			setIsLoading(false);
@@ -209,12 +186,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
 		setError(null);
 
 		try {
-			// Simulate API call
-			await new Promise((resolve) => setTimeout(resolve, 600));
-
+			// En production, ceci devrait appeler une API pour vider le panier
+			// Pour l'instant, on met juste à jour l'état local
 			setItems([]);
 		} catch (err) {
-			setError('Error clearing cart');
+			setError('Erreur lors du vidage du panier');
 			throw err;
 		} finally {
 			setIsLoading(false);

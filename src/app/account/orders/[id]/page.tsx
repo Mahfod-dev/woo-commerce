@@ -7,13 +7,14 @@ export const metadata: Metadata = {
 };
 
 type Props = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
-export default function OrderDetailsPage(props: Props) {
-  const orderId = parseInt(props.params.id, 10);
+export default async function OrderDetailsPage(props: Props) {
+  const params = await props.params;
+  const orderId = parseInt(params.id, 10);
   
   return <OrderDetails orderId={orderId} />;
 }

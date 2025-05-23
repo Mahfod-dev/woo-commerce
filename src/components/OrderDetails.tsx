@@ -103,69 +103,31 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId }) => {
           return;
         }
 
-        // In a real app, this would be an API call to your backend
-        // For demo, we'll use mock data
-        const mockOrder: Order = {
-          id: orderId,
-          number: orderId.toString(),
-          status: 'processing',
-          date_created: '2025-04-15T10:30:00',
-          date_modified: '2025-04-15T10:35:00',
-          total: '129.99',
-          currency: 'EUR',
-          payment_method: 'stripe',
-          payment_method_title: 'Credit Card (Stripe)',
-          billing_address: {
-            first_name: 'Jean',
-            last_name: 'Dupont',
-            company: 'Company Inc.',
-            address_1: '123 Rue de Paris',
-            address_2: 'Apt 4B',
-            city: 'Paris',
-            state: 'Île-de-France',
-            postcode: '75001',
-            country: 'France',
-            email: 'customer@example.com',
-            phone: '0123456789',
-          },
-          shipping: {
-            first_name: 'Jean',
-            last_name: 'Dupont',
-            company: '',
-            address_1: '123 Rue de Paris',
-            address_2: 'Apt 4B',
-            city: 'Paris',
-            state: 'Île-de-France',
-            postcode: '75001',
-            country: 'France',
-          },
-          line_items: [
-            {
-              id: 1,
-              name: 'Premium Product',
-              product_id: 123,
-              variation_id: 0,
-              quantity: 1,
-              subtotal: '129.99',
-              total: '129.99',
-              price: 129.99,
-              sku: 'PP-001',
-              image: '/images/placeholder.jpg',
-            },
-          ],
-          shipping_lines: [
-            {
-              id: 1,
-              method_title: 'Free shipping',
-              total: '0.00',
-            },
-          ],
-        };
-        
-        setOrder(mockOrder);
+        // Récupérer la commande via l'API
+        const response = await fetch(`/api/order/${orderId}`);
+        if (!response.ok) {
+          if (response.status === 404) {
+            addNotification({
+              type: 'error',
+              message: 'Commande non trouvée',
+              duration: 5000,
+            });
+          } else {
+            addNotification({
+              type: 'error',
+              message: 'Erreur lors de la récupération de la commande',
+              duration: 5000,
+            });
+          }
+          router.push('/account');
+          return;
+        }
+
+        const { order: fetchedOrder } = await response.json();
+        setOrder(fetchedOrder);
         
         // Update order status based on the status from backend
-        updateOrderStatus(mockOrder.status);
+        updateOrderStatus(fetchedOrder.status);
       } catch (error) {
         console.error('Error fetching order:', error);
         addNotification({

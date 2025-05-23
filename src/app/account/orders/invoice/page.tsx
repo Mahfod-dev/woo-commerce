@@ -8,8 +8,9 @@ export const metadata: Metadata = {
 	description: 'Visualisez et imprimez votre facture de commande',
 };
 
-export default function OrderInvoicePage({ searchParams }: { searchParams: { id?: string } }) {
-	const orderId = searchParams.id ? parseInt(searchParams.id, 10) : 0;
+export default async function OrderInvoicePage({ searchParams }: { searchParams: Promise<{ id?: string }> }) {
+	const params = await searchParams;
+	const orderId = params.id ? parseInt(params.id, 10) : 0;
 
 	return <OrderInvoice orderId={orderId} />;
 }
