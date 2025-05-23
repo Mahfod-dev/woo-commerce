@@ -7,63 +7,8 @@ import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
 import { useNotification } from '@/context/notificationContext';
 import { formatPrice } from '@/lib/wooClient';
+import { Order, OrderItem } from '@/lib/orders';
 import '@/app/styles/account.css';
-
-// Types pour les données de commande
-interface OrderItem {
-  id: number;
-  name: string;
-  product_id: number;
-  variation_id: number;
-  quantity: number;
-  subtotal: string;
-  total: string;
-  price: number;
-  sku: string;
-  image?: string;
-}
-
-interface Order {
-  id: number;
-  number: string;
-  status: string;
-  date_created: string;
-  date_modified: string;
-  total: string;
-  currency: string;
-  payment_method: string;
-  payment_method_title: string;
-  billing_address: {
-    first_name: string;
-    last_name: string;
-    company: string;
-    address_1: string;
-    address_2: string;
-    city: string;
-    state: string;
-    postcode: string;
-    country: string;
-    email: string;
-    phone: string;
-  };
-  shipping: {
-    first_name: string;
-    last_name: string;
-    company: string;
-    address_1: string;
-    address_2: string;
-    city: string;
-    state: string;
-    postcode: string;
-    country: string;
-  };
-  line_items: OrderItem[];
-  shipping_lines: {
-    id: number;
-    method_title: string;
-    total: string;
-  }[];
-}
 
 interface OrderInvoiceProps {
   orderId: number;
@@ -95,66 +40,28 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
           return;
         }
 
-        // Dans une vraie application, ce serait un appel à l'API
-        // Pour la démo, nous utiliserons des données fictives
-        const mockOrder: Order = {
-          id: orderId,
-          number: orderId.toString(),
-          status: 'processing',
-          date_created: '2025-04-15T10:30:00',
-          date_modified: '2025-04-15T10:35:00',
-          total: '129.99',
-          currency: 'EUR',
-          payment_method: 'stripe',
-          payment_method_title: 'Carte de crédit (Stripe)',
-          billing_address: {
-            first_name: 'Jean',
-            last_name: 'Dupont',
-            company: 'Entreprise SAS',
-            address_1: '123 Rue de Paris',
-            address_2: 'Apt 4B',
-            city: 'Paris',
-            state: 'Île-de-France',
-            postcode: '75001',
-            country: 'France',
-            email: 'client@exemple.fr',
-            phone: '0123456789',
-          },
-          shipping: {
-            first_name: 'Jean',
-            last_name: 'Dupont',
-            company: '',
-            address_1: '123 Rue de Paris',
-            address_2: 'Apt 4B',
-            city: 'Paris',
-            state: 'Île-de-France',
-            postcode: '75001',
-            country: 'France',
-          },
-          line_items: [
-            {
-              id: 1,
-              name: 'Produit Premium',
-              product_id: 123,
-              variation_id: 0,
-              quantity: 1,
-              subtotal: '129.99',
-              total: '129.99',
-              price: 129.99,
-              sku: 'PP-001',
-              image: '/images/placeholder.jpg',
-            },
-          ],
-          shipping_lines: [
-            {
-              id: 1,
-              method_title: 'Livraison gratuite',
-              total: '0.00',
-            },
-          ],
-        };
-        
-        setOrder(mockOrder);
+        // Récupérer la vraie commande via l'API
+        const response = await fetch(`/api/order/${orderId}`);
+        if (!response.ok) {
+          if (response.status === 404) {
+            addNotification({
+              type: 'error',
+              message: 'Commande non trouvée',
+              duration: 5000,
+            });
+          } else {
+            addNotification({
+              type: 'error',
+              message: 'Erreur lors de la récupération de la commande',
+              duration: 5000,
+            });
+          }
+          router.push('/account/orders');
+          return;
+        }
+
+        const { order } = await response.json();
+        setOrder(order);
       } catch (error) {
         console.error('Erreur lors de la récupération de la commande:', error);
         addNotification({
@@ -268,9 +175,9 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
   };
 
   // Calculer les totaux
-  const subtotal = order.line_items.reduce((sum, item) => sum + parseFloat(item.subtotal), 0);
-  const shipping = order.shipping_lines.reduce((sum, line) => sum + parseFloat(line.total), 0);
-  const total = parseFloat(order.total);
+  const subtotal = order.items.reduce((sum, item) => sum + item.subtotal, 0);
+  const shipping = 0; // Livraison gratuite pour l'instant
+  const total = order.total;
 
   return (
     <div className="bg-gray-50 min-h-screen py-16 print:py-0 print:bg-white account-container">
@@ -291,7 +198,7 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
                 Retour à la commande
               </Link>
               <h1 className="text-3xl font-bold text-gray-900">Facture</h1>
-              <p className="text-gray-500 mt-1">Commande #{order.number}</p>
+              <p className="text-gray-500 mt-1">Commande #{order.id}</p>
             </div>
             <div className="mt-4 md:mt-0 flex flex-col sm:flex-row gap-2">
               <button
@@ -350,8 +257,8 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
               <div className="text-right">
                 <h2 className="text-2xl font-bold text-gray-900">FACTURE</h2>
                 <p className="text-gray-700 font-medium">{generateInvoiceNumber(order.id)}</p>
-                <p className="text-gray-500 text-sm mt-2">Date : {formatDate(order.date_created)}</p>
-                <p className="text-gray-500 text-sm">Commande #: {order.number}</p>
+                <p className="text-gray-500 text-sm mt-2">Date : {formatDate(order.created_at)}</p>
+                <p className="text-gray-500 text-sm">Commande #: {order.id}</p>
                 <div className="mt-2 inline-block px-2 py-1 bg-indigo-100 text-indigo-800 text-xs font-medium rounded">
                   {order.status.toUpperCase()}
                 </div>
@@ -362,33 +269,33 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
               <div>
                 <h3 className="text-gray-900 font-medium mb-2">Facturer à :</h3>
-                <p className="text-gray-700">{order.billing_address.first_name} {order.billing_address.last_name}</p>
-                {order.billing_address.company && <p className="text-gray-700">{order.billing_address.company}</p>}
-                <p className="text-gray-700">{order.billing_address.address_1}</p>
-                {order.billing_address.address_2 && <p className="text-gray-700">{order.billing_address.address_2}</p>}
-                <p className="text-gray-700">{order.billing_address.postcode} {order.billing_address.city}</p>
-                {order.billing_address.state && <p className="text-gray-700">{order.billing_address.state}</p>}
-                <p className="text-gray-700">{order.billing_address.country}</p>
-                <p className="text-gray-700 mt-2">{order.billing_address.email}</p>
-                <p className="text-gray-700">{order.billing_address.phone}</p>
+                <p className="text-gray-700">{order.billing_address?.first_name || ''} {order.billing_address?.last_name || ''}</p>
+                {order.billing_address?.company && <p className="text-gray-700">{order.billing_address.company}</p>}
+                <p className="text-gray-700">{order.billing_address?.address_1 || ''}</p>
+                {order.billing_address?.address_2 && <p className="text-gray-700">{order.billing_address.address_2}</p>}
+                <p className="text-gray-700">{order.billing_address?.postcode || ''} {order.billing_address?.city || ''}</p>
+                {order.billing_address?.state && <p className="text-gray-700">{order.billing_address.state}</p>}
+                <p className="text-gray-700">{order.billing_address?.country || ''}</p>
+                <p className="text-gray-700 mt-2">{order.billing_address?.email || ''}</p>
+                <p className="text-gray-700">{order.billing_address?.phone || ''}</p>
               </div>
               
               <div>
                 <h3 className="text-gray-900 font-medium mb-2">Livrer à :</h3>
-                <p className="text-gray-700">{order.shipping.first_name} {order.shipping.last_name}</p>
-                {order.shipping.company && <p className="text-gray-700">{order.shipping.company}</p>}
-                <p className="text-gray-700">{order.shipping.address_1}</p>
-                {order.shipping.address_2 && <p className="text-gray-700">{order.shipping.address_2}</p>}
-                <p className="text-gray-700">{order.shipping.postcode} {order.shipping.city}</p>
-                {order.shipping.state && <p className="text-gray-700">{order.shipping.state}</p>}
-                <p className="text-gray-700">{order.shipping.country}</p>
+                <p className="text-gray-700">{order.shipping_address?.first_name || ''} {order.shipping_address?.last_name || ''}</p>
+                {order.shipping_address?.company && <p className="text-gray-700">{order.shipping_address.company}</p>}
+                <p className="text-gray-700">{order.shipping_address?.address_1 || ''}</p>
+                {order.shipping_address?.address_2 && <p className="text-gray-700">{order.shipping_address.address_2}</p>}
+                <p className="text-gray-700">{order.shipping_address?.postcode || ''} {order.shipping_address?.city || ''}</p>
+                {order.shipping_address?.state && <p className="text-gray-700">{order.shipping_address.state}</p>}
+                <p className="text-gray-700">{order.shipping_address?.country || ''}</p>
               </div>
             </div>
 
             {/* Mode de paiement */}
             <div className="mb-8">
               <h3 className="text-gray-900 font-medium mb-2">Mode de paiement :</h3>
-              <p className="text-gray-700">{order.payment_method_title}</p>
+              <p className="text-gray-700">Carte de crédit (Stripe)</p>
             </div>
 
             {/* Tableau des articles de la commande */}
@@ -413,13 +320,13 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {order.line_items.map((item) => (
-                  <tr key={item.id}>
+                {order.items.map((item, index) => (
+                  <tr key={index}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {item.name}
+                      {item.product_name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {item.sku}
+                      SKU-{item.product_id}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
                       {formatPrice(item.price)}
@@ -428,7 +335,7 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
                       {item.quantity}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium text-right">
-                      {formatPrice(parseFloat(item.total))}
+                      {formatPrice(item.subtotal)}
                     </td>
                   </tr>
                 ))}
