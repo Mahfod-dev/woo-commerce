@@ -8,7 +8,6 @@ import { formatPrice } from '@/lib/wooClient';
 import { useCart } from './CartProvider';
 import { useNotification } from '@/context/notificationContext';
 import StripePaymentForm from './StripePaymentForm';
-import { supabase } from '@/lib/supabase/client';
 import { useSession } from 'next-auth/react';
 
 const CheckoutContent = () => {
@@ -48,14 +47,11 @@ const CheckoutContent = () => {
 	useEffect(() => {
 		const loadUserData = async () => {
 			try {
-				const { data: { user } } = await supabase.auth.getUser();
-				if (user) {
-					// Récupérer le profil utilisateur
-					const { data: profile } = await supabase
-						.from('profiles')
-						.select('*')
-						.eq('id', user.id)
-						.single();
+				if (session?.user?.id) {
+					// Récupérer le profil utilisateur via API
+					const response = await fetch('/api/get-profile');
+					if (response.ok) {
+						const { profile } = await response.json();
 					
 					if (profile) {
 						// Pré-remplir les champs avec les données de profil
@@ -74,6 +70,7 @@ const CheckoutContent = () => {
 							}),
 						}));
 					}
+					}
 				}
 			} catch (error) {
 				console.error('Erreur lors du chargement des données utilisateur:', error);
@@ -81,7 +78,7 @@ const CheckoutContent = () => {
 		};
 		
 		loadUserData();
-	}, []);
+	}, [session]);
 
 	// Gestion des erreurs de paiement
 	const handlePaymentError = (error: any) => {
@@ -181,20 +178,24 @@ const CheckoutContent = () => {
 						phone: formData.phone,
 					};
 					
-					// Mettre à jour le profil avec les adresses de livraison et facturation
-					const { data: profileResponse, error: profileError } = await supabase
-						.from('profiles')
-						.update({
-							shipping_address: shippingAddress,
-							billing_address: billingAddress,
-							updated_at: new Date().toISOString()
+					// Mettre à jour les adresses via API
+					const [shippingResult, billingResult] = await Promise.all([
+						fetch('/api/update-shipping-address', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({ address: shippingAddress })
+						}),
+						fetch('/api/update-billing-address', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({ address: billingAddress })
 						})
-						.eq('id', userId);
-						
-					if (profileError) {
-						console.error('Erreur lors de la mise à jour du profil:', profileError);
+					]);
+					
+					if (shippingResult.ok && billingResult.ok) {
+						console.log('Adresses mises à jour avec succès');
 					} else {
-						console.log('Profil mis à jour avec les adresses de commande');
+						console.error('Erreur lors de la mise à jour des adresses');
 					}
 				} catch (profileUpdateError) {
 					console.error('Erreur inattendue lors de la mise à jour du profil:', profileUpdateError);
