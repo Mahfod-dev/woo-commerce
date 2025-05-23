@@ -4,7 +4,6 @@ import {
   WooCategory, 
   getProducts, 
   getProductById, 
-  getProductBySlug, 
   searchProducts, 
   getProductsByCategory, 
   getFeaturedProducts 
@@ -68,11 +67,14 @@ export function useProduct(productId: number, enabled: boolean = true) {
   });
 }
 
-// Hook pour récupérer un produit par slug
+// Hook pour récupérer un produit par slug (utilise getProducts et filtre)
 export function useProductBySlug(slug: string, enabled: boolean = true) {
   return useQuery({
     queryKey: [...productKeys.all, 'slug', slug],
-    queryFn: () => getProductBySlug(slug),
+    queryFn: async () => {
+      const products = await getProducts();
+      return products.find(product => product.slug === slug) || null;
+    },
     enabled: enabled && !!slug,
     staleTime: 10 * 60 * 1000,
     gcTime: 15 * 60 * 1000,

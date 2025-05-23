@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { WooCategory, getCategories, getCategoryById, getCategoryBySlug } from '@/lib/woo';
+import { WooCategory, getCategories, getSubcategories } from '@/lib/woo';
 
 // Clés de requête pour les catégories
 export const categoryKeys = {
@@ -22,22 +22,28 @@ export function useCategories() {
   });
 }
 
-// Hook pour récupérer une catégorie par ID
+// Hook pour récupérer une catégorie par ID (utilise getCategories et filtre)
 export function useCategory(categoryId: number, enabled: boolean = true) {
   return useQuery({
     queryKey: categoryKeys.detail(categoryId),
-    queryFn: () => getCategoryById(categoryId),
+    queryFn: async () => {
+      const categories = await getCategories();
+      return categories.find(cat => cat.id === categoryId) || null;
+    },
     enabled: enabled && !!categoryId,
     staleTime: 15 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
   });
 }
 
-// Hook pour récupérer une catégorie par slug
+// Hook pour récupérer une catégorie par slug (utilise getCategories et filtre)
 export function useCategoryBySlug(slug: string, enabled: boolean = true) {
   return useQuery({
     queryKey: categoryKeys.slug(slug),
-    queryFn: () => getCategoryBySlug(slug),
+    queryFn: async () => {
+      const categories = await getCategories();
+      return categories.find(cat => cat.slug === slug) || null;
+    },
     enabled: enabled && !!slug,
     staleTime: 15 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
@@ -48,7 +54,7 @@ export function useCategoryBySlug(slug: string, enabled: boolean = true) {
 export function useSubCategories(parentId: number, enabled: boolean = true) {
   return useQuery({
     queryKey: categoryKeys.children(parentId),
-    queryFn: () => getCategories(), // Utilise getCategories pour l'instant
+    queryFn: () => getSubcategories(parentId),
     enabled: enabled && !!parentId,
     staleTime: 15 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
