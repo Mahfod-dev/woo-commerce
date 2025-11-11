@@ -4,12 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-	type WooCategory,
-	type WooProduct,
-	getFeaturedProducts,
-	getProductsByCategory,
-} from '@/lib/woo';
+import { getCategoryProducts, type SimplifiedProduct } from '@/app/actions/categories';
 
 // Interface pour les catégories
 // Cette interface utilise la même structure que WooCategory de l'API WooCommerce
@@ -25,17 +20,9 @@ interface Category {
 	} | null;
 }
 
-// Interface pour les produits populaires
-interface PopularProduct {
-	id: number;
-	name: string;
-	slug: string;
-	image: string;
-}
-
 // Interface pour les détails de catégorie
 interface CategoryDetail {
-	popularProducts: PopularProduct[];
+	popularProducts: SimplifiedProduct[];
 }
 
 // Type pour le dictionnaire des détails de catégorie
@@ -65,47 +52,14 @@ const MegaMenu = ({ categories, isDarkBg = false }: MegaMenuProps) => {
 
 		setIsLoading(true);
 		try {
-			// Récupérer des produits populaires pour cette catégorie
-			let products = [];
-			try {
-				// Essayer d'abord de récupérer les produits par catégorie
-				products = await getProductsByCategory(categoryId);
-				// Si pas de produits spécifiques, utiliser les produits en vedette
-				console.log('Produits récupérés:', products);
+			// Utiliser la Server Action pour récupérer les produits
+			const products = await getCategoryProducts(categoryId);
 
-				if (products.length === 0) {
-					products = await getFeaturedProducts(4);
-				} else {
-					// Augmenter le nombre de produits affichés à 4
-					products = products.slice(0, 4);
-				}
-			} catch (error) {
-				console.error(
-					'Erreur lors de la récupération des produits:',
-					error
-				);
-				// Fallback: utiliser les produits en vedette
-				products = await getFeaturedProducts(4);
-			}
-
-			// Transformer les produits dans le format attendu
-			const popularProducts: PopularProduct[] = products.map(
-				(product) => ({
-					id: product.id,
-					name: product.name,
-					slug: product.slug,
-					image:
-						product.images && product.images.length > 0
-							? product.images[0].src
-							: '/images/placeholder.jpg',
-				})
-			);
-
-			// Mettre à jour les détails (sans sous-catégories)
+			// Mettre à jour les détails
 			setCategoryDetails((prev) => ({
 				...prev,
 				[categoryId]: {
-					popularProducts,
+					popularProducts: products,
 				},
 			}));
 		} catch (error) {
@@ -152,11 +106,11 @@ const MegaMenu = ({ categories, isDarkBg = false }: MegaMenuProps) => {
 	}, [isOpen, selectedCategory, categories]);
 
 	// Charger les détails de la catégorie quand elle est sélectionnée
-	// eslint-disable-next-line react-hooks/exhaustive-deps
 	useEffect(() => {
 		if (selectedCategory) {
 			loadCategoryDetails(selectedCategory);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedCategory]);
 
 	// Animation variants

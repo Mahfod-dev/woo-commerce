@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const HeroCarousel = () => {
 	const [currentSlide, setCurrentSlide] = useState(0);
 	const [autoplay, setAutoplay] = useState(true);
+	const [isMounted, setIsMounted] = useState(false);
 
 	// Données des slides avec des layouts différents
 	const slides = [
@@ -50,6 +51,11 @@ const HeroCarousel = () => {
 			layout: 'overlay',
 		},
 	];
+
+	// Détection du montage côté client
+	useEffect(() => {
+		setIsMounted(true);
+	}, []);
 
 	// Gestion de l'autoplay
 	useEffect(() => {
@@ -123,37 +129,36 @@ const HeroCarousel = () => {
 								</div>
 
 								{/* Particules animées pour plus de dynamisme */}
-								<div className='absolute inset-0 overflow-hidden'>
-									{[...Array(6)].map((_, i) => {
-										// Valeurs par défaut pour le rendu serveur
-										const defaultWidth = 1920;
-										const defaultHeight = 1080;
-										const windowWidth = typeof window !== 'undefined' ? window.innerWidth : defaultWidth;
-										const windowHeight = typeof window !== 'undefined' ? window.innerHeight : defaultHeight;
+								{isMounted && (
+									<div className='absolute inset-0 overflow-hidden'>
+										{[...Array(6)].map((_, i) => {
+											const windowWidth = window.innerWidth;
+											const windowHeight = window.innerHeight;
 
-										return (
-											<motion.div
-												key={i}
-												className='absolute w-2 h-2 bg-white rounded-full opacity-20'
-												animate={{
-													x: [Math.random() * windowWidth, Math.random() * windowWidth],
-													y: [Math.random() * windowHeight, Math.random() * windowHeight],
-												}}
-												transition={{
-													duration: 20 + Math.random() * 10,
-													repeat: Infinity,
-													repeatType: 'reverse',
-													ease: 'linear',
-													delay: i * 2,
-												}}
-												style={{
-													left: Math.random() * 100 + '%',
-													top: Math.random() * 100 + '%',
-												}}
-											/>
-										);
-									})}
-								</div>
+											return (
+												<motion.div
+													key={i}
+													className='absolute w-2 h-2 bg-white rounded-full opacity-20'
+													animate={{
+														x: [Math.random() * windowWidth, Math.random() * windowWidth],
+														y: [Math.random() * windowHeight, Math.random() * windowHeight],
+													}}
+													transition={{
+														duration: 20 + Math.random() * 10,
+														repeat: Infinity,
+														repeatType: 'reverse',
+														ease: 'linear',
+														delay: i * 2,
+													}}
+													style={{
+														left: Math.random() * 100 + '%',
+														top: Math.random() * 100 + '%',
+													}}
+												/>
+											);
+										})}
+									</div>
+								)}
 
 								{/* Contenu principal */}
 								<div className='relative z-10 h-full flex items-center'>
