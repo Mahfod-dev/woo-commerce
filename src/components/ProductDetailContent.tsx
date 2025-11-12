@@ -478,9 +478,11 @@ export default function AppleStyleProductDetail({
 								</span>
 								{((selectedVariation?.on_sale && selectedVariation?.regular_price) || (product.on_sale && product.regular_price)) && (
 									<span className='text-lg text-gray-500 line-through'>
-										{selectedVariation
+										{selectedVariation && selectedVariation.regular_price
 											? formatPrice(selectedVariation.regular_price)
-											: formatPrice(product.regular_price)
+											: product.regular_price
+											? formatPrice(product.regular_price)
+											: null
 										}
 									</span>
 								)}
