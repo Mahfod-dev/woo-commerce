@@ -1522,24 +1522,30 @@ export default function AppleStyleProductDetail({
 											}}
 										/>
 										<div className='flex items-center'>
-											<input
-												type='checkbox'
-												checked={selectedAccessories.includes(
-													accessory.id
-												)}
-												onChange={() =>
-													toggleAccessory(
+											<label
+												htmlFor={`accessory-${accessory.id}`}
+												className='flex items-center cursor-pointer'
+											>
+												<input
+													id={`accessory-${accessory.id}`}
+													type='checkbox'
+													checked={selectedAccessories.includes(
+														accessory.id
+													)}
+													onChange={() =>
+														toggleAccessory(
+															accessory.id
+														)
+													}
+													className='h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded cursor-pointer'
+												/>
+												<span className='ml-2 text-sm text-gray-600'>
+													{selectedAccessories.includes(
 														accessory.id
 													)
-												}
-												className='h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded'
-											/>
-											<label className='ml-2 text-sm text-gray-600'>
-												{selectedAccessories.includes(
-													accessory.id
-												)
-													? 'Sélectionné'
-													: 'Ajouter à mon achat'}
+														? 'Sélectionné'
+														: 'Ajouter à mon achat'}
+												</span>
 											</label>
 										</div>
 									</motion.div>
