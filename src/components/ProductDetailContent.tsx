@@ -1587,7 +1587,7 @@ export default function AppleStyleProductDetail({
 												__html: accessory.short_description,
 											}}
 										/>
-										<div className='flex items-center'>
+										<div className='flex items-center' onClick={(e) => e.stopPropagation()}>
 											<label
 												htmlFor={`accessory-${accessory.id}`}
 												className='flex items-center cursor-pointer'
@@ -1605,7 +1605,7 @@ export default function AppleStyleProductDetail({
 													}
 													className='h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded cursor-pointer'
 												/>
-												<span className='ml-2 text-sm text-gray-600'>
+												<span className='ml-2 text-sm text-gray-600 cursor-pointer'>
 													{selectedAccessories.includes(
 														accessory.id
 													)
