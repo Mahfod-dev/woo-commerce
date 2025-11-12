@@ -1,4 +1,4 @@
-import { WooCommerceRestApi } from '@woocommerce/woocommerce-rest-api';
+// import { WooCommerceRestApi } from '@woocommerce/woocommerce-rest-api';
 
 // Types pour l'authentification
 export interface LoginCredentials {
@@ -48,7 +48,7 @@ export interface WooCustomer {
 }
 
 // Configuration du client WooCommerce
-let wooCommerceClient: WooCommerceRestApi;
+let wooCommerceClient: any;
 
 // Initialisation du client WooCommerce
 function getWooCommerceClient() {
@@ -56,12 +56,13 @@ function getWooCommerceClient() {
     return wooCommerceClient;
   }
 
-  wooCommerceClient = new WooCommerceRestApi({
-    url: process.env.URL_WORDPRESS || 'https://selectura.shop',
-    consumerKey: process.env.WOOCOMMERCE_CONSUMER_KEY || '',
-    consumerSecret: process.env.WOOCOMMERCE_CONSUMER_SECRET || '',
-    version: 'wc/v3',
-  });
+  // Note: WooCommerceRestApi is commented out - this file is not currently used
+  // wooCommerceClient = new (WooCommerceRestApi as any)({
+  //   url: process.env.URL_WORDPRESS || 'https://selectura.shop',
+  //   consumerKey: process.env.WOOCOMMERCE_CONSUMER_KEY || '',
+  //   consumerSecret: process.env.WOOCOMMERCE_CONSUMER_SECRET || '',
+  //   version: 'wc/v3',
+  // });
 
   return wooCommerceClient;
 }

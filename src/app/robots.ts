@@ -15,6 +15,6 @@ export default function robots(): MetadataRoute.Robots {
         '/reset-password',
       ],
     },
-    sitemap: 'https://selectura.com/sitemap.xml',
+    sitemap: 'https://selectura.co/sitemap.xml',
   }
 }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateOrderStatus } from '@/lib/orders';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { standardizeUserId } from '@/lib/utils';
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/lib/supabase/types';

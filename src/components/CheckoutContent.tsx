@@ -215,7 +215,7 @@ const CheckoutContent = () => {
 						product_name: item.name,
 						quantity: item.quantity,
 						price: item.price,
-						subtotal: item.price * item.quantity,
+						subtotal: parseFloat(item.price) * item.quantity,
 						image_url: item.image || '/images/placeholder.jpg'
 					})),
 					billing_address: orderData.billing,

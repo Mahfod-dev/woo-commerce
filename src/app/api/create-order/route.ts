@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { createOrder as createWooOrder } from '@/lib/woo';
 import { standardizeUserId } from '@/lib/utils';
+
+// Type pour les articles de commande
+type OrderItem = {
+  product_id: number;
+  quantity: number;
+  name?: string;
+  price?: string;
+};
 
 export async function POST(req: NextRequest) {
   try {
@@ -47,7 +55,7 @@ export async function POST(req: NextRequest) {
       set_paid: false,
       billing: orderData.billing_address,
       shipping: orderData.shipping_address,
-      line_items: orderData.items.map(item => ({
+      line_items: orderData.items.map((item: OrderItem) => ({
         product_id: item.product_id,
         quantity: item.quantity
       })),

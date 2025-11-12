@@ -7,12 +7,10 @@ const nextConfig: NextConfig = {
 			{
 				hostname: 'selectura.shop',
 			},
+			{
+				hostname: 'selectura.co',
+			},
 		],
-		unoptimized: true, // Désactive l'optimisation d'images pour éviter les erreurs 400
-	},
-	typescript: {
-		// Temporaire pour NextAuth compatibility avec Next.js 15
-		ignoreBuildErrors: true,
 	},
 };
 

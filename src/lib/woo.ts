@@ -9,6 +9,7 @@ export interface WooProduct {
 	slug: string;
 	permalink: string;
 	date_created: string;
+	date_modified?: string;
 	description: string;
 	short_description: string;
 	price: string;

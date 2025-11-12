@@ -65,8 +65,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Configurer les cookies de session pour persister la session
-    const cookieStore = cookies();
-    
+    const cookieStore = await cookies();
+
     // Stocker la session dans un cookie spécial pour Next.js + Supabase
     if (authData.session) {
       cookieStore.set('sb-refresh-token', authData.session.refresh_token, {

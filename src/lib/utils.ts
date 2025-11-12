@@ -29,8 +29,8 @@ export function standardizeUserId(userId: any): string {
 export async function getCurrentUserIdFromSession(): Promise<string | null> {
   try {
     const { getServerSession } = await import('next-auth');
-    const { authOptions } = await import('@/app/api/auth/[...nextauth]/route');
-    
+    const { authOptions } = await import('@/lib/auth');
+
     const session = await getServerSession(authOptions);
     if (session?.user?.id) {
       return standardizeUserId(session.user.id);
@@ -38,7 +38,7 @@ export async function getCurrentUserIdFromSession(): Promise<string | null> {
   } catch (error) {
     console.error('Erreur lors de la récupération de la session utilisateur:', error);
   }
-  
+
   return null;
 }
 

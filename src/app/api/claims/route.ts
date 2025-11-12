@@ -51,7 +51,7 @@ function validateToken(token: string | null): number | null {
 
 // GET - Récupérer les réclamations de l'utilisateur
 export async function GET(request: NextRequest) {
-  const token = request.headers.get('Authorization')?.replace('Bearer ', '');
+  const token = request.headers.get('Authorization')?.replace('Bearer ', '') || null;
   const userId = validateToken(token);
   
   if (!userId) {
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
 
 // POST - Créer une nouvelle réclamation
 export async function POST(request: NextRequest) {
-  const token = request.headers.get('Authorization')?.replace('Bearer ', '');
+  const token = request.headers.get('Authorization')?.replace('Bearer ', '') || null;
   const userId = validateToken(token);
   
   if (!userId) {
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
 
 // PUT - Mettre à jour une réclamation existante
 export async function PUT(request: NextRequest) {
-  const token = request.headers.get('Authorization')?.replace('Bearer ', '');
+  const token = request.headers.get('Authorization')?.replace('Bearer ', '') || null;
   const userId = validateToken(token);
   
   if (!userId) {
@@ -176,7 +176,7 @@ export async function PUT(request: NextRequest) {
 
 // DELETE - Annuler une réclamation
 export async function DELETE(request: NextRequest) {
-  const token = request.headers.get('Authorization')?.replace('Bearer ', '');
+  const token = request.headers.get('Authorization')?.replace('Bearer ', '') || null;
   const userId = validateToken(token);
   
   if (!userId) {

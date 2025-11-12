@@ -62,7 +62,7 @@ export async function createOrder(orderData: any, userId: string) {
         items: items,
         shipping_address: orderData.shipping,
         billing_address: orderData.billing,
-        payment_intent: null, // Sera mis à jour après le paiement
+        payment_intent: undefined, // Sera mis à jour après le paiement
       });
 
       console.log('Supabase order created successfully:', supabaseOrder);
@@ -82,7 +82,7 @@ export async function createOrder(orderData: any, userId: string) {
         ...wooOrder,
         id: wooOrder.id,
         supabaseOrderId: null,
-        supabaseError: supabaseError.message,
+        supabaseError: (supabaseError as Error).message || 'Unknown error',
       };
     }
   } catch (error) {

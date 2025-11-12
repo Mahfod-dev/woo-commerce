@@ -124,8 +124,6 @@ export async function getUserOrders(userId: string) {
     .eq('user_id', validUserId)
     .order('created_at', { ascending: false });
 
-  console.log('getUserOrders - SQL généré:', query.toSQL?.() || 'SQL non disponible');
-
   const { data, error } = await query;
 
   if (error) {

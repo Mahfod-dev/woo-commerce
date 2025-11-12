@@ -5,11 +5,36 @@ import '../styles/contact.css';
 
 // Métadonnées pour le SEO
 export const metadata = {
-	title: 'Contactez-nous | Votre Boutique',
+	title: 'Contactez-nous | Selectura - Support Client Premium',
 	description:
-		'Nous sommes là pour vous aider. Contactez notre équipe pour toute question concernant nos produits, vos commandes ou nos services.',
+		'Nous sommes là pour vous aider. Contactez notre équipe pour toute question concernant nos produits, vos commandes ou nos services. Support expert et personnalisé.',
 	keywords:
 		'contact, service client, support, aide, questions, boutique en ligne',
+	openGraph: {
+		title: 'Contactez Selectura | Support Client',
+		description: 'Une équipe dédiée pour vous accompagner. Service client premium et personnalisé.',
+		type: 'website',
+		locale: 'fr_FR',
+		url: 'https://selectura.co/contact',
+		siteName: 'Selectura',
+		images: [
+			{
+				url: '/images/collections.png',
+				width: 1200,
+				height: 630,
+				alt: 'Contactez Selectura - Service client premium',
+			},
+		],
+	},
+	twitter: {
+		card: 'summary_large_image',
+		title: 'Contactez Selectura',
+		description: 'Support client premium. Notre équipe est à votre disposition.',
+		images: ['/images/collections.png'],
+	},
+	alternates: {
+		canonical: 'https://selectura.co/contact',
+	},
 };
 
 // Composant de chargement pour Suspense

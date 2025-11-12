@@ -5,11 +5,36 @@ import '../styles/about.css';
 
 // Métadonnées pour le SEO
 export const metadata = {
-	title: 'À propos de nous | Votre Boutique',
+	title: 'À propos de nous | Selectura - Notre Histoire et Philosophie',
 	description:
 		'Découvrez notre philosophie et notre engagement pour la qualité. Une sélection premium de produits soigneusement choisis pour vous offrir ce qui se fait de mieux.',
 	keywords:
 		'à propos, notre histoire, qualité, sélection, boutique, premium, philosophie',
+	openGraph: {
+		title: 'À propos de Selectura | Notre Histoire',
+		description: 'Une approche différente du commerce : moins de produits, mais des produits exceptionnels. Découvrez notre philosophie.',
+		type: 'website',
+		locale: 'fr_FR',
+		url: 'https://selectura.co/about',
+		siteName: 'Selectura',
+		images: [
+			{
+				url: '/images/collections.png',
+				width: 1200,
+				height: 630,
+				alt: 'Selectura - Notre histoire et philosophie',
+			},
+		],
+	},
+	twitter: {
+		card: 'summary_large_image',
+		title: 'À propos de Selectura',
+		description: 'Découvrez notre approche unique du commerce et notre engagement qualité.',
+		images: ['/images/collections.png'],
+	},
+	alternates: {
+		canonical: 'https://selectura.co/about',
+	},
 };
 
 // Composant de chargement pour Suspense

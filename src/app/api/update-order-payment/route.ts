@@ -5,6 +5,21 @@ import { updateOrderPayment } from '@/lib/orders';
 import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 
+// Type pour les détails de paiement
+type PaymentDetails = {
+  payment_type: string;
+  stripe_payment_intent_id: string;
+  payment_date: string;
+  payment_status: string;
+  card_brand?: string;
+  card_last4?: string;
+  card_exp_month?: string;
+  card_exp_year?: string;
+  sepa_last4?: string;
+  sepa_country?: string;
+  sepa_bank_code?: string;
+};
+
 export async function POST(request: NextRequest) {
   try {
     const { orderId, paymentIntentId, paymentMethod = 'card-direct' } = await request.json();
@@ -133,7 +148,7 @@ export async function POST(request: NextRequest) {
     updateData.payment_method_title = paymentMethodTitle;
     
     // Add metadata about payment
-    const paymentDetails = {
+    const paymentDetails: PaymentDetails = {
       payment_type: paymentMethodType,
       stripe_payment_intent_id: paymentIntentId,
       payment_date: new Date().toISOString(),
@@ -199,7 +214,7 @@ export async function POST(request: NextRequest) {
     // 3. Also update in Supabase if we have a user ID
     if (userId) {
       try {
-        const status = verifiedPaymentIntent.status === 'succeeded' ? 'processing' : 'pending';
+        const status = verifiedPaymentIntent.status === 'succeeded' ? 'processing' : 'on-hold';
         await updateOrderPayment(orderId, userId, paymentIntentId, status);
         console.log(`Updated order ${orderId} payment status in Supabase`);
       } catch (supabaseError) {

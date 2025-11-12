@@ -1,6 +1,8 @@
 {
-  "name": "MyWebSite",
-  "short_name": "MySite",
+  "name": "Selectura - Boutique Premium",
+  "short_name": "Selectura",
+  "description": "Sélection exclusive de produits premium de qualité supérieure",
+  "start_url": "/",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",

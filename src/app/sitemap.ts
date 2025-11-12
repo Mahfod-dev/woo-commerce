@@ -1,7 +1,28 @@
 import { MetadataRoute } from 'next'
+import { getProducts, getCategories } from '@/lib/woo'
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://selectura.com'
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const baseUrl = 'https://selectura.co'
+
+  // Récupérer tous les produits et catégories
+  const products = await getProducts('?per_page=100')
+  const categories = await getCategories()
+
+  // Générer les URLs des produits
+  const productUrls = products.map((product) => ({
+    url: `${baseUrl}/products/${product.slug}`,
+    lastModified: product.date_modified ? new Date(product.date_modified) : new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.8,
+  }))
+
+  // Générer les URLs des catégories
+  const categoryUrls = categories.map((category) => ({
+    url: `${baseUrl}/categories/${category.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }))
 
   return [
     {
@@ -136,5 +157,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.3,
     },
+    // URLs dynamiques des produits
+    ...productUrls,
+    // URLs dynamiques des catégories
+    ...categoryUrls,
   ]
 }

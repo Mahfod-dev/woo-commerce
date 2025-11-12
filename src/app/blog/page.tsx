@@ -1,12 +1,39 @@
 // app/blog/page.tsx
 import { Suspense } from 'react';
 import BlogContent from '@/components/BlogContent';
+import { getAllBlogPosts } from '@/lib/blog';
 
 // Métadonnées pour le SEO
 export const metadata = {
-	title: 'Blog | Votre Boutique',
+	title: 'Blog | Selectura - Guides et Conseils Qualité',
 	description:
-		'Découvrez nos derniers articles, guides et tendances pour rester informé et inspiré.',
+		'Découvrez nos derniers articles, guides et tendances sur la curation, la qualité des produits et la consommation responsable.',
+	keywords: ['blog qualité', 'guides produits', 'curation', 'durabilité', 'consommation responsable'],
+	openGraph: {
+		title: 'Blog Selectura | Guides et Conseils',
+		description: 'Articles sur la curation, la qualité et la consommation responsable.',
+		type: 'website',
+		locale: 'fr_FR',
+		url: 'https://selectura.co/blog',
+		siteName: 'Selectura',
+		images: [
+			{
+				url: '/images/quality-focus.png',
+				width: 1200,
+				height: 630,
+				alt: 'Blog Selectura - Guides qualité et curation',
+			},
+		],
+	},
+	twitter: {
+		card: 'summary_large_image',
+		title: 'Blog Selectura',
+		description: 'Guides et conseils sur la qualité et la curation de produits',
+		images: ['/images/quality-focus.png'],
+	},
+	alternates: {
+		canonical: 'https://selectura.co/blog',
+	},
 };
 
 // Composant de chargement pour Suspense
@@ -151,10 +178,9 @@ const mockBlogPosts = [
 	},
 ];
 
-// Dans une vraie application, ces données viendraient d'une API ou CMS
+// Récupérer les articles depuis la bibliothèque
 export default async function BlogPage() {
-	// À l'avenir, remplacez par un appel API réel
-	const blogPosts = mockBlogPosts;
+	const blogPosts = getAllBlogPosts();
 
 	return (
 		<Suspense fallback={<BlogLoading />}>

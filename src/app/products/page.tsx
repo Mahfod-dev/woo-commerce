@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 		images: ['/images/collections.png'],
 	},
 	alternates: {
-		canonical: 'https://selectura.shop/products',
+		canonical: 'https://selectura.co/products',
 	},
 };
 

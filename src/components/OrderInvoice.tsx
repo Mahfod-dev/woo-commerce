@@ -110,6 +110,8 @@ const OrderInvoice: React.FC<OrderInvoiceProps> = ({ orderId }) => {
 
 	// Gérer le téléchargement de la facture au format PDF
 	const handleDownload = async () => {
+		if (!order) return;
+
 		try {
 			addNotification({
 				type: 'info',

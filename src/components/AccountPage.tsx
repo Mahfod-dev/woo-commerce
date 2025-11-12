@@ -107,7 +107,7 @@ const AccountPage = () => {
     // Récupérer la première commande qui a une adresse valide
     for (const order of sortedOrders) {
       const address = addressType === 'shipping' ? order.shipping_address : order.billing_address;
-      if (address && address.address_1) {
+      if (address && typeof address === 'object' && 'address_1' in address) {
         return address as AddressInfo;
       }
     }
@@ -205,10 +205,13 @@ const AccountPage = () => {
                     const lastBillingAddress = getLatestAddress(data.orders, 'billing');
                     if (lastBillingAddress) {
                       // Mise à jour locale du state
-                      setUserData(prev => ({
-                        ...prev,
-                        billing_address: lastBillingAddress
-                      }));
+                      setUserData(prev => {
+                        if (!prev) return prev;
+                        return {
+                          ...prev,
+                          billing_address: lastBillingAddress
+                        };
+                      });
                       console.log('Adresse de facturation mise à jour localement depuis la dernière commande');
                     }
                   }
@@ -218,10 +221,13 @@ const AccountPage = () => {
                     const lastShippingAddress = getLatestAddress(data.orders, 'shipping');
                     if (lastShippingAddress) {
                       // Mise à jour locale du state
-                      setUserData(prev => ({
-                        ...prev,
-                        shipping_address: lastShippingAddress
-                      }));
+                      setUserData(prev => {
+                        if (!prev) return prev;
+                        return {
+                          ...prev,
+                          shipping_address: lastShippingAddress
+                        };
+                      });
                       console.log('Adresse de livraison mise à jour localement depuis la dernière commande');
                     }
                   }
@@ -251,10 +257,13 @@ const AccountPage = () => {
                     const lastBillingAddress = getLatestAddress(stdData.orders, 'billing');
                     if (lastBillingAddress) {
                       // Mise à jour locale du state
-                      setUserData(prev => ({
-                        ...prev,
-                        billing_address: lastBillingAddress
-                      }));
+                      setUserData(prev => {
+                        if (!prev) return prev;
+                        return {
+                          ...prev,
+                          billing_address: lastBillingAddress
+                        };
+                      });
                       console.log('Adresse de facturation mise à jour localement depuis la dernière commande');
                     }
                   }
@@ -263,10 +272,13 @@ const AccountPage = () => {
                     const lastShippingAddress = getLatestAddress(stdData.orders, 'shipping');
                     if (lastShippingAddress) {
                       // Mise à jour locale du state
-                      setUserData(prev => ({
-                        ...prev,
-                        shipping_address: lastShippingAddress
-                      }));
+                      setUserData(prev => {
+                        if (!prev) return prev;
+                        return {
+                          ...prev,
+                          shipping_address: lastShippingAddress
+                        };
+                      });
                       console.log('Adresse de livraison mise à jour localement depuis la dernière commande');
                     }
                   }
@@ -942,7 +954,7 @@ const AccountPage = () => {
                             <div>
                               <h4 className="text-sm font-medium text-gray-900 mb-2">Articles ({order.items?.length || 0})</h4>
                               <ul className="space-y-3">
-                                {order.items && order.items.map((item, idx) => (
+                                {order.items && (order.items as any[]).map((item, idx) => item && (
                                   <li key={`item-${idx}`} className="flex items-start">
                                     <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-3">
                                       <img src={item.image_url || '/images/placeholder.jpg'} alt={item.product_name} className="h-full w-full object-cover" />
@@ -966,11 +978,11 @@ const AccountPage = () => {
                                 <h4 className="text-sm font-medium text-gray-900 mb-2">Adresse de livraison</h4>
                                 {order.shipping_address ? (
                                   <div className="text-sm text-gray-600">
-                                    <p>{order.shipping_address.first_name} {order.shipping_address.last_name}</p>
-                                    <p>{order.shipping_address.address_1}</p>
-                                    {order.shipping_address.address_2 && <p>{order.shipping_address.address_2}</p>}
-                                    <p>{order.shipping_address.postcode}, {order.shipping_address.city}</p>
-                                    <p>{order.shipping_address.country}</p>
+                                    <p>{(order.shipping_address as any).first_name} {(order.shipping_address as any).last_name}</p>
+                                    <p>{(order.shipping_address as any).address_1}</p>
+                                    {(order.shipping_address as any).address_2 && <p>{(order.shipping_address as any).address_2}</p>}
+                                    <p>{(order.shipping_address as any).postcode}, {(order.shipping_address as any).city}</p>
+                                    <p>{(order.shipping_address as any).country}</p>
                                   </div>
                                 ) : (
                                   <p className="text-sm text-gray-500">Non disponible</p>
@@ -981,13 +993,13 @@ const AccountPage = () => {
                                 <h4 className="text-sm font-medium text-gray-900 mb-2">Adresse de facturation</h4>
                                 {order.billing_address ? (
                                   <div className="text-sm text-gray-600">
-                                    <p>{order.billing_address.first_name} {order.billing_address.last_name}</p>
-                                    <p>{order.billing_address.address_1}</p>
-                                    {order.billing_address.address_2 && <p>{order.billing_address.address_2}</p>}
-                                    <p>{order.billing_address.postcode}, {order.billing_address.city}</p>
-                                    <p>{order.billing_address.country}</p>
-                                    {order.billing_address.phone && <p>Tél: {order.billing_address.phone}</p>}
-                                    {order.billing_address.email && <p>Email: {order.billing_address.email}</p>}
+                                    <p>{(order.billing_address as any).first_name} {(order.billing_address as any).last_name}</p>
+                                    <p>{(order.billing_address as any).address_1}</p>
+                                    {(order.billing_address as any).address_2 && <p>{(order.billing_address as any).address_2}</p>}
+                                    <p>{(order.billing_address as any).postcode}, {(order.billing_address as any).city}</p>
+                                    <p>{(order.billing_address as any).country}</p>
+                                    {(order.billing_address as any).phone && <p>Tél: {(order.billing_address as any).phone}</p>}
+                                    {(order.billing_address as any).email && <p>Email: {(order.billing_address as any).email}</p>}
                                   </div>
                                 ) : (
                                   <p className="text-sm text-gray-500">Non disponible</p>

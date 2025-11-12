@@ -5,6 +5,8 @@ import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CookieConsentBanner from '@/components/CookieConsentBanner';
+import BreadcrumbSchema from '@/components/BreadcrumbSchema';
+import WebSiteSchema from '@/components/WebSiteSchema';
 import Providers from './providers';
 import { getCategories } from '@/lib/woo';
 
@@ -29,7 +31,7 @@ export const metadata: Metadata = {
 	},
 	manifest: '/manifest.json',
 	themeColor: '#ffffff',
-	metadataBase: new URL('https://selectura.shop'),
+	metadataBase: new URL('https://selectura.co'),
 };
 
 export default async function RootLayout({
@@ -46,6 +48,8 @@ export default async function RootLayout({
 			<body
 				className={`${geistSans.className} ${geistMono.className} antialiased`}>
 				<Providers>
+					<WebSiteSchema />
+					<BreadcrumbSchema />
 					<Header categories={categories} />
 					<main className='flex-grow min-h-screen pt-16 md:pt-20'>
 						{children}

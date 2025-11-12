@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 		description: 'Une approche différente du commerce : moins de produits, mais des produits exceptionnels. Qualité garantie, expertise inégalée.',
 		type: 'website',
 		locale: 'fr_FR',
-		url: 'https://selectura.shop',
+		url: 'https://selectura.co',
 		siteName: 'Selectura',
 		images: [
 			{
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
 		images: ['/images/quality-focus.png'],
 	},
 	alternates: {
-		canonical: 'https://selectura.shop',
+		canonical: 'https://selectura.co',
 	},
 	robots: {
 		index: true,
@@ -115,6 +115,9 @@ export default async function OptimizedHomePage() {
 
 	return (
 		<main className='font-sans text-gray-800'>
+			{/* H1 principal pour SEO - visuellement masqué mais accessible */}
+			<h1 className='sr-only'>Selectura - Boutique Premium de Produits Sélectionnés avec Expertise</h1>
+
 			{/* Hero Carousel */}
 			<HeroCarousel />
 

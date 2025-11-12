@@ -54,10 +54,35 @@ export async function generateMetadata({ params }: PageProps) {
 	const category = categories[0];
 
 	return {
-		title: `${category.name} | Votre Boutique`,
+		title: `${category.name} | Selectura - Catalogue Premium`,
 		description: `Découvrez notre collection ${category.name.toLowerCase()} - ${
 			category.count
-		} produits exceptionnels sélectionnés pour vous.`,
+		} produits exceptionnels sélectionnés pour vous avec expertise et garantie qualité.`,
+		openGraph: {
+			title: `${category.name} | Selectura`,
+			description: `${category.count} produits premium dans la catégorie ${category.name}. Qualité testée et garantie.`,
+			type: 'website',
+			locale: 'fr_FR',
+			url: `https://selectura.co/categories/${slug}`,
+			siteName: 'Selectura',
+			images: [
+				{
+					url: category.image?.src || '/images/collections.png',
+					width: 1200,
+					height: 630,
+					alt: `Catégorie ${category.name} - Selectura`,
+				},
+			],
+		},
+		twitter: {
+			card: 'summary_large_image',
+			title: `${category.name} | Selectura`,
+			description: `${category.count} produits premium sélectionnés avec expertise.`,
+			images: [category.image?.src || '/images/collections.png'],
+		},
+		alternates: {
+			canonical: `https://selectura.co/categories/${slug}`,
+		},
 	};
 }
 

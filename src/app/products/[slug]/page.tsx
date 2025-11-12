@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { getProducts, WooProduct } from '@/lib/woo';
 import ProductDetailContent from '@/components/ProductDetailContent';
+import ProductSchema from '@/components/ProductSchema';
 
 // Interface pour les propriétés de la page
 interface PageProps {
@@ -294,14 +295,17 @@ export default async function ProductPage({ params }: PageProps) {
 		const similarProductsConverted = similarProducts.map(convertToProduct);
 
 		return (
-			<Suspense fallback={<ProductDetailLoading />}>
-				<ProductDetailContent
-					product={productConverted}
-					accessories={accessoriesConverted}
-					premiumVariant={premiumVariantConverted}
-					similarProducts={similarProductsConverted}
-				/>
-			</Suspense>
+			<>
+				<ProductSchema product={productConverted} />
+				<Suspense fallback={<ProductDetailLoading />}>
+					<ProductDetailContent
+						product={productConverted}
+						accessories={accessoriesConverted}
+						premiumVariant={premiumVariantConverted}
+						similarProducts={similarProductsConverted}
+					/>
+				</Suspense>
+			</>
 		);
 	} catch (error) {
 		console.error('Erreur de chargement du produit:', error);
