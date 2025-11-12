@@ -65,6 +65,29 @@ export interface WooAttribute {
 	options: string[];
 }
 
+export interface WooVariation {
+	id: number;
+	date_created: string;
+	date_modified: string;
+	description: string;
+	permalink: string;
+	sku: string;
+	price: string;
+	regular_price: string;
+	sale_price: string;
+	on_sale: boolean;
+	purchasable: boolean;
+	visible: boolean;
+	stock_status: 'instock' | 'outofstock' | 'onbackorder';
+	stock_quantity: number | null;
+	image: WooImage;
+	attributes: Array<{
+		id: number;
+		name: string;
+		option: string;
+	}>;
+}
+
 export interface WooCustomer {
 	id: number;
 	email: string;
@@ -671,9 +694,9 @@ export const getProductsByAttribute = cache(
  * Récupérer les variations d'un produit
  */
 export const getProductVariations = cache(
-	async (productId: number): Promise<any[]> => {
+	async (productId: number): Promise<WooVariation[]> => {
 		try {
-			const variations = await wooInstance.fetch<any[]>(
+			const variations = await wooInstance.fetch<WooVariation[]>(
 				`products/${productId}/variations`
 			);
 			return variations;

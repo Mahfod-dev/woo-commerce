@@ -12,6 +12,8 @@ import {
 import { useCart } from '@/components/CartProvider';
 import { formatPrice } from '@/lib/wooClient';
 import ProductGallery from './ProductGalleryComponent';
+import VariationSelector from './VariationSelector';
+import { getProductVariations, WooVariation } from '@/lib/woo';
 
 // Function to extract features from HTML description
 const extractFeaturesFromHTML = (htmlContent: string): string[] => {
@@ -171,6 +173,10 @@ export default function AppleStyleProductDetail({
 	});
 	const [activeSection, setActiveSection] = useState('overview');
 	const [showCompareSection, setShowCompareSection] = useState(false);
+	const [variations, setVariations] = useState<WooVariation[]>([]);
+	const [selectedVariationId, setSelectedVariationId] = useState<number | null>(null);
+	const [selectedVariation, setSelectedVariation] = useState<WooVariation | null>(null);
+	const [loadingVariations, setLoadingVariations] = useState(false);
 	const { addToCart } = useCart();
 
 	// Refs pour la navigation par scroll
@@ -183,6 +189,31 @@ export default function AppleStyleProductDetail({
 	const { scrollYProgress } = useScroll();
 	const opacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
 	const scale = useTransform(scrollYProgress, [0, 0.1], [1, 0.95]);
+
+	// Load variations if product has variations
+	useEffect(() => {
+		const loadVariations = async () => {
+			if (product.attributes && product.attributes.some(attr => attr.variation)) {
+				setLoadingVariations(true);
+				try {
+					const vars = await getProductVariations(product.id);
+					setVariations(vars);
+				} catch (error) {
+					console.error('Error loading variations:', error);
+				} finally {
+					setLoadingVariations(false);
+				}
+			}
+		};
+
+		loadVariations();
+	}, [product.id, product.attributes]);
+
+	// Handle variation selection
+	const handleVariationChange = (variationId: number | null, variation: WooVariation | null) => {
+		setSelectedVariationId(variationId);
+		setSelectedVariation(variation);
+	};
 
 	// Calculer le prix total (produit + accessoires sélectionnés)
 	const calculateTotalPrice = () => {
@@ -221,11 +252,25 @@ export default function AppleStyleProductDetail({
 
 	// Gérer l'ajout au panier
 	const handleAddToCart = async () => {
+		// Check if product has variations and no variation is selected
+		const hasVariations = product.attributes && product.attributes.some(attr => attr.variation);
+		if (hasVariations && !selectedVariationId) {
+			setNotification({
+				show: true,
+				message: 'Veuillez sélectionner toutes les options du produit',
+				type: 'error',
+			});
+			setTimeout(() => {
+				setNotification({ show: false, message: '', type: '' });
+			}, 3000);
+			return;
+		}
+
 		setIsAddingToCart(true);
 
 		try {
-			// Ajouter le produit principal au panier
-			await addToCart(product.id, quantity);
+			// Ajouter le produit principal au panier avec la variation si sélectionnée
+			await addToCart(product.id, quantity, selectedVariationId || undefined);
 
 			// Ajouter les accessoires sélectionnés
 			for (const accessoryId of selectedAccessories) {
@@ -426,19 +471,38 @@ export default function AppleStyleProductDetail({
 							</p>
 							<div className='flex flex-col sm:flex-row justify-center items-center gap-4 mb-8'>
 								<span className='text-3xl font-bold text-gray-900'>
-									{formatPrice(product.price)}
+									{selectedVariation
+										? formatPrice(selectedVariation.price)
+										: formatPrice(product.price)
+									}
 								</span>
-								{product.on_sale && product.regular_price && (
+								{((selectedVariation?.on_sale && selectedVariation?.regular_price) || (product.on_sale && product.regular_price)) && (
 									<span className='text-lg text-gray-500 line-through'>
-										{formatPrice(product.regular_price)}
+										{selectedVariation
+											? formatPrice(selectedVariation.regular_price)
+											: formatPrice(product.regular_price)
+										}
 									</span>
 								)}
-								{product.on_sale && (
+								{(selectedVariation?.on_sale || product.on_sale) && (
 									<span className='bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded-full'>
 										-{calculateDiscount()}%
 									</span>
 								)}
 							</div>
+
+							{/* Variation Selector */}
+							{product.attributes && product.attributes.some(attr => attr.variation) && variations.length > 0 && (
+								<div className='max-w-2xl mx-auto mb-8'>
+									<VariationSelector
+										productId={product.id}
+										variations={variations}
+										attributes={product.attributes}
+										onVariationChange={handleVariationChange}
+									/>
+								</div>
+							)}
+
 							<div className='flex flex-wrap justify-center gap-4'>
 								<button
 									onClick={handleAddToCart}

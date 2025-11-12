@@ -245,6 +245,15 @@ export default function ImprovedMiniCart() {
 													<h4 className='text-sm font-medium text-gray-900 truncate'>
 														{item.name}
 													</h4>
+													{item.variation_attributes && item.variation_attributes.length > 0 && (
+														<div className='mt-1'>
+															{item.variation_attributes.map((attr, attrIndex) => (
+																<p key={attrIndex} className='text-xs text-gray-500'>
+																	{attr.name}: <span className='font-medium'>{attr.value}</span>
+																</p>
+															))}
+														</div>
+													)}
 													<div className='flex items-center justify-between mt-1'>
 														<div className='flex items-center'>
 															<button

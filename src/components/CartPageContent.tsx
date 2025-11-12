@@ -111,6 +111,15 @@ export default function CartPageContent() {
                       </div>
                       <div>
                         <h3 className="text-base font-medium text-gray-900 line-clamp-2">{item.name}</h3>
+                        {item.variation_attributes && item.variation_attributes.length > 0 && (
+                          <div className="mt-1 space-y-1">
+                            {item.variation_attributes.map((attr, index) => (
+                              <p key={index} className="text-sm text-gray-500">
+                                {attr.name}: <span className="font-medium">{attr.value}</span>
+                              </p>
+                            ))}
+                          </div>
+                        )}
                         <button
                           onClick={() => removeFromCart(item.key)}
                           disabled={isLoading}

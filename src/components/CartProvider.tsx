@@ -7,7 +7,7 @@ import React, {
 	useEffect,
 	ReactNode,
 } from 'react';
-import { getProductById, WooProduct } from '@/lib/woo';
+import { getProductById, getProductVariations, WooProduct, WooVariation } from '@/lib/woo';
 
 // Define types for cart items
 interface CartItem {
@@ -19,6 +19,11 @@ interface CartItem {
 	sale_price?: string;
 	quantity: number;
 	image: string;
+	variation_id?: number;
+	variation_attributes?: Array<{
+		name: string;
+		value: string;
+	}>;
 }
 
 // Define the cart context type
@@ -30,7 +35,8 @@ interface CartContextType {
 	error: string | null;
 	addToCart: (
 		productId: number,
-		quantity?: number
+		quantity?: number,
+		variationId?: number
 	) => Promise<{ success: boolean }>;
 	updateQuantity: (itemKey: string, quantity: number) => Promise<void>;
 	removeFromCart: (itemKey: string) => Promise<void>;
@@ -98,13 +104,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
 	}, [items]);
 
 	// Function to add a product to cart with real data from the WordPress backend
-	const addToCart = async (productId: number, quantity = 1) => {
+	const addToCart = async (productId: number, quantity = 1, variationId?: number) => {
 		setIsLoading(true);
 		setError(null);
 
 		try {
-			// Create a unique key for this item
-			const itemKey = `item_${productId}_${Date.now()}`;
+			// Create a unique key for this item (include variationId if present)
+			const itemKey = variationId
+				? `item_${productId}_${variationId}_${Date.now()}`
+				: `item_${productId}_${Date.now()}`;
 
 			// Fetch the real product data from the WordPress backend
 			const product = await getProductById(productId);
@@ -113,16 +121,32 @@ export function CartProvider({ children }: { children: ReactNode }) {
 				throw new Error(`Product with ID ${productId} not found`);
 			}
 
-			// Use the real product data
+			// If variationId is provided, fetch variation data
+			let variation: WooVariation | undefined;
+			if (variationId) {
+				const variations = await getProductVariations(productId);
+				variation = variations.find(v => v.id === variationId);
+
+				if (!variation) {
+					throw new Error(`Variation with ID ${variationId} not found`);
+				}
+			}
+
+			// Use variation data if available, otherwise use product data
 			const productData: CartItem = {
 				id: product.id,
 				key: itemKey,
 				name: product.name,
-				price: product.price,
-				regular_price: product.regular_price,
-				sale_price: product.sale_price,
+				price: variation ? variation.price : product.price,
+				regular_price: variation ? variation.regular_price : product.regular_price,
+				sale_price: variation ? variation.sale_price : product.sale_price,
 				quantity: quantity,
-				image: getProductImageUrl(product),
+				image: variation?.image?.src || getProductImageUrl(product),
+				variation_id: variationId,
+				variation_attributes: variation?.attributes.map(attr => ({
+					name: attr.name,
+					value: attr.option
+				}))
 			};
 
 			setItems((prevItems) => [...prevItems, productData]);
