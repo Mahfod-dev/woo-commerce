@@ -20,23 +20,23 @@ export const blogPosts: BlogPost[] = [
 		id: 1,
 		title: "Pourquoi moins de choix signifie de meilleurs achats",
 		excerpt: 'Découvrez comment notre approche de curation vous fait gagner du temps et vous garantit la qualité.',
-		content: `
-			<p>Dans un monde où le commerce en ligne offre des milliers d'options pour chaque catégorie de produits, on pourrait penser que plus de choix est toujours mieux. Pourtant, les recherches en psychologie du consommateur nous disent le contraire.</p>
+		content: `Dans un monde où le commerce en ligne offre des milliers d'options pour chaque catégorie de produits, on pourrait penser que plus de choix est toujours mieux. Pourtant, les recherches en psychologie du consommateur nous disent le contraire.
 
-			<h2>Le paradoxe du choix</h2>
-			<p>Le psychologue Barry Schwartz a démontré que trop de choix peut conduire à l'anxiété, la paralysie décisionnelle et finalement au regret. Chez Selectura, nous avons fait le choix radical de limiter notre catalogue pour vous offrir uniquement l'excellence.</p>
+## Le paradoxe du choix
 
-			<h2>Notre méthode de sélection</h2>
-			<p>Chaque produit que nous proposons a été testé, comparé et validé par nos experts. Au lieu de vous présenter 50 paires d'écouteurs différentes, nous vous proposons les 2 meilleures options : une standard et une premium.</p>
+Le psychologue Barry Schwartz a démontré que trop de choix peut conduire à l'anxiété, la paralysie décisionnelle et finalement au regret. Chez Selectura, nous avons fait le choix radical de limiter notre catalogue pour vous offrir uniquement l'excellence.
 
-			<h2>Les bénéfices concrets</h2>
-			<ul>
-				<li><strong>Gain de temps</strong> : Plus besoin de passer des heures à comparer des produits similaires</li>
-				<li><strong>Confiance</strong> : Chaque produit est garanti de haute qualité</li>
-				<li><strong>Expertise</strong> : Notre équipe connaît parfaitement chaque article</li>
-				<li><strong>Support</strong> : Un accompagnement personnalisé sur chaque produit</li>
-			</ul>
-		`,
+## Notre méthode de sélection
+
+Chaque produit que nous proposons a été testé, comparé et validé par nos experts. Au lieu de vous présenter 50 paires d'écouteurs différentes, nous vous proposons les 2 meilleures options : une standard et une premium.
+
+## Les bénéfices concrets
+
+- **Gain de temps** : Plus besoin de passer des heures à comparer des produits similaires
+- **Confiance** : Chaque produit est garanti de haute qualité
+- **Expertise** : Notre équipe connaît parfaitement chaque article
+- **Support** : Un accompagnement personnalisé sur chaque produit
+`,
 		category: 'Philosophie',
 		date: '2024-01-15',
 		author: 'Pierre Martin',
@@ -49,24 +49,28 @@ export const blogPosts: BlogPost[] = [
 		id: 2,
 		title: 'Comment nous sélectionnons nos produits : les coulisses de notre processus',
 		excerpt: 'Un aperçu exclusif de notre méthode rigoureuse de sélection et de test des produits.',
-		content: `
-			<p>La sélection de produits chez Selectura suit un processus en 5 étapes que nous avons perfectionné au fil des années.</p>
+		content: `La sélection de produits chez Selectura suit un processus en 5 étapes que nous avons perfectionné au fil des années.
 
-			<h2>Étape 1 : La recherche de marché</h2>
-			<p>Nous analysons en profondeur chaque catégorie de produits, étudions les tendances, les innovations et identifions les fabricants de référence.</p>
+## Étape 1 : La recherche de marché
 
-			<h2>Étape 2 : Les tests en laboratoire</h2>
-			<p>Chaque produit candidat passe par notre laboratoire de tests où nous vérifions les spécifications techniques, la durabilité et la qualité de fabrication.</p>
+Nous analysons en profondeur chaque catégorie de produits, étudions les tendances, les innovations et identifions les fabricants de référence.
 
-			<h2>Étape 3 : Les tests utilisateurs</h2>
-			<p>Des panels de testeurs représentatifs de nos clients utilisent les produits en conditions réelles pendant plusieurs semaines.</p>
+## Étape 2 : Les tests en laboratoire
 
-			<h2>Étape 4 : La comparaison finale</h2>
-			<p>Nous mettons en concurrence les meilleurs candidats pour ne retenir que l'excellence absolue.</p>
+Chaque produit candidat passe par notre laboratoire de tests où nous vérifions les spécifications techniques, la durabilité et la qualité de fabrication.
 
-			<h2>Étape 5 : La validation</h2>
-			<p>Un comité d'experts valide définitivement chaque produit avant son intégration au catalogue.</p>
-		`,
+## Étape 3 : Les tests utilisateurs
+
+Des panels de testeurs représentatifs de nos clients utilisent les produits en conditions réelles pendant plusieurs semaines.
+
+## Étape 4 : La comparaison finale
+
+Nous mettons en concurrence les meilleurs candidats pour ne retenir que l'excellence absolue.
+
+## Étape 5 : La validation
+
+Un comité d'experts valide définitivement chaque produit avant son intégration au catalogue.
+`,
 		category: 'Qualité',
 		date: '2024-01-10',
 		author: 'Sophie Leroy',
@@ -79,18 +83,20 @@ export const blogPosts: BlogPost[] = [
 		id: 3,
 		title: "L'art d'investir dans la durabilité plutôt que dans la quantité",
 		excerpt: 'Pourquoi choisir des produits durables est un investissement intelligent à long terme.',
-		content: `
-			<p>Dans une société de consommation rapide, nous prônons une approche différente : investir dans des produits qui durent.</p>
+		content: `Dans une société de consommation rapide, nous prônons une approche différente : investir dans des produits qui durent.
 
-			<h2>Le coût réel de la qualité</h2>
-			<p>Un produit premium peut coûter 2 à 3 fois plus cher qu'un produit standard, mais il dure généralement 5 à 10 fois plus longtemps. Le calcul est simple : la qualité est toujours plus rentable à long terme.</p>
+## Le coût réel de la qualité
 
-			<h2>Impact environnemental</h2>
-			<p>Acheter moins mais mieux signifie également réduire son empreinte écologique. Moins de déchets, moins de ressources consommées, moins de transport.</p>
+Un produit premium peut coûter 2 à 3 fois plus cher qu'un produit standard, mais il dure généralement 5 à 10 fois plus longtemps. Le calcul est simple : la qualité est toujours plus rentable à long terme.
 
-			<h2>La garantie Selectura</h2>
-			<p>Tous nos produits premium bénéficient d'une garantie étendue et d'un support technique à vie. Nous assumons notre engagement qualité.</p>
-		`,
+## Impact environnemental
+
+Acheter moins mais mieux signifie également réduire son empreinte écologique. Moins de déchets, moins de ressources consommées, moins de transport.
+
+## La garantie Selectura
+
+Tous nos produits premium bénéficient d'une garantie étendue et d'un support technique à vie. Nous assumons notre engagement qualité.
+`,
 		category: 'Durabilité',
 		date: '2024-01-05',
 		author: 'Thomas Dubois',
