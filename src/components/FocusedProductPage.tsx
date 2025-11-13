@@ -96,13 +96,16 @@ const FocusedProductsPage = ({ products, accessories }: FocusedProductsPageProps
 		}
 	};
 
-	// Scroll vers les détails du produit sélectionné
+	// Scroll vers le produit phare quand on sélectionne un nouveau produit
 	useEffect(() => {
-		if (productRef.current) {
-			productRef.current.scrollIntoView({
-				behavior: 'smooth',
-				block: 'start',
-			});
+		if (productRef.current && typeof window !== 'undefined') {
+			// Petit délai pour s'assurer que le contenu est rendu
+			setTimeout(() => {
+				productRef.current?.scrollIntoView({
+					behavior: 'smooth',
+					block: 'start',
+				});
+			}, 100);
 		}
 	}, [selectedProduct]);
 
@@ -154,194 +157,15 @@ const FocusedProductsPage = ({ products, accessories }: FocusedProductsPageProps
 				</div>
 			</div>
 
-			{/* Pourquoi notre approche est différente */}
-			<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16'>
-				<div className='bg-white rounded-xl shadow-sm p-8 md:p-12'>
-					<div className='md:flex items-start gap-12'>
-						<div className='md:w-1/2 mb-8 md:mb-0'>
-							<h2 className='text-2xl font-bold text-gray-900 mb-4'>
-								Notre Approche Différente
-							</h2>
-							<p className='text-gray-600 mb-6'>
-								Plutôt que de vous proposer des dizaines de
-								produits similaires qui rendent votre choix
-								difficile, nous avons sélectionné uniquement les
-								meilleurs produits dans chaque catégorie.
-							</p>
-							<ul className='space-y-3'>
-								{[
-									'Expertise approfondie sur chaque produit que nous vendons',
-									'Qualité supérieure garantie par des tests rigoureux',
-									'Accessoires parfaitement adaptés et complémentaires',
-									'Support client personnalisé pour chaque achat',
-								].map((point, index) => (
-									<li
-										key={index}
-										className='flex'>
-										<svg
-											className='h-6 w-6 text-indigo-600 flex-shrink-0 mr-2'
-											fill='none'
-											viewBox='0 0 24 24'
-											stroke='currentColor'>
-											<path
-												strokeLinecap='round'
-												strokeLinejoin='round'
-												strokeWidth={2}
-												d='M5 13l4 4L19 7'
-											/>
-										</svg>
-										<span className='text-gray-600'>
-											{point}
-										</span>
-									</li>
-								))}
-							</ul>
-						</div>
-						<div className='md:w-1/2'>
-							<div className='bg-indigo-50 rounded-lg p-6 border border-indigo-100'>
-								<h3 className='text-lg font-semibold text-indigo-900 mb-3'>
-									Comment choisir ?
-								</h3>
-								<p className='text-gray-600 mb-4'>
-									Nos produits sont regroupés par catégories
-									selon vos besoins. Chaque produit est
-									accompagné de recommandations d'accessoires
-									qui complètent parfaitement votre
-									expérience.
-								</p>
-								<p className='text-gray-600'>
-									<strong>Notre conseil :</strong>{' '}
-									Concentrez-vous sur le produit qui répond le
-									mieux à votre besoin principal, puis ajoutez
-									les accessoires qui amélioreront votre
-									expérience.
-								</p>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			{/* Sélection de produits */}
-			<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-				<h2 className='text-2xl font-bold text-gray-900 mb-6'>
-					Nos Produits Sélectionnés
-				</h2>
-
-				<motion.div
-					variants={containerVariants}
-					initial='hidden'
-					animate='visible'
-					className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16'>
-					{products.map((product) => (
-						<motion.div
-							key={product.id}
-							variants={itemVariants}
-							className={`bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border-2 ${
-								selectedProduct.id === product.id
-									? 'border-indigo-500'
-									: 'border-transparent'
-							}`}
-							onClick={() => setSelectedProduct(product)}>
-							<div className='relative aspect-square overflow-hidden'>
-								{product.images && product.images.length > 0 ? (
-									<Image
-										src={product.images[0].src}
-										alt={product.name}
-										fill
-										sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
-										className='object-cover transition-transform duration-500 hover:scale-105'
-									/>
-								) : (
-									<div className='w-full h-full flex items-center justify-center bg-gray-100'>
-										<svg
-											className='h-16 w-16 text-gray-300'
-											fill='none'
-											viewBox='0 0 24 24'
-											stroke='currentColor'>
-											<path
-												strokeLinecap='round'
-												strokeLinejoin='round'
-												strokeWidth={2}
-												d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
-											/>
-										</svg>
-									</div>
-								)}
-
-								{/* Badges */}
-								{product.featured && (
-									<div className='absolute top-3 left-3 bg-indigo-600 text-white text-xs font-bold px-2.5 py-1 rounded-full'>
-										Populaire
-									</div>
-								)}
-								{product.on_sale && (
-									<div className='absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full'>
-										Promo
-									</div>
-								)}
-							</div>
-
-							<div className='p-4'>
-								{product.categories &&
-									product.categories.length > 0 && (
-										<div className='text-xs text-indigo-600 font-medium uppercase tracking-wider mb-1'>
-											{product.categories[0].name}
-										</div>
-									)}
-
-								<h3 className='text-lg font-medium text-gray-900 mb-2 line-clamp-2 min-h-[3.5rem]'>
-									{product.name}
-								</h3>
-
-								<div className='flex items-baseline mb-3'>
-									<span className='text-lg font-bold text-indigo-600'>
-										{formatPrice(product.price)}
-									</span>
-
-									{product.on_sale &&
-										product.regular_price && (
-											<span className='ml-2 text-sm text-gray-500 line-through'>
-												{formatPrice(
-													product.regular_price
-												)}
-											</span>
-										)}
-								</div>
-
-								<div className='flex justify-between items-center mt-4'>
-									<Link
-										href={`/products/${product.slug}`}
-										className='text-indigo-600 text-sm font-medium hover:text-indigo-800'>
-										Détails complets
-									</Link>
-									<button
-										onClick={(e) => {
-											e.stopPropagation();
-											setSelectedProduct(product);
-										}}
-										className={`px-3 py-1 rounded text-sm font-medium ${
-											selectedProduct.id === product.id
-												? 'bg-indigo-100 text-indigo-700'
-												: 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-										}`}>
-										{selectedProduct.id === product.id
-											? 'Sélectionné'
-											: 'Sélectionner'}
-									</button>
-								</div>
-							</div>
-						</motion.div>
-					))}
-				</motion.div>
-			</div>
-
-			{/* Détails du produit sélectionné */}
+			{/* Détails du produit phare */}
 			<div
 				ref={productRef}
-				className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8'>
+				className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16'>
 				<div className='bg-white rounded-xl shadow-lg overflow-hidden'>
 					<div className='p-6 md:p-10'>
+						<h2 className='text-2xl font-bold text-gray-900 mb-8 text-center'>
+							Notre Produit Phare
+						</h2>
 						<div className='flex flex-col lg:flex-row gap-10'>
 							{/* Partie gauche - Images */}
 							<div className='w-full lg:w-1/2'>
@@ -783,6 +607,185 @@ const FocusedProductsPage = ({ products, accessories }: FocusedProductsPageProps
 						</div>
 					</div>
 				</div>
+			</div>
+
+			{/* Autres produits disponibles */}
+			<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16'>
+				<div className='bg-white rounded-xl shadow-sm p-8 md:p-12 mb-16'>
+					<div className='md:flex items-start gap-12'>
+						<div className='md:w-1/2 mb-8 md:mb-0'>
+							<h2 className='text-2xl font-bold text-gray-900 mb-4'>
+								Notre Approche Différente
+							</h2>
+							<p className='text-gray-600 mb-6'>
+								Plutôt que de vous proposer des dizaines de
+								produits similaires qui rendent votre choix
+								difficile, nous avons sélectionné uniquement les
+								meilleurs produits dans chaque catégorie.
+							</p>
+							<ul className='space-y-3'>
+								{[
+									'Expertise approfondie sur chaque produit que nous vendons',
+									'Qualité supérieure garantie par des tests rigoureux',
+									'Accessoires parfaitement adaptés et complémentaires',
+									'Support client personnalisé pour chaque achat',
+								].map((point, index) => (
+									<li
+										key={index}
+										className='flex'>
+										<svg
+											className='h-6 w-6 text-indigo-600 flex-shrink-0 mr-2'
+											fill='none'
+											viewBox='0 0 24 24'
+											stroke='currentColor'>
+											<path
+												strokeLinecap='round'
+												strokeLinejoin='round'
+												strokeWidth={2}
+												d='M5 13l4 4L19 7'
+											/>
+										</svg>
+										<span className='text-gray-600'>
+											{point}
+										</span>
+									</li>
+								))}
+							</ul>
+						</div>
+						<div className='md:w-1/2'>
+							<div className='bg-indigo-50 rounded-lg p-6 border border-indigo-100'>
+								<h3 className='text-lg font-semibold text-indigo-900 mb-3'>
+									Comment choisir ?
+								</h3>
+								<p className='text-gray-600 mb-4'>
+									Nos produits sont regroupés par catégories
+									selon vos besoins. Chaque produit est
+									accompagné de recommandations d'accessoires
+									qui complètent parfaitement votre
+									expérience.
+								</p>
+								<p className='text-gray-600'>
+									<strong>Notre conseil :</strong>{' '}
+									Concentrez-vous sur le produit qui répond le
+									mieux à votre besoin principal, puis ajoutez
+									les accessoires qui amélioreront votre
+									expérience.
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<h2 className='text-2xl font-bold text-gray-900 mb-6'>
+					Découvrez Nos Autres Produits Sélectionnés
+				</h2>
+
+				<motion.div
+					variants={containerVariants}
+					initial='hidden'
+					animate='visible'
+					className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16'>
+					{products.map((product) => (
+						<motion.div
+							key={product.id}
+							variants={itemVariants}
+							className={`bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border-2 ${
+								selectedProduct.id === product.id
+									? 'border-indigo-500'
+									: 'border-transparent'
+							}`}
+							onClick={() => setSelectedProduct(product)}>
+							<div className='relative aspect-square overflow-hidden'>
+								{product.images && product.images.length > 0 ? (
+									<Image
+										src={product.images[0].src}
+										alt={product.name}
+										fill
+										sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+										className='object-cover transition-transform duration-500 hover:scale-105'
+									/>
+								) : (
+									<div className='w-full h-full flex items-center justify-center bg-gray-100'>
+										<svg
+											className='h-16 w-16 text-gray-300'
+											fill='none'
+											viewBox='0 0 24 24'
+											stroke='currentColor'>
+											<path
+												strokeLinecap='round'
+												strokeLinejoin='round'
+												strokeWidth={2}
+												d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
+											/>
+										</svg>
+									</div>
+								)}
+
+								{/* Badges */}
+								{product.featured && (
+									<div className='absolute top-3 left-3 bg-indigo-600 text-white text-xs font-bold px-2.5 py-1 rounded-full'>
+										Populaire
+									</div>
+								)}
+								{product.on_sale && (
+									<div className='absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full'>
+										Promo
+									</div>
+								)}
+							</div>
+
+							<div className='p-4'>
+								{product.categories &&
+									product.categories.length > 0 && (
+										<div className='text-xs text-indigo-600 font-medium uppercase tracking-wider mb-1'>
+											{product.categories[0].name}
+										</div>
+									)}
+
+								<h3 className='text-lg font-medium text-gray-900 mb-2 line-clamp-2 min-h-[3.5rem]'>
+									{product.name}
+								</h3>
+
+								<div className='flex items-baseline mb-3'>
+									<span className='text-lg font-bold text-indigo-600'>
+										{formatPrice(product.price)}
+									</span>
+
+									{product.on_sale &&
+										product.regular_price && (
+											<span className='ml-2 text-sm text-gray-500 line-through'>
+												{formatPrice(
+													product.regular_price
+												)}
+											</span>
+										)}
+								</div>
+
+								<div className='flex justify-between items-center mt-4'>
+									<Link
+										href={`/products/${product.slug}`}
+										className='text-indigo-600 text-sm font-medium hover:text-indigo-800'>
+										Détails complets
+									</Link>
+									<button
+										onClick={(e) => {
+											e.stopPropagation();
+											setSelectedProduct(product);
+										}}
+										className={`px-3 py-1 rounded text-sm font-medium ${
+											selectedProduct.id === product.id
+												? 'bg-indigo-100 text-indigo-700'
+												: 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+										}`}>
+										{selectedProduct.id === product.id
+											? 'Sélectionné'
+											: 'Sélectionner'}
+									</button>
+								</div>
+							</div>
+						</motion.div>
+					))}
+				</motion.div>
 			</div>
 
 			{/* Pourquoi choisir ce produit */}

@@ -5,9 +5,9 @@ import NewArrivalsContent from '@/components/NewArrivalsContent';
 
 // Métadonnées pour le SEO
 export const metadata = {
-	title: 'Nouveautés | Votre Boutique',
+	title: 'Nouveautés - Produits des 2 dernières semaines | Selectura',
 	description:
-		'Découvrez nos derniers produits et restez à la pointe des tendances avec notre collection de nouveautés.',
+		'Découvrez nos tout derniers produits ajoutés ces 2 dernières semaines. Restez à la pointe des tendances avec notre sélection de nouveautés fraîchement arrivées.',
 };
 
 // Composant de chargement pour Suspense
@@ -49,13 +49,23 @@ function NewArrivalsLoading() {
 }
 
 export default async function NewArrivalsPage() {
-	// Récupérer les produits les plus récents
-	// Pour ce faire, nous trions par date et limitons aux 24 derniers produits
-	const products = await getProducts('?orderby=date&per_page=24');
+	// Récupérer les produits les plus récents (2 dernières semaines)
+	const twoWeeksAgo = new Date();
+	twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+	const afterDate = twoWeeksAgo.toISOString();
+
+	// Récupérer les produits créés après cette date
+	const products = await getProducts(`?orderby=date&order=desc&after=${afterDate}&per_page=100`);
+
+	// Filtrer côté serveur pour s'assurer qu'on a bien que les produits récents
+	const recentProducts = products.filter(product => {
+		const productDate = new Date(product.date_created);
+		return productDate >= twoWeeksAgo;
+	});
 
 	return (
 		<Suspense fallback={<NewArrivalsLoading />}>
-			<NewArrivalsContent products={products} />
+			<NewArrivalsContent products={recentProducts} />
 		</Suspense>
 	);
 }

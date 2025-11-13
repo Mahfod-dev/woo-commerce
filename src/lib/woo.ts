@@ -1,5 +1,6 @@
 // lib/woo.ts
 import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
 
 // Types pour les API WooCommerce
 export interface WooProduct {
@@ -390,22 +391,33 @@ export const getProductsByIds = cache(
 );
 
 /**
- * Récupérer les catégories
+ * Récupérer les catégories (avec cache Next.js)
  */
+const getCategoriesInternal = async (queryParams: string = ''): Promise<WooCategory[]> => {
+	try {
+		const separator = queryParams.startsWith('?') ? '' : '?';
+		const categories = await wooInstance.fetch<WooCategory[]>(
+			`products/categories${
+				queryParams ? `${separator}${queryParams}` : ''
+			}`
+		);
+		return categories;
+	} catch (error) {
+		console.error('[woo] Error fetching categories:', error);
+		return [];
+	}
+};
+
 export const getCategories = cache(
 	async (queryParams: string = ''): Promise<WooCategory[]> => {
-		try {
-			const separator = queryParams.startsWith('?') ? '' : '?';
-			const categories = await wooInstance.fetch<WooCategory[]>(
-				`products/categories${
-					queryParams ? `${separator}${queryParams}` : ''
-				}`
-			);
-			return categories;
-		} catch (error) {
-			console.error('[woo] Error fetching categories:', error);
-			return [];
-		}
+		return unstable_cache(
+			async () => getCategoriesInternal(queryParams),
+			['categories', queryParams],
+			{
+				revalidate: 3600, // Cache pendant 1 heure
+				tags: ['categories']
+			}
+		)();
 	}
 );
 

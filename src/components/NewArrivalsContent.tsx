@@ -137,13 +137,11 @@ export default function NewArrivalsContent({
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.5 }}>
 						<h1 className='text-3xl md:text-5xl font-bold mb-4'>
-							Découvrez nos nouveautés
+							Nouveautés des 2 dernières semaines
 						</h1>
 						<p className='text-indigo-100 max-w-2xl text-lg'>
-							Explorez nos dernières arrivées et soyez les
-							premiers à découvrir nos produits tendance. Mise à
-							jour régulière pour vous offrir toujours plus de
-							choix.
+							Découvrez nos tout derniers produits ajoutés ces 14 derniers jours.
+							Soyez les premiers à découvrir nos produits tendance fraîchement arrivés.
 						</p>
 					</motion.div>
 				</div>
@@ -222,7 +220,7 @@ export default function NewArrivalsContent({
 				{/* Résumé des résultats */}
 				<div className='mb-8'>
 					<h2 className='text-2xl font-bold text-gray-900'>
-						{displayedProducts.length} nouveaux produits{' '}
+						{displayedProducts.length} nouveaut{displayedProducts.length > 1 ? 'és' : 'é'}{' '}
 						{selectedCategory !== 'all' && (
 							<span className='font-normal text-gray-600'>
 								dans{' '}
@@ -233,8 +231,7 @@ export default function NewArrivalsContent({
 						)}
 					</h2>
 					<p className='text-gray-600 mt-1'>
-						Découvrez nos dernières arrivées et restez à la pointe
-						des tendances
+						Produits ajoutés ces 2 dernières semaines
 					</p>
 				</div>
 
@@ -254,17 +251,20 @@ export default function NewArrivalsContent({
 							/>
 						</svg>
 						<h3 className='mt-4 text-lg font-medium text-gray-900'>
-							Aucun produit trouvé
+							Aucune nouveauté récente
 						</h3>
 						<p className='mt-2 text-gray-500'>
-							Aucun nouveau produit n'est disponible dans cette
-							catégorie pour le moment.
+							Aucun produit n'a été ajouté ces 2 dernières semaines
+							{selectedCategory !== 'all' ? ' dans cette catégorie' : ''}.
+							Revenez bientôt pour découvrir nos prochaines nouveautés !
 						</p>
-						<button
-							onClick={() => setSelectedCategory('all')}
-							className='mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'>
-							Voir toutes les nouveautés
-						</button>
+						{selectedCategory !== 'all' && (
+							<button
+								onClick={() => setSelectedCategory('all')}
+								className='mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'>
+								Voir toutes les nouveautés
+							</button>
+						)}
 					</div>
 				) : (
 					<>

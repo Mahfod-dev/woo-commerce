@@ -177,6 +177,14 @@ export default function AppleStyleProductDetail({
 	const [selectedVariationId, setSelectedVariationId] = useState<number | null>(null);
 	const [selectedVariation, setSelectedVariation] = useState<WooVariation | null>(null);
 	const [loadingVariations, setLoadingVariations] = useState(false);
+	const [features, setFeatures] = useState<string[]>([
+		"Bien plus qu'un",
+		'Conception ergonomique',
+		'Matériaux durables',
+		'Performance optimale',
+		'Design élégant',
+		'Fonctionnalités innovantes',
+	]);
 	const { addToCart } = useCart();
 
 	// Refs pour la navigation par scroll
@@ -189,6 +197,20 @@ export default function AppleStyleProductDetail({
 	const { scrollYProgress } = useScroll();
 	const opacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
 	const scale = useTransform(scrollYProgress, [0, 0.1], [1, 0.95]);
+
+	// Extract features from product description (client-side only)
+	useEffect(() => {
+		if (typeof window !== 'undefined') {
+			try {
+				const extractedFeatures = extractFeaturesFromHTML(product.description);
+				if (extractedFeatures && extractedFeatures.length > 0) {
+					setFeatures(extractedFeatures);
+				}
+			} catch (error) {
+				console.error('Error extracting features:', error);
+			}
+		}
+	}, [product.description]);
 
 	// Load variations if product has variations
 	useEffect(() => {
@@ -1027,139 +1049,8 @@ export default function AppleStyleProductDetail({
 						</div>
 
 						<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
-							{/* Utiliser le contenu de la description pour extraire les fonctionnalités */}
-							{(() => {
-								// Caractéristiques par défaut dans tous les cas
-								const defaultFeatures = [
-									"Bien plus qu'un",
-									'Conception ergonomique',
-									'Matériaux durables',
-									'Performance optimale',
-									'Design élégant',
-									'Fonctionnalités innovantes',
-								];
-
-								// On est côté serveur, utiliser des données statiques
-								if (typeof window === 'undefined') {
-									return defaultFeatures.map(
-										(feature, index) => (
-											<motion.div
-												key={index}
-												initial={{ opacity: 0, y: 30 }}
-												whileInView={{
-													opacity: 1,
-													y: 0,
-												}}
-												viewport={{
-													once: true,
-													margin: '-100px',
-												}}
-												transition={{
-													duration: 0.5,
-													delay: index * 0.1,
-												}}
-												className='bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow'>
-												<div className='w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4'>
-													<svg
-														className='h-6 w-6 text-indigo-600'
-														fill='none'
-														viewBox='0 0 24 24'
-														stroke='currentColor'>
-														{index % 6 === 0 && (
-															<path
-																strokeLinecap='round'
-																strokeLinejoin='round'
-																strokeWidth={2}
-																d='M5 13l4 4L19 7'
-															/>
-														)}
-														{index % 6 === 1 && (
-															<path
-																strokeLinecap='round'
-																strokeLinejoin='round'
-																strokeWidth={2}
-																d='M13 10V3L4 14h7v7l9-11h-7z'
-															/>
-														)}
-														{index % 6 === 2 && (
-															<path
-																strokeLinecap='round'
-																strokeLinejoin='round'
-																strokeWidth={2}
-																d='M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-															/>
-														)}
-														{index % 6 === 3 && (
-															<path
-																strokeLinecap='round'
-																strokeLinejoin='round'
-																strokeWidth={2}
-																d='M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'
-															/>
-														)}
-														{index % 6 === 4 && (
-															<path
-																strokeLinecap='round'
-																strokeLinejoin='round'
-																strokeWidth={2}
-																d='M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
-															/>
-														)}
-														{index % 6 === 5 && (
-															<path
-																strokeLinecap='round'
-																strokeLinejoin='round'
-																strokeWidth={2}
-																d='M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'
-															/>
-														)}
-													</svg>
-												</div>
-												<h3 className='text-lg font-medium text-gray-900 mb-2'>
-													{feature
-														.split(' ')
-														.slice(0, 3)
-														.join(' ')}
-													{feature.split(' ').length >
-													3
-														? '...'
-														: ''}
-												</h3>
-												<p className='text-gray-600'>
-													{feature}
-												</p>
-											</motion.div>
-										)
-									);
-								}
-
-								// Tenter d'extraire les caractéristiques à partir de la description du produit
-								let features: string[] = defaultFeatures;
-
-								try {
-									// Extraire les caractéristiques de la description HTML si possible
-									const extractedFeatures =
-										extractFeaturesFromHTML(
-											product.description
-										);
-
-									// Si on a trouvé des caractéristiques dans la description, les utiliser
-									// Sinon, conserver les caractéristiques par défaut
-									if (
-										extractedFeatures &&
-										extractedFeatures.length > 0
-									) {
-										features = extractedFeatures;
-									}
-								} catch (error) {
-									console.error(
-										"Erreur lors de l'extraction des caractéristiques:",
-										error
-									);
-									// En cas d'erreur, utiliser les caractéristiques par défaut
-								}
-
-								return features.map((feature, index) => (
+							{/* Afficher les features depuis l'état */}
+							{features.map((feature, index) => (
 									<motion.div
 										key={index}
 										initial={{ opacity: 0, y: 30 }}
@@ -1244,8 +1135,7 @@ export default function AppleStyleProductDetail({
 											{feature}
 										</p>
 									</motion.div>
-								));
-							})()}
+								))}
 						</div>
 
 						{/* Bouton Comparer */}
