@@ -315,7 +315,7 @@ export default async function OptimizedHomePage() {
 							</ul>
 							<div className='mt-8'>
 								<Link
-									href='/about-us'
+									href='/about'
 									className='text-base font-medium text-indigo-600 hover:text-indigo-500'>
 									En savoir plus sur notre philosophie{' '}
 									<span aria-hidden='true'>&rarr;</span>

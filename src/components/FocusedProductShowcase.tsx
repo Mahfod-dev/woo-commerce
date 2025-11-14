@@ -338,7 +338,7 @@ const FocusedProductShowcase = ({
 								</div>
 
 								<Link
-									href='/accessories'
+									href='/products?tag=accessory'
 									className='w-full py-3 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-lg transition-colors shadow-md block text-center'>
 									Découvrir nos accessoires
 								</Link>
@@ -438,7 +438,7 @@ const FocusedProductShowcase = ({
 
 					<div className='mt-8 text-center'>
 						<Link
-							href='/our-philosophy'
+							href='/about'
 							className='inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium'>
 							En savoir plus sur notre philosophie
 							<svg
