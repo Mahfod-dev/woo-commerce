@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { formatPrice } from '@/lib/wooClient';
 import { useCart } from '@/components/CartProvider';
+import ProductBadge, { getProductBadges } from '@/components/ProductBadge';
 
 // Interface pour les produits
 interface Product {
@@ -532,19 +533,19 @@ const ProductCard = ({
 						</div>
 					)}
 
-					{/* Featured badge */}
-					{product.featured && (
-						<div className='absolute top-3 left-3 bg-indigo-600 text-white text-xs font-bold px-2.5 py-1 rounded-full'>
-							Populaire
+					{/* Badges stratégiques */}
+					<div className='absolute top-3 left-3 right-3 flex flex-wrap gap-2 justify-between'>
+						<div className='flex flex-wrap gap-2'>
+							{getProductBadges(product).slice(0, 2).map((badgeType, index) => (
+								<ProductBadge
+									key={index}
+									type={badgeType}
+									size="sm"
+									showIcon={index === 0}
+								/>
+							))}
 						</div>
-					)}
-
-					{/* Sale badge */}
-					{product.on_sale && (
-						<div className='absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full'>
-							Promo
-						</div>
-					)}
+					</div>
 				</div>
 
 				<div className='p-4'>

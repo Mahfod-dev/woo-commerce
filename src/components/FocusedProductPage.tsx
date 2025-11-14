@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { formatPrice } from '@/lib/wooClient';
 import { useCart } from '@/components/CartProvider';
+import ProductBadge, { getProductBadges } from '@/components/ProductBadge';
 
 // Interface pour les produits
 interface Product {
@@ -236,27 +237,28 @@ const FocusedProductsPage = ({ products, accessories }: FocusedProductsPageProps
 							{/* Partie droite - Informations et ajout au panier */}
 							<div className='w-full lg:w-1/2'>
 								<div className='flex flex-wrap gap-2 mb-3'>
-									{selectedProduct.featured && (
-										<span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800'>
-											Populaire
-										</span>
-									)}
-									{selectedProduct.on_sale && (
-										<span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800'>
-											Promotion
-										</span>
-									)}
+									{/* Badges stratégiques */}
+									{getProductBadges(selectedProduct).map((badgeType, index) => (
+										<ProductBadge
+											key={index}
+											type={badgeType}
+											size="md"
+											showIcon={true}
+										/>
+									))}
+
+									{/* Badge stock */}
 									{selectedProduct.stock_status ===
 									'instock' ? (
 										<span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800'>
-											En stock
+											✓ En stock
 										</span>
 									) : (
 										<span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800'>
 											{selectedProduct.stock_status ===
 											'onbackorder'
-												? 'Sur commande'
-												: 'Épuisé'}
+												? '⏰ Sur commande'
+												: '❌ Épuisé'}
 										</span>
 									)}
 								</div>
@@ -721,17 +723,17 @@ const FocusedProductsPage = ({ products, accessories }: FocusedProductsPageProps
 									</div>
 								)}
 
-								{/* Badges */}
-								{product.featured && (
-									<div className='absolute top-3 left-3 bg-indigo-600 text-white text-xs font-bold px-2.5 py-1 rounded-full'>
-										Populaire
-									</div>
-								)}
-								{product.on_sale && (
-									<div className='absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full'>
-										Promo
-									</div>
-								)}
+								{/* Badges stratégiques */}
+								<div className='absolute top-3 left-3 right-3 flex flex-wrap gap-2'>
+									{getProductBadges(product).slice(0, 2).map((badgeType, index) => (
+										<ProductBadge
+											key={index}
+											type={badgeType}
+											size="sm"
+											showIcon={index === 0}
+										/>
+									))}
+								</div>
 							</div>
 
 							<div className='p-4'>
