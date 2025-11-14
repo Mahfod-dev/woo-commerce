@@ -25,19 +25,36 @@ interface Category {
 	} | null;
 }
 
-interface HeaderProps {
-	categories: Category[];
-}
-
-export default function Header({ categories }: HeaderProps) {
+export default function Header() {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [isSearchOpen, setIsSearchOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [scrolled, setScrolled] = useState(false);
+	const [categories, setCategories] = useState<Category[]>([]);
+	const [loadingCategories, setLoadingCategories] = useState(true);
 	const pathname = usePathname();
 	const searchRef = useRef<HTMLDivElement>(null);
 	const { itemCount } = useCart();
 	const { data: session, status } = useSession();
+
+	// Charger les catégories côté client
+	useEffect(() => {
+		const fetchCategories = async () => {
+			try {
+				const response = await fetch('/api/categories');
+				if (response.ok) {
+					const data = await response.json();
+					setCategories(data);
+				}
+			} catch (error) {
+				console.error('Error fetching categories:', error);
+			} finally {
+				setLoadingCategories(false);
+			}
+		};
+
+		fetchCategories();
+	}, []);
 
 	// Détection du scroll pour changer l'apparence du header
 	useEffect(() => {

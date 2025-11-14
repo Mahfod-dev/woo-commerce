@@ -8,7 +8,6 @@ import CookieConsentBanner from '@/components/CookieConsentBanner';
 import BreadcrumbSchema from '@/components/BreadcrumbSchema';
 import WebSiteSchema from '@/components/WebSiteSchema';
 import Providers from './providers';
-import { getCategories } from '@/lib/woo';
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -34,14 +33,11 @@ export const metadata: Metadata = {
 	metadataBase: new URL('https://selectura.co'),
 };
 
-export default async function RootLayout({
+export default function RootLayout({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
-	// Récupération des catégories depuis l'API WooCommerce
-	const categories = await getCategories();
-
 	return (
 		<html lang='fr'>
 			<head />
@@ -50,7 +46,7 @@ export default async function RootLayout({
 				<Providers>
 					<WebSiteSchema />
 					<BreadcrumbSchema />
-					<Header categories={categories} />
+					<Header />
 					<main className='flex-grow min-h-screen pt-16 md:pt-20'>
 						{children}
 					</main>
