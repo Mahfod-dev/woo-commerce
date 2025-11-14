@@ -14,7 +14,12 @@ export type BadgeType =
 	| 'last-pieces'      // Dernières pièces
 	| 'limited-edition'  // Édition limitée
 	| 'new'              // Nouveau
-	| 'sale';            // Promotion
+	| 'sale'             // Promotion
+	| 'made-in-usa'      // Fabriqué aux USA
+	| 'made-in-eu'       // Fabriqué en UE
+	| 'made-in-france'   // Fabriqué en France
+	| 'made-in-germany'  // Fabriqué en Allemagne
+	| 'made-in-italy';   // Fabriqué en Italie
 
 interface BadgeConfig {
 	label: string;
@@ -102,6 +107,36 @@ const BADGE_CONFIGS: Record<BadgeType, BadgeConfig> = {
 		icon: '🏷️',
 		color: 'text-red-900',
 		bgColor: 'bg-gradient-to-r from-red-500 to-red-600',
+	},
+	'made-in-usa': {
+		label: 'Made in USA',
+		icon: '🇺🇸',
+		color: 'text-blue-900',
+		bgColor: 'bg-gradient-to-r from-blue-400 to-blue-500',
+	},
+	'made-in-eu': {
+		label: 'Made in EU',
+		icon: '🇪🇺',
+		color: 'text-blue-900',
+		bgColor: 'bg-gradient-to-r from-blue-500 to-indigo-500',
+	},
+	'made-in-france': {
+		label: 'Made in France',
+		icon: '🇫🇷',
+		color: 'text-blue-900',
+		bgColor: 'bg-gradient-to-r from-blue-500 to-red-400',
+	},
+	'made-in-germany': {
+		label: 'Made in Germany',
+		icon: '🇩🇪',
+		color: 'text-yellow-900',
+		bgColor: 'bg-gradient-to-r from-yellow-400 to-red-400',
+	},
+	'made-in-italy': {
+		label: 'Made in Italy',
+		icon: '🇮🇹',
+		color: 'text-green-900',
+		bgColor: 'bg-gradient-to-r from-green-400 to-red-400',
 	},
 };
 
@@ -192,7 +227,22 @@ export function getProductBadges(product: {
 	// Tags spéciaux
 	if (product.tags) {
 		const tagSlugs = product.tags.map(t => t.slug);
+		const tagNames = product.tags.map(t => t.name.toLowerCase());
 
+		// Provenance (priorité haute - affiché en premier)
+		if (tagSlugs.includes('made-in-usa') || tagNames.some(n => n.includes('usa') || n.includes('états-unis'))) {
+			badges.unshift('made-in-usa'); // unshift pour mettre en premier
+		} else if (tagSlugs.includes('made-in-eu') || tagNames.some(n => n.includes('europe') || n.includes('ue'))) {
+			badges.unshift('made-in-eu');
+		} else if (tagSlugs.includes('made-in-france') || tagNames.some(n => n.includes('france') || n.includes('français'))) {
+			badges.unshift('made-in-france');
+		} else if (tagSlugs.includes('made-in-germany') || tagNames.some(n => n.includes('allemagne') || n.includes('germany'))) {
+			badges.unshift('made-in-germany');
+		} else if (tagSlugs.includes('made-in-italy') || tagNames.some(n => n.includes('italie') || n.includes('italy'))) {
+			badges.unshift('made-in-italy');
+		}
+
+		// Caractéristiques
 		if (tagSlugs.includes('eco-responsable') || tagSlugs.includes('eco-friendly')) {
 			badges.push('eco-friendly');
 		}

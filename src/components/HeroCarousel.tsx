@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+import ProductBadge from './ProductBadge';
 
 const HeroCarousel = () => {
 	const [currentSlide, setCurrentSlide] = useState(0);
@@ -105,7 +106,8 @@ const HeroCarousel = () => {
 								exit={{ opacity: 0, scale: 0.95 }}
 								transition={{ duration: 1.2, ease: 'easeOut' }}
 								className='absolute inset-0'>
-								
+
+
 								{/* Image de fond avec overlay */}
 								<div className='absolute inset-0'>
 									<Image
@@ -186,7 +188,7 @@ const HeroCarousel = () => {
 														</motion.h1>
 													</div>
 
-													<motion.p 
+													<motion.p
 														className='text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 leading-relaxed max-w-lg'
 														initial={{ opacity: 0, y: 30 }}
 														animate={{ opacity: 1, y: 0 }}
@@ -195,11 +197,27 @@ const HeroCarousel = () => {
 														{slide.subtitle}
 													</motion.p>
 
-													<motion.div 
+													{/* Badges de provenance - visible sur mobile et desktop */}
+													{slide.id === 1 && (
+														<motion.div
+															className='flex flex-wrap gap-3 justify-start'
+															initial={{ opacity: 0, y: 20 }}
+															animate={{ opacity: 1, y: 0 }}
+															transition={{ duration: 0.8, delay: 0.85 }}
+														>
+															<div className='bg-white/15 backdrop-blur-lg px-6 py-3 rounded-full border-2 border-white/30 shadow-2xl flex items-center gap-4'>
+																<ProductBadge type="made-in-usa" size="md" showIcon={true} />
+																<div className='w-px h-6 bg-white/40'></div>
+																<ProductBadge type="made-in-eu" size="md" showIcon={true} />
+															</div>
+														</motion.div>
+													)}
+
+													<motion.div
 														className='flex flex-col sm:flex-row gap-4'
 														initial={{ opacity: 0, y: 30 }}
 														animate={{ opacity: 1, y: 0 }}
-														transition={{ duration: 0.8, delay: 0.9 }}
+														transition={{ duration: 0.8, delay: 1 }}
 													>
 														<Link
 															href={slide.ctaLink}

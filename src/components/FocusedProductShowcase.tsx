@@ -534,14 +534,14 @@ const ProductCard = ({
 					)}
 
 					{/* Badges stratégiques */}
-					<div className='absolute top-3 left-3 right-3 flex flex-wrap gap-2 justify-between'>
+					<div className='absolute top-3 left-3 right-3 flex flex-wrap gap-2 justify-between pointer-events-none'>
 						<div className='flex flex-wrap gap-2'>
-							{getProductBadges(product).slice(0, 2).map((badgeType, index) => (
+							{getProductBadges(product).slice(0, 3).map((badgeType, index) => (
 								<ProductBadge
 									key={index}
 									type={badgeType}
 									size="sm"
-									showIcon={index === 0}
+									showIcon={true}
 								/>
 							))}
 						</div>

@@ -724,13 +724,13 @@ const FocusedProductsPage = ({ products, accessories }: FocusedProductsPageProps
 								)}
 
 								{/* Badges stratégiques */}
-								<div className='absolute top-3 left-3 right-3 flex flex-wrap gap-2'>
-									{getProductBadges(product).slice(0, 2).map((badgeType, index) => (
+								<div className='absolute top-3 left-3 right-3 flex flex-wrap gap-2 pointer-events-none'>
+									{getProductBadges(product).slice(0, 3).map((badgeType, index) => (
 										<ProductBadge
 											key={index}
 											type={badgeType}
 											size="sm"
-											showIcon={index === 0}
+											showIcon={true}
 										/>
 									))}
 								</div>
