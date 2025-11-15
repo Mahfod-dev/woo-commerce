@@ -25,6 +25,9 @@ interface Category {
 	} | null;
 }
 
+const CACHE_KEY = 'selectura_categories_cache';
+const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes en millisecondes
+
 export default function Header() {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -37,14 +40,35 @@ export default function Header() {
 	const { itemCount } = useCart();
 	const { data: session, status } = useSession();
 
-	// Charger les catégories côté client
+	// Charger les catégories avec cache localStorage
 	useEffect(() => {
 		const fetchCategories = async () => {
 			try {
+				// Vérifier le cache localStorage
+				const cached = localStorage.getItem(CACHE_KEY);
+				if (cached) {
+					const { data, timestamp } = JSON.parse(cached);
+					const now = Date.now();
+
+					// Si le cache est toujours valide (moins de 30min)
+					if (now - timestamp < CACHE_DURATION) {
+						setCategories(data);
+						setLoadingCategories(false);
+						return; // Pas besoin de fetch
+					}
+				}
+
+				// Sinon, fetch depuis l'API
 				const response = await fetch('/api/categories');
 				if (response.ok) {
 					const data = await response.json();
 					setCategories(data);
+
+					// Sauvegarder dans le cache
+					localStorage.setItem(CACHE_KEY, JSON.stringify({
+						data,
+						timestamp: Date.now()
+					}));
 				}
 			} catch (error) {
 				console.error('Error fetching categories:', error);
