@@ -563,7 +563,7 @@ export default function AppleStyleProductDetail({
 								</button>
 								{premiumVariant && (
 									<Link
-										href={`/products/${premiumVariant.slug}`}
+										href={`/products/${premiumVariant.id}-${premiumVariant.slug}`}
 										className='bg-gray-200 text-gray-800 px-6 py-3 rounded-full text-base font-medium hover:bg-gray-300 transition-colors'>
 										Voir la version premium
 									</Link>
@@ -2103,7 +2103,7 @@ export default function AppleStyleProductDetail({
 										transition={{ duration: 0.5 }}
 										className='bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300'>
 										<Link
-											href={`/products/${similarProduct.slug}`}
+											href={`/products/${similarProduct.id}-${similarProduct.slug}`}
 											className='block'>
 											<div className='relative aspect-square'>
 												{similarProduct.images &&

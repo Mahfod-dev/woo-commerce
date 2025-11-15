@@ -481,7 +481,7 @@ export default function PromotionsContent({
 									variants={itemVariants}
 									className='group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300'>
 									<Link
-										href={`/products/${product.slug}`}
+										href={`/products/${product.id}-${product.slug}`}
 										className='block'>
 										<div className='relative'>
 											<div className='relative aspect-square overflow-hidden bg-gray-100'>

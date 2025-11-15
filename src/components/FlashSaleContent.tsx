@@ -505,7 +505,7 @@ export default function FlashSaleContent({
 									)}
 
 								<h3 className='text-lg font-bold text-gray-900 mb-2 line-clamp-2 min-h-[3.5rem]'>
-									<Link href={`/products/${product.slug}`}>
+									<Link href={`/products/${product.id}-${product.slug}`}>
 										{product.name}
 									</Link>
 								</h3>
@@ -562,7 +562,7 @@ export default function FlashSaleContent({
 								{/* Boutons d'action */}
 								<div className='flex space-x-2 mt-4'>
 									<Link
-										href={`/products/${product.slug}`}
+										href={`/products/${product.id}-${product.slug}`}
 										className='flex-1 py-2 px-4 text-center border border-pink-600 text-pink-600 rounded-md hover:bg-pink-50 transition-colors'>
 										Détails
 									</Link>

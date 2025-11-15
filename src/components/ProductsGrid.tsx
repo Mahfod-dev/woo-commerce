@@ -189,7 +189,7 @@ export default function ProductsGrid({
             whileHover={{ y: -8 }}
             className='group relative bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 product-grid-item'>
             <Link
-              href={`/products/${product.slug}`}
+              href={`/products/${product.id}-${product.slug}`}
               className='block'>
               {/* Image with hover overlay */}
               <div className='relative aspect-square overflow-hidden bg-gray-100'>

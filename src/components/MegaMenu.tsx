@@ -296,7 +296,7 @@ const MegaMenu = ({ categories, isDarkBg = false }: MegaMenuProps) => {
 															}}
 															className='group'>
 															<Link
-																href={`/products/${product.slug}`}
+																href={`/products/${product.id}-${product.slug}`}
 																className='block'
 																onClick={() =>
 																	setIsOpen(

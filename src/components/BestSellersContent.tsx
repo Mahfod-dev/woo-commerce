@@ -588,7 +588,7 @@ export default function BestSellersContent({
 												{/* Boutons */}
 												<div className='flex space-x-2'>
 													<Link
-														href={`/products/${product.slug}`}
+														href={`/products/${product.id}-${product.slug}`}
 														className='flex-1 py-2 px-4 text-center border border-indigo-600 text-indigo-600 rounded-md hover:bg-indigo-50 transition-colors'>
 														Voir les détails
 													</Link>

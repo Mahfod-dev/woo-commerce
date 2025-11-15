@@ -157,7 +157,7 @@ export default function BestSellerProductCard({
 							isHovered ? 'opacity-100' : 'opacity-0'
 						}`}>
 						<Link
-							href={`/products/${product.slug}`}
+							href={`/products/${product.id}-${product.slug}`}
 							className='bg-white text-indigo-600 hover:bg-indigo-600 hover:text-white transition-colors duration-300 rounded-full p-3 m-2 shadow-lg'>
 							<svg
 								className='h-6 w-6'
@@ -229,7 +229,7 @@ export default function BestSellerProductCard({
 					)}
 
 					{/* Nom du produit */}
-					<Link href={`/products/${product.slug}`}>
+					<Link href={`/products/${product.id}-${product.slug}`}>
 						<h3 className='text-lg font-bold text-gray-900 mb-2 hover:text-indigo-600 transition-colors line-clamp-2 min-h-[3.5rem]'>
 							{product.name}
 						</h3>

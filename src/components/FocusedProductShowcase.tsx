@@ -505,7 +505,7 @@ const ProductCard = ({
 			whileHover={{ y: -8 }}
 			className='group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300'>
 			<Link
-				href={`/products/${product.slug}`}
+				href={`/products/${product.id}-${product.slug}`}
 				className='block'>
 				<div className='relative aspect-square overflow-hidden bg-gray-100'>
 					{product.images && product.images.length > 0 ? (

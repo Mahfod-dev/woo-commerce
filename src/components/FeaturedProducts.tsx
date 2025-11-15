@@ -71,7 +71,7 @@ export default function FeaturedProducts({
 							whileHover='hover'
 							viewport={{ once: true, margin: '-50px' }}
 							variants={cardVariants}>
-							<Link href={`/products/${product.slug}`}>
+							<Link href={`/products/${product.id}-${product.slug}`}>
 								<div className='relative h-64 overflow-hidden group'>
 									<Image
 										src={

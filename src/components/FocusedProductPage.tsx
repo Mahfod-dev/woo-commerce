@@ -516,7 +516,7 @@ const FocusedProductsPage = ({ products, accessories }: FocusedProductsPageProps
 									</button>
 
 									<Link
-										href={`/products/${selectedProduct.slug}`}
+										href={`/products/${selectedProduct.id}-${selectedProduct.slug}`}
 										className='flex-1 py-3 px-4 flex items-center justify-center rounded-lg text-base font-medium text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors'>
 										<svg
 											className='h-5 w-5 mr-2'
@@ -765,7 +765,7 @@ const FocusedProductsPage = ({ products, accessories }: FocusedProductsPageProps
 
 								<div className='flex justify-between items-center mt-4'>
 									<Link
-										href={`/products/${product.slug}`}
+										href={`/products/${product.id}-${product.slug}`}
 										className='text-indigo-600 text-sm font-medium hover:text-indigo-800'>
 										Détails complets
 									</Link>

@@ -247,7 +247,7 @@ export default function ProductsPageClient({
 							key={product.id}
 							className='bg-white rounded-lg shadow-sm overflow-hidden transition-transform hover:shadow-md hover:-translate-y-1 duration-300'>
 							<Link
-								href={`/products/${product.slug}`}
+								href={`/products/${product.id}-${product.slug}`}
 								className='block relative h-48 md:h-64 overflow-hidden'>
 								{product.images && product.images.length > 0 ? (
 									<Image
@@ -288,7 +288,7 @@ export default function ProductsPageClient({
 
 							<div className='p-4'>
 								<Link
-									href={`/products/${product.slug}`}
+									href={`/products/${product.id}-${product.slug}`}
 									className='block'>
 									<h3 className='text-lg font-medium text-gray-900 mb-1 line-clamp-2'>
 										{product.name}
@@ -354,7 +354,7 @@ export default function ProductsPageClient({
 							key={product.id}
 							className='bg-white rounded-lg shadow-sm overflow-hidden transition hover:shadow-md duration-300 flex flex-col sm:flex-row'>
 							<Link
-								href={`/products/${product.slug}`}
+								href={`/products/${product.id}-${product.slug}`}
 								className='block relative w-full sm:w-48 h-48'>
 								{product.images && product.images.length > 0 ? (
 									<Image
@@ -395,7 +395,7 @@ export default function ProductsPageClient({
 
 							<div className='p-4 flex-grow flex flex-col'>
 								<Link
-									href={`/products/${product.slug}`}
+									href={`/products/${product.id}-${product.slug}`}
 									className='block flex-grow'>
 									<h3 className='text-lg font-medium text-gray-900 mb-1'>
 										{product.name}

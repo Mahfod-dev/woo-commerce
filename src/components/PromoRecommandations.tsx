@@ -130,7 +130,7 @@ export default function ProductRecommendations({
 							whileHover={{ y: -8 }}
 							className='group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300'>
 							<Link
-								href={`/products/${product.slug}`}
+								href={`/products/${product.id}-${product.slug}`}
 								className='block'>
 								<div className='relative aspect-square overflow-hidden bg-gray-100'>
 									{product.images &&
@@ -231,7 +231,7 @@ export default function ProductRecommendations({
 
 									<div className='flex items-center justify-between'>
 										<Link
-											href={`/products/${product.slug}`}
+											href={`/products/${product.id}-${product.slug}`}
 											className='text-xs text-indigo-600 hover:text-indigo-800 font-medium'>
 											Voir le produit
 										</Link>

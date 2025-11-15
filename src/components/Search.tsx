@@ -154,7 +154,7 @@ export default function Search() {
 										key={product.id}
 										className='border-b border-gray-100 last:border-0'>
 										<Link
-											href={`/products/${product.slug}`}
+											href={`/products/${product.id}-${product.slug}`}
 											className='flex items-center p-4 hover:bg-gray-50 transition-colors'
 											onClick={() =>
 												setShowResults(false)
@@ -511,7 +511,7 @@ export function SearchResults({ searchQuery }: { searchQuery: string }) {
 								{sortedAndFilteredProducts.map((product) => (
 									<Link
 										key={product.id}
-										href={`/products/${product.slug}`}
+										href={`/products/${product.id}-${product.slug}`}
 										className='group bg-white rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300'>
 										<div className='aspect-w-1 aspect-h-1 bg-gray-200 relative'>
 											{product.images &&
