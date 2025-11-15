@@ -3,7 +3,6 @@ import { Suspense } from 'react';
 import { getBestSellingProducts, getCategories, WooProduct } from '@/lib/woo';
 import ProductsGrid from '@/components/ProductsGrid';
 import ImprovedFaqSection from '@/components/ImprovedFaqSection';
-import '../styles/bestsellers.css';
 
 // Configuration de revalidation
 export const revalidate = 1800; // 30 minutes
@@ -78,11 +77,18 @@ function convertToProduct(wooProduct: WooProduct): Product {
 }
 
 export default async function BestSellersPage() {
-	// Récupérer les vrais best-sellers depuis WooCommerce
-	const products = await getBestSellingProducts(24);
-	const categories = await getCategories();
+	// Récupérer les best-sellers depuis WooCommerce
+	let products = await getBestSellingProducts(24);
 
-	// Statistiques basées sur les vrais produits
+	// Fallback : Si aucun best-seller (pas encore de ventes),
+	// afficher les produits featured ou les plus récents
+	if (products.length === 0) {
+		console.log('[BestSellers] Aucun best-seller trouvé, fallback sur produits récents');
+		const { getProducts } = await import('@/lib/woo');
+		products = await getProducts('?orderby=date&order=desc&per_page=24');
+	}
+
+	// Statistiques basées sur les produits
 	const stats = {
 		totalProducts: products.length,
 		inStock: products.filter(p => p.stock_status === 'instock').length,
@@ -120,11 +126,10 @@ export default async function BestSellersPage() {
 				<div className='bg-gradient-to-r from-indigo-600 to-purple-600 text-white'>
 					<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16'>
 						<h1 className='text-4xl md:text-5xl font-extrabold mb-4'>
-							Nos produits best-sellers
+							Nos produits phares
 						</h1>
 						<p className='text-xl text-indigo-100 max-w-3xl'>
-							Découvrez les produits les plus appréciés par nos clients,
-							classés par popularité et nombre de ventes.
+							Découvrez notre sélection de produits premium, soigneusement choisis pour leur qualité exceptionnelle.
 						</p>
 					</div>
 				</div>
@@ -159,10 +164,12 @@ export default async function BestSellersPage() {
 				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16'>
 					<div className='mb-8'>
 						<h2 className='text-2xl font-bold text-gray-900 mb-2'>
-							Tous nos best-sellers
+							Tous nos produits
 						</h2>
 						<p className='text-gray-600'>
-							Classés par popularité - Les produits les plus vendus en premier
+							{products.length > 0 && products[0]?.date_created
+								? 'Les derniers ajouts en premier'
+								: 'Nos produits sélectionnés avec soin'}
 						</p>
 					</div>
 
