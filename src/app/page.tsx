@@ -124,15 +124,7 @@ export default async function OptimizedHomePage() {
 			{/* Hero Carousel */}
 			<HeroCarousel />
 
-			{/* Section Vidéo Promotionnelle - DÉSACTIVÉE TEMPORAIREMENT */}
-			{/*
-			 * Pour réactiver :
-			 * 1. Upload selectura.mp4 sur un CDN (Cloudinary, Vercel Blob, etc.)
-			 * 2. OU commit la vidéo : git add public/videos/selectura.mp4
-			 * 3. Décommenter la section ci-dessous
-			 * 4. Mettre à jour le src de la vidéo si nécessaire
-			 */}
-			{/*
+			{/* Section Vidéo Promotionnelle */}
 			<section className='py-16 bg-gradient-to-b from-white to-gray-50'>
 				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
 					<div className='text-center mb-12'>
@@ -144,6 +136,7 @@ export default async function OptimizedHomePage() {
 						</p>
 					</div>
 
+					{/* Vidéo format portrait 9:16 hébergée sur Supabase Storage */}
 					<div className='flex justify-center'>
 						<div className='relative rounded-2xl overflow-hidden shadow-2xl bg-gray-900 w-full max-w-md' style={{ aspectRatio: '9/16' }}>
 							<video
@@ -154,12 +147,13 @@ export default async function OptimizedHomePage() {
 								loop
 								playsInline
 							>
-								<source src='/videos/selectura.mp4' type='video/mp4' />
+								<source src='https://kkvwzwmtnwoewxanoyzg.supabase.co/storage/v1/object/public/videos/selectura.mp4' type='video/mp4' />
 								Votre navigateur ne supporte pas la vidéo.
 							</video>
 						</div>
 					</div>
 
+					{/* Texte sous la vidéo */}
 					<div className='mt-8 text-center'>
 						<p className='text-gray-600'>
 							Qualité premium • Sélection rigoureuse • Livraison Europe & USA
@@ -167,7 +161,6 @@ export default async function OptimizedHomePage() {
 					</div>
 				</div>
 			</section>
-			*/}
 
 			{/* Section Catégories - Explorez par thème */}
 			<ImprovedCategoriesSection categories={categories} />
