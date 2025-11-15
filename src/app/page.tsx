@@ -124,6 +124,52 @@ export default async function OptimizedHomePage() {
 			{/* Hero Carousel */}
 			<HeroCarousel />
 
+			{/* Section Vidéo Promotionnelle */}
+			<section className='py-16 bg-gradient-to-b from-white to-gray-50'>
+				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+					<div className='text-center mb-12'>
+						<h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4'>
+							Découvrez Selectura
+						</h2>
+						<p className='text-xl text-gray-600 max-w-3xl mx-auto'>
+							Votre destination pour des produits premium sélectionnés avec soin
+						</p>
+					</div>
+
+					<div className='max-w-5xl mx-auto'>
+						<div className='relative rounded-2xl overflow-hidden shadow-2xl bg-gray-900 aspect-video'>
+							{/* Remplace cette URL par ton lien vidéo YouTube/Vimeo ou vidéo uploadée */}
+							{/* Pour YouTube : https://www.youtube.com/embed/TON_VIDEO_ID */}
+							{/* Pour vidéo uploadée : /videos/promo.mp4 */}
+							<iframe
+								className='absolute inset-0 w-full h-full'
+								src='https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&mute=0&controls=1&rel=0&modestbranding=1'
+								title='Vidéo de présentation Selectura'
+								allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+								allowFullScreen
+							/>
+							{/* Alternative : Vidéo HTML5 uploadée
+							<video
+								className='absolute inset-0 w-full h-full object-cover'
+								controls
+								poster='/images/video-poster.jpg'
+							>
+								<source src='/videos/promo.mp4' type='video/mp4' />
+								Votre navigateur ne supporte pas la vidéo.
+							</video>
+							*/}
+						</div>
+
+						{/* Texte sous la vidéo (optionnel) */}
+						<div className='mt-8 text-center'>
+							<p className='text-gray-600'>
+								Qualité premium • Sélection rigoureuse • Livraison Europe & USA
+							</p>
+						</div>
+					</div>
+				</div>
+			</section>
+
 			{/* Section Catégories - Explorez par thème */}
 			<ImprovedCategoriesSection categories={categories} />
 
