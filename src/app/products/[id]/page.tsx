@@ -15,7 +15,20 @@ interface PageProps {
   }>;
 }
 
+/* ========================================
+ * SECTION DOCUMENTS - DÉSACTIVÉE
+ * ========================================
+ * Cette section permet d'ajouter des documents téléchargeables aux produits.
+ * Actuellement désactivée car elle génère des liens factices.
+ *
+ * Pour réactiver :
+ * 1. Décommenter le code ci-dessous
+ * 2. Ajouter de vrais URLs dans generateDocuments()
+ * 3. Décommenter la section UI dans ProductDetailContent.tsx
+ * ======================================== */
+
 // Type pour les documents
+/*
 interface ProductDocument {
   id: string;
   name: string;
@@ -24,6 +37,7 @@ interface ProductDocument {
   size: string;
   type: 'pdf' | 'doc' | 'image' | 'video' | 'other';
 }
+*/
 
 // Interface pour le type Product défini dans ProductDetailContent
 interface Product {
@@ -44,11 +58,12 @@ interface Product {
   rating_count?: number;
   featured?: boolean;
   tags: { id: number; name: string; slug: string }[];
-  // Documents et ressources
-  documents?: ProductDocument[];
+  // Documents et ressources - DÉSACTIVÉ
+  // documents?: ProductDocument[];
 }
 
-// Fonction pour générer des documents selon le produit
+// Fonction pour générer des documents selon le produit - DÉSACTIVÉE
+/*
 function generateDocuments(wooProduct: WooProduct): ProductDocument[] {
   const documents: ProductDocument[] = [];
 
@@ -63,7 +78,7 @@ function generateDocuments(wooProduct: WooProduct): ProductDocument[] {
       id: `guide-${wooProduct.id}`,
       name: 'Guide d\'utilisation',
       description: 'Manuel complet d\'utilisation',
-      url: '#',
+      url: '#', // TODO: Remplacer par une vraie URL
       size: '2.4 MB',
       type: 'pdf'
     });
@@ -74,7 +89,7 @@ function generateDocuments(wooProduct: WooProduct): ProductDocument[] {
       id: `specs-${wooProduct.id}`,
       name: 'Fiche technique détaillée',
       description: 'Spécifications techniques complètes',
-      url: '#',
+      url: '#', // TODO: Remplacer par une vraie URL
       size: '1.8 MB',
       type: 'pdf'
     });
@@ -85,7 +100,7 @@ function generateDocuments(wooProduct: WooProduct): ProductDocument[] {
       id: `warranty-${wooProduct.id}`,
       name: 'Certificat de garantie',
       description: 'Conditions de garantie et support',
-      url: '#',
+      url: '#', // TODO: Remplacer par une vraie URL
       size: '450 KB',
       type: 'pdf'
     });
@@ -96,7 +111,7 @@ function generateDocuments(wooProduct: WooProduct): ProductDocument[] {
       id: `demo-${wooProduct.id}`,
       name: 'Vidéo de démonstration',
       description: 'Présentation complète du produit',
-      url: '#',
+      url: '#', // TODO: Remplacer par une vraie URL
       size: '15.2 MB',
       type: 'video'
     });
@@ -104,13 +119,14 @@ function generateDocuments(wooProduct: WooProduct): ProductDocument[] {
 
   return documents;
 }
+*/
 
 // Fonction pour convertir WooProduct en Product
 function convertToProduct(wooProduct: WooProduct): Product {
   return {
     ...wooProduct,
     stock_quantity: wooProduct.stock_quantity ?? undefined,
-    documents: generateDocuments(wooProduct)
+    // documents: generateDocuments(wooProduct) // DÉSACTIVÉ - Décommenter pour réactiver
   };
 }
 

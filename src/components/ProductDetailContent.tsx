@@ -49,7 +49,15 @@ const extractFeaturesFromHTML = (htmlContent: string): string[] => {
 	return features;
 };
 
-// Fonction pour obtenir l'icône appropriée selon le type de document
+/* ========================================
+ * SECTION DOCUMENTS - DÉSACTIVÉE
+ * ========================================
+ * Code commenté pour future réactivation.
+ * Voir src/app/products/[id]/page.tsx pour décommenter generateDocuments()
+ * ======================================== */
+
+// Fonction pour obtenir l'icône appropriée selon le type de document - DÉSACTIVÉE
+/*
 const getDocumentIcon = (type: ProductDocument['type']) => {
 	switch (type) {
 		case 'pdf':
@@ -99,8 +107,10 @@ const getDocumentIcon = (type: ProductDocument['type']) => {
 			);
 	}
 };
+*/
 
-// Type pour les documents
+// Type pour les documents - DÉSACTIVÉ
+/*
 interface ProductDocument {
 	id: string;
 	name: string;
@@ -109,6 +119,7 @@ interface ProductDocument {
 	size: string;
 	type: 'pdf' | 'doc' | 'image' | 'video' | 'other';
 }
+*/
 
 // Type pour les produits
 interface Product {
@@ -144,8 +155,8 @@ interface Product {
 		variation: boolean;
 		options: string[];
 	}[];
-	// Documents et ressources
-	documents?: ProductDocument[];
+	// Documents et ressources - DÉSACTIVÉ
+	// documents?: ProductDocument[];
 }
 
 interface AppleStyleProductDetailProps {
@@ -1760,7 +1771,9 @@ export default function AppleStyleProductDetail({
 							</div>
 						</div>
 
-						{/* Téléchargements et documents - Conditionnel */}
+						{/* Téléchargements et documents - SECTION DÉSACTIVÉE */}
+						{/* Décommenter cette section après avoir activé generateDocuments() */}
+						{/*
 						{product.documents && product.documents.length > 0 && (
 							<div className='mt-12'>
 								<h3 className='text-lg font-medium text-gray-900 mb-4'>
@@ -1800,6 +1813,7 @@ export default function AppleStyleProductDetail({
 								</div>
 							</div>
 						)}
+						*/}
 					</div>
 				</section>
 
