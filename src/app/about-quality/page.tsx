@@ -160,7 +160,7 @@ const aboutQualityData = {
             </ul>
             <p>Notre équipe d'ingénieurs et de techniciens spécialisés utilise ces installations pour soumettre chaque produit à des tests bien plus rigoureux que les standards de l'industrie. Nous ne nous contentons pas de vérifier que le produit "fonctionne", nous nous assurons qu'il excelle dans toutes les conditions d'utilisation possibles.</p>
         `,
-		imageUrl: '/img/quality-testing.jpg',
+		imageUrl: '/img/testproduit.png',
 	},
 	userFeedback: {
 		title: "L'importance des retours clients",
@@ -185,19 +185,19 @@ const aboutQualityData = {
 				name: 'Dr. Élise Moreau',
 				role: 'Directrice Qualité',
 				bio: "Ingénieure matériaux avec 15 ans d'expérience dans le contrôle qualité pour l'industrie aérospatiale, Élise dirige notre laboratoire de tests et définit nos protocoles d'évaluation.",
-				imageUrl: '/img/team-elise.jpg',
+				imageUrl: '/img/elisemoreau.png',
 			},
 			{
 				name: 'Marc Dupont',
 				role: 'Expert en durabilité',
 				bio: "Spécialiste en cycle de vie des produits, Marc analyse l'impact environnemental et la durabilité de chaque article que nous considérons ajouter à notre catalogue.",
-				imageUrl: '/img/team-marc.jpg',
+				imageUrl: '/img/marcdupont.png',
 			},
 			{
 				name: 'Lina Chen',
 				role: 'Responsable des tests utilisateurs',
 				bio: 'Avec un background en ergonomie et expérience utilisateur, Lina supervise les panels de testeurs et traduit leurs retours en améliorations concrètes.',
-				imageUrl: '/img/team-lina.jpg',
+				imageUrl: '/img/linachen.png',
 			},
 		],
 	},
