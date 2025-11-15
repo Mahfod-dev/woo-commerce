@@ -976,103 +976,58 @@ export default function AppleStyleProductDetail({
 					<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
 						<div className='max-w-3xl mx-auto text-center mb-16'>
 							<h2 className='text-3xl font-bold text-gray-900 mb-4'>
-								Caractéristiques techniques
+								Caractéristiques principales
 							</h2>
 							<p className='text-xl text-gray-500'>
-								Fonctionnalités essentielles extraites de la
-								description du produit
+								Découvrez ce qui rend ce produit unique
 							</p>
 						</div>
 
-						<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
-							{/* Afficher les features depuis l'état */}
-							{features.map((feature, index) => (
-									<motion.div
-										key={index}
-										initial={{ opacity: 0, y: 30 }}
-										whileInView={{ opacity: 1, y: 0 }}
-										viewport={{
-											once: true,
-											margin: '-100px',
-										}}
-										transition={{
-											duration: 0.5,
-											delay: index * 0.1,
-										}}
-										className='bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow'>
-										<div className='w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4'>
-											<svg
-												className='h-6 w-6 text-indigo-600'
-												fill='none'
-												viewBox='0 0 24 24'
-												stroke='currentColor'>
-												{/* Différentes icônes pour chaque caractéristique */}
-												{index % 6 === 0 && (
-													<path
-														strokeLinecap='round'
-														strokeLinejoin='round'
-														strokeWidth={2}
-														d='M5 13l4 4L19 7'
-													/>
-												)}
-												{index % 6 === 1 && (
-													<path
-														strokeLinecap='round'
-														strokeLinejoin='round'
-														strokeWidth={2}
-														d='M13 10V3L4 14h7v7l9-11h-7z'
-													/>
-												)}
-												{index % 6 === 2 && (
-													<path
-														strokeLinecap='round'
-														strokeLinejoin='round'
-														strokeWidth={2}
-														d='M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-													/>
-												)}
-												{index % 6 === 3 && (
-													<path
-														strokeLinecap='round'
-														strokeLinejoin='round'
-														strokeWidth={2}
-														d='M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'
-													/>
-												)}
-												{index % 6 === 4 && (
-													<path
-														strokeLinecap='round'
-														strokeLinejoin='round'
-														strokeWidth={2}
-														d='M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
-													/>
-												)}
-												{index % 6 === 5 && (
-													<path
-														strokeLinecap='round'
-														strokeLinejoin='round'
-														strokeWidth={2}
-														d='M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'
-													/>
-												)}
-											</svg>
-										</div>
-										<h3 className='text-lg font-medium text-gray-900 mb-2'>
-											{/* Créer un titre à partir du début de la fonctionnalité */}
-											{feature
-												.split(' ')
-												.slice(0, 3)
-												.join(' ')}
-											{feature.split(' ').length > 3
-												? '...'
-												: ''}
-										</h3>
-										<p className='text-gray-600'>
-											{feature}
-										</p>
-									</motion.div>
-								))}
-						</div>
+						<motion.div
+							initial={{ opacity: 0, y: 30 }}
+							whileInView={{ opacity: 1, y: 0 }}
+							viewport={{ once: true, margin: '-100px' }}
+							transition={{ duration: 0.6 }}
+							className='max-w-4xl mx-auto'>
+							<div className='bg-white rounded-2xl shadow-sm p-8 md:p-12'>
+								<ul className='space-y-6'>
+									{features.map((feature, index) => (
+										<motion.li
+											key={index}
+											initial={{ opacity: 0, x: -20 }}
+											whileInView={{ opacity: 1, x: 0 }}
+											viewport={{ once: true }}
+											transition={{
+												duration: 0.5,
+												delay: index * 0.1,
+											}}
+											className='flex items-start group'>
+											<div className='flex-shrink-0 mr-4'>
+												<div className='w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center group-hover:bg-indigo-600 transition-colors'>
+													<svg
+														className='h-4 w-4 text-indigo-600 group-hover:text-white transition-colors'
+														fill='none'
+														viewBox='0 0 24 24'
+														stroke='currentColor'>
+														<path
+															strokeLinecap='round'
+															strokeLinejoin='round'
+															strokeWidth={2.5}
+															d='M5 13l4 4L19 7'
+														/>
+													</svg>
+												</div>
+											</div>
+											<div className='flex-1'>
+												<p className='text-lg text-gray-800 leading-relaxed'>
+													{feature}
+												</p>
+											</div>
+										</motion.li>
+									))}
+								</ul>
+							</div>
+						</motion.div>
 
 						{/* Bouton Comparer */}
 						<div className='text-center mt-12'>
