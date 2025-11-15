@@ -2,7 +2,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import Header from '@/components/Header';
+import HeaderWrapper from '@/components/HeaderWrapper';
 import Footer from '@/components/Footer';
 import CookieConsentBanner from '@/components/CookieConsentBanner';
 import BreadcrumbSchema from '@/components/BreadcrumbSchema';
@@ -46,7 +46,7 @@ export default function RootLayout({
 				<Providers>
 					<WebSiteSchema />
 					<BreadcrumbSchema />
-					<Header />
+					<HeaderWrapper />
 					<main className='flex-grow min-h-screen pt-16 md:pt-20'>
 						{children}
 					</main>

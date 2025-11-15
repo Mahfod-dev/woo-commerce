@@ -25,60 +25,27 @@ interface Category {
 	} | null;
 }
 
-const CACHE_KEY = 'selectura_categories_cache';
-const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes en millisecondes
+interface HeaderProps {
+	initialCategories?: Category[];
+}
 
-export default function Header() {
+export default function Header({ initialCategories = [] }: HeaderProps) {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [isSearchOpen, setIsSearchOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [scrolled, setScrolled] = useState(false);
-	const [categories, setCategories] = useState<Category[]>([]);
-	const [loadingCategories, setLoadingCategories] = useState(true);
+	const [categories, setCategories] = useState<Category[]>(initialCategories);
 	const pathname = usePathname();
 	const searchRef = useRef<HTMLDivElement>(null);
 	const { itemCount } = useCart();
 	const { data: session, status } = useSession();
 
-	// Charger les catégories avec cache localStorage
+	// Initialiser avec les catégories préchargées
 	useEffect(() => {
-		const fetchCategories = async () => {
-			try {
-				// Vérifier le cache localStorage
-				const cached = localStorage.getItem(CACHE_KEY);
-				if (cached) {
-					const { data, timestamp } = JSON.parse(cached);
-					const now = Date.now();
-
-					// Si le cache est toujours valide (moins de 30min)
-					if (now - timestamp < CACHE_DURATION) {
-						setCategories(data);
-						setLoadingCategories(false);
-						return; // Pas besoin de fetch
-					}
-				}
-
-				// Sinon, fetch depuis l'API
-				const response = await fetch('/api/categories');
-				if (response.ok) {
-					const data = await response.json();
-					setCategories(data);
-
-					// Sauvegarder dans le cache
-					localStorage.setItem(CACHE_KEY, JSON.stringify({
-						data,
-						timestamp: Date.now()
-					}));
-				}
-			} catch (error) {
-				console.error('Error fetching categories:', error);
-			} finally {
-				setLoadingCategories(false);
-			}
-		};
-
-		fetchCategories();
-	}, []);
+		if (initialCategories.length > 0) {
+			setCategories(initialCategories);
+		}
+	}, [initialCategories]);
 
 	// Détection du scroll pour changer l'apparence du header
 	useEffect(() => {
