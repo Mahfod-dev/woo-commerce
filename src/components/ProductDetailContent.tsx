@@ -698,19 +698,18 @@ export default function AppleStyleProductDetail({
 							</motion.div>
 						</div>
 
-						{/* Image et texte alternés */}
-						<div className='space-y-32'>
-							{/* Première rangée : deux images */}
-							<div className='flex flex-col md:flex-row items-center gap-12'>
-								<motion.div
-									initial={{ opacity: 0, x: -50 }}
-									whileInView={{ opacity: 1, x: 0 }}
-									viewport={{ once: true, margin: '-100px' }}
-									transition={{ duration: 0.6 }}
-									className='md:w-1/2'>
-									<div className='relative aspect-square rounded-2xl overflow-hidden shadow-md bg-white p-4'>
-										{product.images &&
-										product.images.length > 0 ? (
+						{/* Image et texte alternés - Afficher uniquement si images disponibles */}
+						{product.images && product.images.length > 1 && (
+							<div className='space-y-32'>
+								{/* Première rangée : deux images */}
+								<div className='flex flex-col md:flex-row items-center gap-12'>
+									<motion.div
+										initial={{ opacity: 0, x: -50 }}
+										whileInView={{ opacity: 1, x: 0 }}
+										viewport={{ once: true, margin: '-100px' }}
+										transition={{ duration: 0.6 }}
+										className='md:w-1/2'>
+										<div className='relative aspect-square rounded-2xl overflow-hidden shadow-md bg-white p-4'>
 											<Image
 												src={
 													product.images[
@@ -727,54 +726,60 @@ export default function AppleStyleProductDetail({
 												className='object-contain'
 												sizes='(max-width: 768px) 100vw, 600px'
 											/>
-										) : (
-											<div className='w-full h-full bg-gray-100 flex items-center justify-center'>
-												<svg
-													className='h-16 w-16 text-gray-400'
-													fill='none'
-													viewBox='0 0 24 24'
-													stroke='currentColor'>
-													<path
-														strokeLinecap='round'
-														strokeLinejoin='round'
-														strokeWidth={2}
-														d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
-													/>
-												</svg>
-											</div>
-										)}
-									</div>
-								</motion.div>
+										</div>
+									</motion.div>
 
-								<motion.div
-									initial={{ opacity: 0, x: 50 }}
-									whileInView={{ opacity: 1, x: 0 }}
-									viewport={{ once: true, margin: '-100px' }}
-									transition={{ duration: 0.6 }}
-									className='md:w-1/2'>
-									<div className='relative aspect-square rounded-2xl overflow-hidden shadow-md bg-white p-4'>
-										{product.images &&
-										product.images.length > 1 ? (
-											<Image
-												src={
-													product.images[
-														Math.min(
-															2,
-															product.images
-																.length - 1
-														)
-													]?.src ||
-													product.images[0].src
-												}
-												alt={product.name}
-												fill
-												className='object-contain'
-												sizes='(max-width: 768px) 100vw, 600px'
-											/>
-										) : (
-											<div className='w-full h-full bg-gray-100 flex items-center justify-center'>
+									{product.images.length > 2 && (
+										<motion.div
+											initial={{ opacity: 0, x: 50 }}
+											whileInView={{ opacity: 1, x: 0 }}
+											viewport={{ once: true, margin: '-100px' }}
+											transition={{ duration: 0.6 }}
+											className='md:w-1/2'>
+											<div className='relative aspect-square rounded-2xl overflow-hidden shadow-md bg-white p-4'>
+												<Image
+													src={
+														product.images[
+															Math.min(
+																2,
+																product.images
+																	.length - 1
+															)
+														]?.src ||
+														product.images[0].src
+													}
+													alt={product.name}
+													fill
+													className='object-contain'
+													sizes='(max-width: 768px) 100vw, 600px'
+												/>
+											</div>
+										</motion.div>
+									)}
+								</div>
+
+								{/* Bloc de texte "Conçu pour l'excellence" + petite image à droite */}
+								<div className={`flex flex-col md:flex-row items-center gap-12 ${product.images.length <= 3 ? 'justify-center' : ''}`}>
+									<motion.div
+										initial={{ opacity: 0, x: -50 }}
+										whileInView={{ opacity: 1, x: 0 }}
+										viewport={{ once: true, margin: '-100px' }}
+										transition={{ duration: 0.6 }}
+										className={product.images.length > 3 ? 'md:w-1/2' : 'max-w-2xl'}>
+										<h3 className='text-2xl font-bold text-gray-900 mb-4'>
+											Conçu pour l'excellence
+										</h3>
+										<p className='text-lg text-gray-600 mb-6'>
+											Chaque détail a été soigneusement pensé
+											pour offrir une expérience utilisateur
+											exceptionnelle. Des matériaux de haute
+											qualité aux finitions impeccables, ce
+											produit incarne l'excellence.
+										</p>
+										<ul className='space-y-4'>
+											<li className='flex items-start'>
 												<svg
-													className='h-16 w-16 text-gray-400'
+													className='h-6 w-6 text-indigo-600 mt-0.5 mr-3 flex-shrink-0'
 													fill='none'
 													viewBox='0 0 24 24'
 													stroke='currentColor'>
@@ -782,254 +787,185 @@ export default function AppleStyleProductDetail({
 														strokeLinecap='round'
 														strokeLinejoin='round'
 														strokeWidth={2}
-														d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
+														d='M5 13l4 4L19 7'
 													/>
 												</svg>
+												<span className='text-gray-600'>
+													Matériaux durables et
+													écologiques
+												</span>
+											</li>
+											<li className='flex items-start'>
+												<svg
+													className='h-6 w-6 text-indigo-600 mt-0.5 mr-3 flex-shrink-0'
+													fill='none'
+													viewBox='0 0 24 24'
+													stroke='currentColor'>
+													<path
+														strokeLinecap='round'
+														strokeLinejoin='round'
+														strokeWidth={2}
+														d='M5 13l4 4L19 7'
+													/>
+												</svg>
+												<span className='text-gray-600'>
+													Design ergonomique pour un
+													confort optimal
+												</span>
+											</li>
+											<li className='flex items-start'>
+												<svg
+													className='h-6 w-6 text-indigo-600 mt-0.5 mr-3 flex-shrink-0'
+													fill='none'
+													viewBox='0 0 24 24'
+													stroke='currentColor'>
+													<path
+														strokeLinecap='round'
+														strokeLinejoin='round'
+														strokeWidth={2}
+														d='M5 13l4 4L19 7'
+													/>
+												</svg>
+												<span className='text-gray-600'>
+													Finitions de qualité supérieure
+												</span>
+											</li>
+										</ul>
+									</motion.div>
+
+									{product.images.length > 3 && (
+										<motion.div
+											initial={{ opacity: 0, x: 50 }}
+											whileInView={{ opacity: 1, x: 0 }}
+											viewport={{ once: true, margin: '-100px' }}
+											transition={{ duration: 0.6 }}
+											className='md:w-1/2'>
+											<div className='relative aspect-square rounded-2xl overflow-hidden shadow-md bg-white p-4'>
+												<Image
+													src={
+														product.images[
+															Math.min(
+																3,
+																product.images
+																	.length - 1
+															)
+														]?.src ||
+														product.images[0].src
+													}
+													alt={product.name}
+													fill
+													className='object-contain'
+													sizes='(max-width: 768px) 100vw, 600px'
+												/>
 											</div>
-										)}
-									</div>
-								</motion.div>
+										</motion.div>
+									)}
+								</div>
+
+								{/* Deuxième rangée (inversée) : texte + image */}
+								<div className={`flex flex-col md:flex-row-reverse items-center gap-12 ${product.images.length <= 4 ? 'justify-center' : ''}`}>
+									<motion.div
+										initial={{ opacity: 0, x: 50 }}
+										whileInView={{ opacity: 1, x: 0 }}
+										viewport={{ once: true, margin: '-100px' }}
+										transition={{ duration: 0.6 }}
+										className={product.images.length > 4 ? 'md:w-1/2' : 'max-w-2xl'}>
+										<h3 className='text-2xl font-bold text-gray-900 mb-4'>
+											Des performances inégalées
+										</h3>
+										<p className='text-lg text-gray-600 mb-6'>
+											Profitez de performances exceptionnelles
+											jour après jour. Ce produit a été conçu
+											pour offrir une efficacité maximale et
+											une expérience utilisateur fluide dans
+											toutes les situations.
+										</p>
+										<ul className='space-y-4'>
+											<li className='flex items-start'>
+												<svg
+													className='h-6 w-6 text-indigo-600 mt-0.5 mr-3 flex-shrink-0'
+													fill='none'
+													viewBox='0 0 24 24'
+													stroke='currentColor'>
+													<path
+														strokeLinecap='round'
+														strokeLinejoin='round'
+														strokeWidth={2}
+														d='M5 13l4 4L19 7'
+													/>
+												</svg>
+												<span className='text-gray-600'>
+													Fonctionnement rapide et réactif
+												</span>
+											</li>
+											<li className='flex items-start'>
+												<svg
+													className='h-6 w-6 text-indigo-600 mt-0.5 mr-3 flex-shrink-0'
+													fill='none'
+													viewBox='0 0 24 24'
+													stroke='currentColor'>
+													<path
+														strokeLinecap='round'
+														strokeLinejoin='round'
+														strokeWidth={2}
+														d='M5 13l4 4L19 7'
+													/>
+												</svg>
+												<span className='text-gray-600'>
+													Optimisé pour une utilisation
+													intensive
+												</span>
+											</li>
+											<li className='flex items-start'>
+												<svg
+													className='h-6 w-6 text-indigo-600 mt-0.5 mr-3 flex-shrink-0'
+													fill='none'
+													viewBox='0 0 24 24'
+													stroke='currentColor'>
+													<path
+														strokeLinecap='round'
+														strokeLinejoin='round'
+														strokeWidth={2}
+														d='M5 13l4 4L19 7'
+													/>
+												</svg>
+												<span className='text-gray-600'>
+													Efficacité énergétique améliorée
+												</span>
+											</li>
+										</ul>
+									</motion.div>
+
+									{product.images.length > 4 && (
+										<motion.div
+											initial={{ opacity: 0, x: -50 }}
+											whileInView={{ opacity: 1, x: 0 }}
+											viewport={{ once: true, margin: '-100px' }}
+											transition={{ duration: 0.6 }}
+											className='md:w-1/2'>
+											<div className='relative aspect-square rounded-2xl overflow-hidden shadow-md bg-white p-4'>
+												<Image
+													src={
+														product.images[
+															Math.min(
+																4,
+																product.images
+																	.length - 1
+															)
+														]?.src ||
+														product.images[0].src
+													}
+													alt={product.name}
+													fill
+													className='object-contain'
+													sizes='(max-width: 768px) 100vw, 600px'
+												/>
+											</div>
+										</motion.div>
+									)}
+								</div>
 							</div>
-
-							{/* Bloc de texte "Conçu pour l'excellence" + petite image à droite */}
-							<div className='flex flex-col md:flex-row items-center gap-12'>
-								<motion.div
-									initial={{ opacity: 0, x: -50 }}
-									whileInView={{ opacity: 1, x: 0 }}
-									viewport={{ once: true, margin: '-100px' }}
-									transition={{ duration: 0.6 }}
-									className='md:w-1/2'>
-									<h3 className='text-2xl font-bold text-gray-900 mb-4'>
-										Conçu pour l'excellence
-									</h3>
-									<p className='text-lg text-gray-600 mb-6'>
-										Chaque détail a été soigneusement pensé
-										pour offrir une expérience utilisateur
-										exceptionnelle. Des matériaux de haute
-										qualité aux finitions impeccables, ce
-										produit incarne l'excellence.
-									</p>
-									<ul className='space-y-4'>
-										<li className='flex items-start'>
-											<svg
-												className='h-6 w-6 text-indigo-600 mt-0.5 mr-3 flex-shrink-0'
-												fill='none'
-												viewBox='0 0 24 24'
-												stroke='currentColor'>
-												<path
-													strokeLinecap='round'
-													strokeLinejoin='round'
-													strokeWidth={2}
-													d='M5 13l4 4L19 7'
-												/>
-											</svg>
-											<span className='text-gray-600'>
-												Matériaux durables et
-												écologiques
-											</span>
-										</li>
-										<li className='flex items-start'>
-											<svg
-												className='h-6 w-6 text-indigo-600 mt-0.5 mr-3 flex-shrink-0'
-												fill='none'
-												viewBox='0 0 24 24'
-												stroke='currentColor'>
-												<path
-													strokeLinecap='round'
-													strokeLinejoin='round'
-													strokeWidth={2}
-													d='M5 13l4 4L19 7'
-												/>
-											</svg>
-											<span className='text-gray-600'>
-												Design ergonomique pour un
-												confort optimal
-											</span>
-										</li>
-										<li className='flex items-start'>
-											<svg
-												className='h-6 w-6 text-indigo-600 mt-0.5 mr-3 flex-shrink-0'
-												fill='none'
-												viewBox='0 0 24 24'
-												stroke='currentColor'>
-												<path
-													strokeLinecap='round'
-													strokeLinejoin='round'
-													strokeWidth={2}
-													d='M5 13l4 4L19 7'
-												/>
-											</svg>
-											<span className='text-gray-600'>
-												Finitions de qualité supérieure
-											</span>
-										</li>
-									</ul>
-								</motion.div>
-
-								<motion.div
-									initial={{ opacity: 0, x: 50 }}
-									whileInView={{ opacity: 1, x: 0 }}
-									viewport={{ once: true, margin: '-100px' }}
-									transition={{ duration: 0.6 }}
-									className='md:w-1/2'>
-									<div className='relative aspect-square rounded-2xl overflow-hidden shadow-md bg-white p-4'>
-										{product.images &&
-										product.images.length > 3 ? (
-											<Image
-												src={
-													product.images[
-														Math.min(
-															3,
-															product.images
-																.length - 1
-														)
-													]?.src ||
-													product.images[0].src
-												}
-												alt={product.name}
-												fill
-												className='object-contain'
-												sizes='(max-width: 768px) 100vw, 600px'
-											/>
-										) : (
-											<div className='w-full h-full bg-gray-100 flex items-center justify-center'>
-												<svg
-													className='h-16 w-16 text-gray-400'
-													fill='none'
-													viewBox='0 0 24 24'
-													stroke='currentColor'>
-													<path
-														strokeLinecap='round'
-														strokeLinejoin='round'
-														strokeWidth={2}
-														d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
-													/>
-												</svg>
-											</div>
-										)}
-									</div>
-								</motion.div>
-							</div>
-
-							{/* Deuxième rangée (inversée) : texte + image */}
-							<div className='flex flex-col md:flex-row-reverse items-center gap-12'>
-								<motion.div
-									initial={{ opacity: 0, x: 50 }}
-									whileInView={{ opacity: 1, x: 0 }}
-									viewport={{ once: true, margin: '-100px' }}
-									transition={{ duration: 0.6 }}
-									className='md:w-1/2'>
-									<h3 className='text-2xl font-bold text-gray-900 mb-4'>
-										Des performances inégalées
-									</h3>
-									<p className='text-lg text-gray-600 mb-6'>
-										Profitez de performances exceptionnelles
-										jour après jour. Ce produit a été conçu
-										pour offrir une efficacité maximale et
-										une expérience utilisateur fluide dans
-										toutes les situations.
-									</p>
-									<ul className='space-y-4'>
-										<li className='flex items-start'>
-											<svg
-												className='h-6 w-6 text-indigo-600 mt-0.5 mr-3 flex-shrink-0'
-												fill='none'
-												viewBox='0 0 24 24'
-												stroke='currentColor'>
-												<path
-													strokeLinecap='round'
-													strokeLinejoin='round'
-													strokeWidth={2}
-													d='M5 13l4 4L19 7'
-												/>
-											</svg>
-											<span className='text-gray-600'>
-												Fonctionnement rapide et réactif
-											</span>
-										</li>
-										<li className='flex items-start'>
-											<svg
-												className='h-6 w-6 text-indigo-600 mt-0.5 mr-3 flex-shrink-0'
-												fill='none'
-												viewBox='0 0 24 24'
-												stroke='currentColor'>
-												<path
-													strokeLinecap='round'
-													strokeLinejoin='round'
-													strokeWidth={2}
-													d='M5 13l4 4L19 7'
-												/>
-											</svg>
-											<span className='text-gray-600'>
-												Optimisé pour une utilisation
-												intensive
-											</span>
-										</li>
-										<li className='flex items-start'>
-											<svg
-												className='h-6 w-6 text-indigo-600 mt-0.5 mr-3 flex-shrink-0'
-												fill='none'
-												viewBox='0 0 24 24'
-												stroke='currentColor'>
-												<path
-													strokeLinecap='round'
-													strokeLinejoin='round'
-													strokeWidth={2}
-													d='M5 13l4 4L19 7'
-												/>
-											</svg>
-											<span className='text-gray-600'>
-												Efficacité énergétique améliorée
-											</span>
-										</li>
-									</ul>
-								</motion.div>
-
-								<motion.div
-									initial={{ opacity: 0, x: -50 }}
-									whileInView={{ opacity: 1, x: 0 }}
-									viewport={{ once: true, margin: '-100px' }}
-									transition={{ duration: 0.6 }}
-									className='md:w-1/2'>
-									<div className='relative aspect-square rounded-2xl overflow-hidden shadow-md bg-white p-4'>
-										{product.images &&
-										product.images.length > 4 ? (
-											<Image
-												src={
-													product.images[
-														Math.min(
-															4,
-															product.images
-																.length - 1
-														)
-													]?.src ||
-													product.images[0].src
-												}
-												alt={product.name}
-												fill
-												className='object-contain'
-												sizes='(max-width: 768px) 100vw, 600px'
-											/>
-										) : (
-											<div className='w-full h-full bg-gray-100 flex items-center justify-center'>
-												<svg
-													className='h-16 w-16 text-gray-400'
-													fill='none'
-													viewBox='0 0 24 24'
-													stroke='currentColor'>
-													<path
-														strokeLinecap='round'
-														strokeLinejoin='round'
-														strokeWidth={2}
-														d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
-													/>
-												</svg>
-											</div>
-										)}
-									</div>
-								</motion.div>
-							</div>
-						</div>
+						)}
 					</div>
 				</section>
 
