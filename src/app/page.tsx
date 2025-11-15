@@ -9,6 +9,9 @@ import ImprovedTestimonials from '@/components/Testimonials';
 import NewsletterSection from '@/components/NewsletterSection';
 import { WooProduct } from '@/lib/woo';
 
+// Configuration de revalidation - régénère la page toutes les heures
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
 	title: 'Selectura | Boutique Premium de Produits Sélectionnés avec Expertise',
 	description: 'Découvrez notre sélection exclusive de produits de qualité supérieure. Une approche différente du commerce en ligne : moins de choix, mais l\'excellence garantie. Qualité testée, support premium.',

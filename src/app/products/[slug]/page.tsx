@@ -5,6 +5,9 @@ import { getProducts, WooProduct } from '@/lib/woo';
 import ProductDetailContent from '@/components/ProductDetailContent';
 import ProductSchema from '@/components/ProductSchema';
 
+// Configuration de revalidation - régénère la page toutes les 30 minutes
+export const revalidate = 1800;
+
 // Interface pour les propriétés de la page
 interface PageProps {
   params: Promise<{

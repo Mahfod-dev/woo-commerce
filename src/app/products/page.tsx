@@ -3,6 +3,9 @@ import { Metadata } from 'next';
 import FocusedProductsPage from '@/components/FocusedProductPage';
 import { getProducts, WooProduct } from '@/lib/woo';
 
+// Configuration de revalidation - régénère la page toutes les 30 minutes
+export const revalidate = 1800;
+
 export const metadata: Metadata = {
 	title: 'Nos Produits | Catalogue Premium Selectura - Sélection Experte',
 	description: 'Explorez notre catalogue soigneusement sélectionné de produits de qualité supérieure. Chaque produit est testé et approuvé par nos experts pour sa qualité exceptionnelle et sa durabilité.',

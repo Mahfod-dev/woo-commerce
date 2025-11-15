@@ -5,6 +5,9 @@ import { getCategories, getProductsByCategory, getSubcategories } from '@/lib/wo
 import CategoryPageContent from '@/components/CategoryPageContent';
 import '../../styles/categories.css';
 
+// Configuration de revalidation - régénère la page toutes les 30 minutes
+export const revalidate = 1800;
+
 // Interface pour les propriétés de la page
 interface PageProps {
   params: Promise<{
