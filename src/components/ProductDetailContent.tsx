@@ -577,13 +577,30 @@ export default function AppleStyleProductDetail({
 								initial={{ opacity: 0, y: 30 }}
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ duration: 0.8 }}
-								className='max-w-4xl mx-auto mb-16'>
+								className='max-w-4xl mx-auto mb-12'>
 								<ProductGallery
 									images={product.images}
 									productName={product.name}
 								/>
 							</motion.div>
 						</div>
+
+						{/* Description complète du produit */}
+						<motion.div
+							initial={{ opacity: 0, y: 20 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ duration: 0.6, delay: 0.2 }}
+							className='max-w-4xl mx-auto mt-12'>
+							<div className='bg-gray-50 rounded-2xl p-8 md:p-10'>
+								<h3 className='text-2xl font-bold text-gray-900 mb-6'>
+									Description
+								</h3>
+								<div
+									className='prose prose-lg max-w-none text-gray-700 leading-relaxed'
+									dangerouslySetInnerHTML={{ __html: product.description }}
+								/>
+							</div>
+						</motion.div>
 					</div>
 				</section>
 
