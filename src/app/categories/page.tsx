@@ -4,9 +4,12 @@ import { getCategories } from '@/lib/woo';
 import CategoriesPageContent from '@/components/CategoriesPageContent';
 import '../styles/categories.css';
 
+// Configuration ISR - Revalidation toutes les heures
+export const revalidate = 3600;
+
 // Métadonnées pour le SEO
 export const metadata = {
-	title: 'Catégories | Votre Boutique',
+	title: 'Catégories | Selectura',
 	description:
 		'Explorez toutes nos catégories de produits et trouvez exactement ce que vous cherchez.',
 };

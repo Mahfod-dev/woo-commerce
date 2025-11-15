@@ -124,6 +124,106 @@ export default async function OptimizedHomePage() {
 			{/* Hero Carousel */}
 			<HeroCarousel />
 
+			{/* Section Catégories - Explorez par thème */}
+			<ImprovedCategoriesSection categories={categories} />
+
+			{/* Bannière informative provenance et délais */}
+			<div className='bg-gradient-to-r from-blue-100 to-indigo-100 border-y border-indigo-200'>
+				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12'>
+					<div className='text-center mb-8'>
+						<h2 className='text-2xl font-bold text-gray-900 mb-2'>
+							Provenance et Qualité
+						</h2>
+						<p className='text-gray-600 max-w-3xl mx-auto'>
+							Notre sélection rigoureuse privilégie la qualité avant tout
+						</p>
+					</div>
+
+					<div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
+						{/* Provenance Europe/USA */}
+						<div className='bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow'>
+							<div className='flex items-center justify-center mb-4'>
+								<div className='rounded-full bg-blue-100 p-3 w-14 h-14 flex items-center justify-center'>
+									<svg
+										className='h-7 w-7 text-blue-600'
+										fill='none'
+										viewBox='0 0 24 24'
+										stroke='currentColor'>
+										<path
+											strokeLinecap='round'
+											strokeLinejoin='round'
+											strokeWidth={2}
+											d='M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+										/>
+									</svg>
+								</div>
+							</div>
+							<h3 className='text-lg font-semibold text-gray-900 mb-2 text-center'>
+								Origine Europe & USA
+							</h3>
+							<p className='text-gray-600 text-center text-sm'>
+								Tous nos produits proviennent d'Europe ou des États-Unis,
+								garantissant les meilleurs standards de qualité.
+							</p>
+						</div>
+
+						{/* Délais de livraison */}
+						<div className='bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow'>
+							<div className='flex items-center justify-center mb-4'>
+								<div className='rounded-full bg-indigo-100 p-3 w-14 h-14 flex items-center justify-center'>
+									<svg
+										className='h-7 w-7 text-indigo-600'
+										fill='none'
+										viewBox='0 0 24 24'
+										stroke='currentColor'>
+										<path
+											strokeLinecap='round'
+											strokeLinejoin='round'
+											strokeWidth={2}
+											d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
+										/>
+									</svg>
+								</div>
+							</div>
+							<h3 className='text-lg font-semibold text-gray-900 mb-2 text-center'>
+								Livraison 3 à 14 jours
+							</h3>
+							<p className='text-gray-600 text-center text-sm'>
+								Les délais varient selon la provenance du produit.
+								Chaque fiche produit indique le délai estimé.
+							</p>
+						</div>
+
+						{/* Qualité avant tout */}
+						<div className='bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow'>
+							<div className='flex items-center justify-center mb-4'>
+								<div className='rounded-full bg-green-100 p-3 w-14 h-14 flex items-center justify-center'>
+									<svg
+										className='h-7 w-7 text-green-600'
+										fill='none'
+										viewBox='0 0 24 24'
+										stroke='currentColor'>
+										<path
+											strokeLinecap='round'
+											strokeLinejoin='round'
+											strokeWidth={2}
+											d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
+										/>
+									</svg>
+								</div>
+							</div>
+							<h3 className='text-lg font-semibold text-gray-900 mb-2 text-center'>
+								Qualité Premium
+							</h3>
+							<p className='text-gray-600 text-center text-sm'>
+								Notre choix se porte exclusivement sur la qualité,
+								pas sur la rapidité. Chaque produit est sélectionné avec soin.
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			{/* Produits Phares Focalisés */}
 			<FocusedProductShowcase
 				featuredProducts={convertedFeaturedProducts}
@@ -340,9 +440,6 @@ export default async function OptimizedHomePage() {
 					</div>
 				</div>
 			</section>
-
-			{/* Categories Section */}
-			<ImprovedCategoriesSection categories={categories} />
 
 			{/* Testimonials */}
 			<ImprovedTestimonials />
