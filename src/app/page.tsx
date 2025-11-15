@@ -136,36 +136,28 @@ export default async function OptimizedHomePage() {
 						</p>
 					</div>
 
-					<div className='max-w-5xl mx-auto'>
-						<div className='relative rounded-2xl overflow-hidden shadow-2xl bg-gray-900 aspect-video'>
-							{/* Remplace cette URL par ton lien vidéo YouTube/Vimeo ou vidéo uploadée */}
-							{/* Pour YouTube : https://www.youtube.com/embed/TON_VIDEO_ID */}
-							{/* Pour vidéo uploadée : /videos/promo.mp4 */}
-							<iframe
-								className='absolute inset-0 w-full h-full'
-								src='https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&mute=0&controls=1&rel=0&modestbranding=1'
-								title='Vidéo de présentation Selectura'
-								allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
-								allowFullScreen
-							/>
-							{/* Alternative : Vidéo HTML5 uploadée
+					{/* Vidéo format portrait 9:16 */}
+					<div className='flex justify-center'>
+						<div className='relative rounded-2xl overflow-hidden shadow-2xl bg-gray-900 w-full max-w-md' style={{ aspectRatio: '9/16' }}>
 							<video
 								className='absolute inset-0 w-full h-full object-cover'
 								controls
-								poster='/images/video-poster.jpg'
+								autoPlay
+								muted
+								loop
+								playsInline
 							>
-								<source src='/videos/promo.mp4' type='video/mp4' />
+								<source src='/videos/selectura.mp4' type='video/mp4' />
 								Votre navigateur ne supporte pas la vidéo.
 							</video>
-							*/}
 						</div>
+					</div>
 
-						{/* Texte sous la vidéo (optionnel) */}
-						<div className='mt-8 text-center'>
-							<p className='text-gray-600'>
-								Qualité premium • Sélection rigoureuse • Livraison Europe & USA
-							</p>
-						</div>
+					{/* Texte sous la vidéo */}
+					<div className='mt-8 text-center'>
+						<p className='text-gray-600'>
+							Qualité premium • Sélection rigoureuse • Livraison Europe & USA
+						</p>
 					</div>
 				</div>
 			</section>
