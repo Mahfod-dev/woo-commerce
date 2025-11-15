@@ -113,8 +113,8 @@ export default function CategoriesPageContent({
 											</h3>
 											<div className='flex items-center justify-between'>
 												<span className='text-sm text-gray-600'>
-													{category.count}{' '}
-													{category.count > 1
+													{category.count ?? 0}{' '}
+													{(category.count ?? 0) > 1
 														? 'produits'
 														: 'produit'}
 												</span>
