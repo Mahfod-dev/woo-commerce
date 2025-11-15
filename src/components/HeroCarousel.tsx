@@ -164,7 +164,7 @@ const HeroCarousel = () => {
 
 								{/* Contenu principal */}
 								<div className='relative z-10 h-full flex items-center'>
-									<div className='max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 w-full'>
+									<div className='max-w-7xl mx-auto px-4 sm:px-8 lg:px-8 w-full'>
 										{slide.layout === 'split' && (
 											<div className='grid lg:grid-cols-2 gap-8 lg:gap-12 items-center'>
 												{/* Contenu texte */}
@@ -172,10 +172,10 @@ const HeroCarousel = () => {
 													initial={{ opacity: 0, x: -50 }}
 													animate={{ opacity: 1, x: 0 }}
 													transition={{ duration: 1, delay: 0.3 }}
-													className='space-y-6 md:space-y-8'>
+													className='space-y-3 sm:space-y-6 md:space-y-8'>
 													<div>
-														<motion.h1 
-															className='text-3xl sm:text-4xl md:text-6xl lg:text-8xl font-black text-white leading-tight'
+														<motion.h1
+															className='text-xl sm:text-5xl md:text-6xl lg:text-8xl font-black text-white leading-tight sm:leading-[1.1]'
 															initial={{ opacity: 0, y: 50 }}
 															animate={{ opacity: 1, y: 0 }}
 															transition={{ duration: 0.8, delay: 0.5 }}
@@ -189,7 +189,7 @@ const HeroCarousel = () => {
 													</div>
 
 													<motion.p
-														className='text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 leading-relaxed max-w-lg'
+														className='text-xs sm:text-base md:text-lg lg:text-xl text-white/90 leading-relaxed max-w-lg'
 														initial={{ opacity: 0, y: 30 }}
 														animate={{ opacity: 1, y: 0 }}
 														transition={{ duration: 0.8, delay: 0.7 }}
