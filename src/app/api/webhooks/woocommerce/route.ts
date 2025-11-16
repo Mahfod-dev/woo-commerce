@@ -68,30 +68,49 @@ export async function POST(request: NextRequest) {
       }
 
       if (!jsonString) {
-        // Pas de payload JSON trouvé - WooCommerce n'envoie que l'ID
-        console.log('⚠️ No JSON payload found in body');
+        // Pas de payload JSON trouvé - WooCommerce v3 n'envoie que l'ID
+        console.log('⚠️ No JSON payload found in body - WooCommerce is sending only webhook_id');
 
-        // Extraire l'ID du webhook si disponible
-        const webhookIdPair = pairs.find(p => p.startsWith('webhook_id='));
-        if (webhookIdPair) {
-          const webhookId = decodeURIComponent(webhookIdPair.split('=')[1]);
-          console.log(`📝 Webhook ID: ${webhookId}`);
+        // Extraire l'ID de la commande depuis l'URL ou les headers
+        const resourceId = request.headers.get('x-wc-webhook-resource-id');
+
+        if (!resourceId) {
+          console.error('❌ No resource ID found in webhook headers');
+          return NextResponse.json({
+            success: false,
+            error: 'No order ID in webhook'
+          }, { status: 400 });
         }
 
-        // On doit récupérer les données via l'API WooCommerce
-        // Pour l'instant, on retourne une erreur explicite
-        console.error('❌ WooCommerce webhook misconfigured: no order data in payload');
-        console.error('💡 Solution: In WooCommerce webhook settings, ensure "Payload" is set to send order data');
+        console.log(`📝 Order ID from webhook: ${resourceId}`);
 
-        return NextResponse.json({
-          success: false,
-          error: 'No order data in webhook payload',
-          hint: 'Check WooCommerce webhook "Payload" or "Delivery" settings'
-        });
+        // Récupérer les données de la commande via l'API WooCommerce
+        console.log('🔄 Fetching order data from WooCommerce API...');
+
+        try {
+          const WooCommerceRestApi = require('@woocommerce/woocommerce-rest-api').default;
+          const api = new WooCommerceRestApi({
+            url: process.env.URL_WORDPRESS!,
+            consumerKey: process.env.WOOCOMMERCE_CONSUMER_KEY!,
+            consumerSecret: process.env.WOOCOMMERCE_CONSUMER_SECRET!,
+            version: 'wc/v3'
+          });
+
+          const response = await api.get(`orders/${resourceId}`);
+          payload = response.data;
+          console.log('✅ Successfully fetched order data from WooCommerce API');
+        } catch (error) {
+          console.error('❌ Error fetching order from WooCommerce API:', error);
+          return NextResponse.json({
+            success: false,
+            error: 'Failed to fetch order data from WooCommerce'
+          }, { status: 500 });
+        }
+      } else {
+        // On a trouvé du JSON dans le body URL-encoded
+        payload = JSON.parse(jsonString);
+        console.log('✅ Successfully parsed URL-encoded payload');
       }
-
-      payload = JSON.parse(jsonString);
-      console.log('✅ Successfully parsed URL-encoded payload');
     }
 
     console.log('🔔 Webhook received from WooCommerce');
