@@ -30,10 +30,9 @@ export async function POST(request: NextRequest) {
     console.log('📨 Content-Type:', contentType);
 
     let payload: any;
-    let body: string;
 
     // WooCommerce envoie toujours en JSON dans le body
-    body = await request.text();
+    const body = await request.text();
     console.log('📄 Raw body:', body.substring(0, 200));
 
     try {
