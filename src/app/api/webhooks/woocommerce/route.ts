@@ -72,14 +72,34 @@ export async function POST(request: NextRequest) {
         // Pas de payload JSON trouvé - WooCommerce v3 n'envoie que l'ID
         console.log('⚠️ No JSON payload found in body - WooCommerce is sending only webhook_id');
 
-        // Extraire l'ID de la commande depuis l'URL ou les headers
-        const resourceId = request.headers.get('x-wc-webhook-resource-id');
+        // Afficher tous les headers pour debug
+        console.log('📋 All webhook headers:');
+        request.headers.forEach((value, key) => {
+          console.log(`  ${key}: ${value}`);
+        });
+
+        // Essayer différents headers possibles
+        const resourceId =
+          request.headers.get('x-wc-webhook-resource-id') ||
+          request.headers.get('x-wc-webhook-resource') ||
+          request.headers.get('x-webhook-resource-id');
 
         if (!resourceId) {
           console.error('❌ No resource ID found in webhook headers');
+          console.log('💡 Trying to extract order ID from webhook delivery URL or topic...');
+
+          // Essayer d'extraire depuis le topic ou d'autres sources
+          const topic = request.headers.get('x-wc-webhook-topic');
+          console.log(`📋 Topic: ${topic}`);
+
           return NextResponse.json({
             success: false,
-            error: 'No order ID in webhook'
+            error: 'No order ID in webhook',
+            debug: {
+              topic: topic,
+              body: body,
+              headers: Object.fromEntries(request.headers.entries())
+            }
           }, { status: 400 });
         }
 
