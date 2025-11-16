@@ -31,44 +31,48 @@ export async function POST(request: NextRequest) {
 
     let payload: any;
 
-    // WooCommerce envoie toujours en JSON dans le body
+    // Lire le body brut
     const body = await request.text();
-    console.log('📄 Raw body:', body.substring(0, 500));
+    console.log('📄 Raw body (first 500 chars):', body.substring(0, 500));
 
-    try {
-      // Essayer de parser directement en JSON
+    // Vérifier si c'est du JSON direct
+    if (body.trim().startsWith('{') || body.trim().startsWith('[')) {
+      console.log('✅ Body starts with JSON, parsing directly');
       payload = JSON.parse(body);
-      console.log('✅ Parsed as JSON directly');
-    } catch (e) {
-      // Si ça échoue, c'est URL-encoded (application/x-www-form-urlencoded)
-      console.log('⚠️ Not JSON, parsing as URL-encoded...');
+    } else {
+      // C'est du form-urlencoded, parser manuellement
+      console.log('⚠️ Not JSON, parsing as URL-encoded (format: key=value&key2=value2)');
 
-      // Parser les paramètres URL-encoded
-      const params = new URLSearchParams(body);
+      // Split par & pour avoir les paires clé=valeur
+      const pairs = body.split('&');
+      console.log(`📊 Found ${pairs.length} parameter pairs`);
 
-      // WooCommerce envoie le JSON dans un paramètre (souvent sans nom de clé ou dans 'arg')
       let jsonString = null;
 
-      // Essayer différentes clés possibles
-      for (const [key, value] of params.entries()) {
-        console.log(`🔑 Param: ${key} = ${value.substring(0, 100)}...`);
+      for (const pair of pairs) {
+        const [key, ...valueParts] = pair.split('=');
+        const value = valueParts.join('='); // Au cas où il y a des = dans la valeur
 
-        // Si la valeur commence par { ou [, c'est probablement le JSON
-        if (value.trim().startsWith('{') || value.trim().startsWith('[')) {
-          jsonString = value;
-          console.log(`✅ Found JSON in param: ${key}`);
+        const decodedKey = decodeURIComponent(key || '');
+        const decodedValue = decodeURIComponent(value || '');
+
+        console.log(`🔑 Key: "${decodedKey}" | Value (first 100 chars): "${decodedValue.substring(0, 100)}..."`);
+
+        // Vérifier si la valeur est du JSON
+        const trimmedValue = decodedValue.trim();
+        if (trimmedValue.startsWith('{') || trimmedValue.startsWith('[')) {
+          jsonString = trimmedValue;
+          console.log(`✅ Found JSON in key: "${decodedKey}"`);
           break;
         }
       }
 
       if (!jsonString) {
-        // Si aucun paramètre ne contient de JSON, le body entier est peut-être le JSON encodé
-        jsonString = decodeURIComponent(body);
-        console.log('🔄 Trying to parse entire decoded body as JSON');
+        throw new Error('No JSON payload found in request body');
       }
 
       payload = JSON.parse(jsonString);
-      console.log('✅ Parsed URL-encoded payload');
+      console.log('✅ Successfully parsed URL-encoded payload');
     }
 
     console.log('🔔 Webhook received from WooCommerce');
