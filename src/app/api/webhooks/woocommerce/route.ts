@@ -68,7 +68,26 @@ export async function POST(request: NextRequest) {
       }
 
       if (!jsonString) {
-        throw new Error('No JSON payload found in request body');
+        // Pas de payload JSON trouvé - WooCommerce n'envoie que l'ID
+        console.log('⚠️ No JSON payload found in body');
+
+        // Extraire l'ID du webhook si disponible
+        const webhookIdPair = pairs.find(p => p.startsWith('webhook_id='));
+        if (webhookIdPair) {
+          const webhookId = decodeURIComponent(webhookIdPair.split('=')[1]);
+          console.log(`📝 Webhook ID: ${webhookId}`);
+        }
+
+        // On doit récupérer les données via l'API WooCommerce
+        // Pour l'instant, on retourne une erreur explicite
+        console.error('❌ WooCommerce webhook misconfigured: no order data in payload');
+        console.error('💡 Solution: In WooCommerce webhook settings, ensure "Payload" is set to send order data');
+
+        return NextResponse.json({
+          success: false,
+          error: 'No order data in webhook payload',
+          hint: 'Check WooCommerce webhook "Payload" or "Delivery" settings'
+        });
       }
 
       payload = JSON.parse(jsonString);
@@ -78,7 +97,7 @@ export async function POST(request: NextRequest) {
     console.log('🔔 Webhook received from WooCommerce');
     console.log('📋 Topic:', request.headers.get('x-wc-webhook-topic'));
     console.log('📦 Payload:', payload);
-    console.log('🆔 Order ID:', payload.id);
+    console.log('🆔 Order ID:', payload?.id || 'NO ID FOUND');
 
     // Vérifier la signature du webhook (sécurité)
     const signature = request.headers.get('x-wc-webhook-signature');
