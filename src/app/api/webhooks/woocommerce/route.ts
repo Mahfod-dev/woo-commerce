@@ -69,8 +69,8 @@ export async function POST(request: NextRequest) {
       }
 
       if (!jsonString) {
-        // Pas de payload JSON trouvé - WooCommerce v3 n'envoie que l'ID
-        console.log('⚠️ No JSON payload found in body - WooCommerce is sending only webhook_id');
+        // C'est probablement un ping de test de WooCommerce
+        console.log('⚠️ No JSON payload found - likely a WooCommerce webhook test ping');
 
         // Afficher tous les headers pour debug
         console.log('📋 All webhook headers:');
@@ -78,54 +78,19 @@ export async function POST(request: NextRequest) {
           console.log(`  ${key}: ${value}`);
         });
 
-        // Essayer différents headers possibles
-        const resourceId =
-          request.headers.get('x-wc-webhook-resource-id') ||
-          request.headers.get('x-wc-webhook-resource') ||
-          request.headers.get('x-webhook-resource-id');
+        const webhookId = pairs.find(p => p.startsWith('webhook_id='))
+          ?.split('=')[1];
 
-        if (!resourceId) {
-          console.error('❌ No resource ID found in webhook headers');
-          console.log('💡 Trying to extract order ID from webhook delivery URL or topic...');
+        console.log(`📝 This is a test ping for webhook ID: ${webhookId}`);
+        console.log('💡 This is normal when saving a webhook in WooCommerce');
+        console.log('✅ Test ping received successfully - webhook endpoint is reachable');
 
-          // Essayer d'extraire depuis le topic ou d'autres sources
-          const topic = request.headers.get('x-wc-webhook-topic');
-          console.log(`📋 Topic: ${topic}`);
-
-          return NextResponse.json({
-            success: false,
-            error: 'No order ID in webhook',
-            debug: {
-              topic: topic,
-              body: body,
-              headers: Object.fromEntries(request.headers.entries())
-            }
-          }, { status: 400 });
-        }
-
-        console.log(`📝 Order ID from webhook: ${resourceId}`);
-
-        // Récupérer les données de la commande via l'API WooCommerce
-        console.log('🔄 Fetching order data from WooCommerce API...');
-
-        try {
-          const api = new WooCommerceRestApi({
-            url: process.env.URL_WORDPRESS!,
-            consumerKey: process.env.WOOCOMMERCE_CONSUMER_KEY!,
-            consumerSecret: process.env.WOOCOMMERCE_CONSUMER_SECRET!,
-            version: 'wc/v3'
-          });
-
-          const response = await api.get(`orders/${resourceId}`);
-          payload = response.data;
-          console.log('✅ Successfully fetched order data from WooCommerce API');
-        } catch (error) {
-          console.error('❌ Error fetching order from WooCommerce API:', error);
-          return NextResponse.json({
-            success: false,
-            error: 'Failed to fetch order data from WooCommerce'
-          }, { status: 500 });
-        }
+        // Retourner 200 pour que WooCommerce sache que le webhook fonctionne
+        return NextResponse.json({
+          success: true,
+          message: 'Webhook test ping received',
+          webhook_id: webhookId
+        });
       } else {
         // On a trouvé du JSON dans le body URL-encoded
         payload = JSON.parse(jsonString);
