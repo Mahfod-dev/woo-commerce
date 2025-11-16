@@ -33,27 +33,42 @@ export async function POST(request: NextRequest) {
 
     // WooCommerce envoie toujours en JSON dans le body
     const body = await request.text();
-    console.log('📄 Raw body:', body.substring(0, 200));
+    console.log('📄 Raw body:', body.substring(0, 500));
 
     try {
       // Essayer de parser directement en JSON
       payload = JSON.parse(body);
+      console.log('✅ Parsed as JSON directly');
     } catch (e) {
-      // Si ça échoue, c'est peut-être URL-encoded
-      console.log('⚠️ Not JSON, trying URL decode...');
+      // Si ça échoue, c'est URL-encoded (application/x-www-form-urlencoded)
+      console.log('⚠️ Not JSON, parsing as URL-encoded...');
 
-      // Décoder l'URL encoding
-      const decoded = decodeURIComponent(body);
-      console.log('🔓 Decoded body:', decoded.substring(0, 200));
+      // Parser les paramètres URL-encoded
+      const params = new URLSearchParams(body);
 
-      // Extraire le JSON (format WooCommerce : "arg=<JSON>&other=value")
-      const match = decoded.match(/arg=(.+?)(&|$)/);
-      if (match && match[1]) {
-        payload = JSON.parse(match[1]);
-      } else {
-        // Essayer de parser le body décodé directement
-        payload = JSON.parse(decoded);
+      // WooCommerce envoie le JSON dans un paramètre (souvent sans nom de clé ou dans 'arg')
+      let jsonString = null;
+
+      // Essayer différentes clés possibles
+      for (const [key, value] of params.entries()) {
+        console.log(`🔑 Param: ${key} = ${value.substring(0, 100)}...`);
+
+        // Si la valeur commence par { ou [, c'est probablement le JSON
+        if (value.trim().startsWith('{') || value.trim().startsWith('[')) {
+          jsonString = value;
+          console.log(`✅ Found JSON in param: ${key}`);
+          break;
+        }
       }
+
+      if (!jsonString) {
+        // Si aucun paramètre ne contient de JSON, le body entier est peut-être le JSON encodé
+        jsonString = decodeURIComponent(body);
+        console.log('🔄 Trying to parse entire decoded body as JSON');
+      }
+
+      payload = JSON.parse(jsonString);
+      console.log('✅ Parsed URL-encoded payload');
     }
 
     console.log('🔔 Webhook received from WooCommerce');
