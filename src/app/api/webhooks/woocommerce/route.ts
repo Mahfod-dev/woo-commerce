@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/lib/supabase/types';
+import WooCommerceRestApi from '@woocommerce/woocommerce-rest-api';
 
 // Créer le client Supabase avec la clé service pour bypass RLS
 const supabase = createClient<Database>(
@@ -88,7 +89,6 @@ export async function POST(request: NextRequest) {
         console.log('🔄 Fetching order data from WooCommerce API...');
 
         try {
-          const WooCommerceRestApi = require('@woocommerce/woocommerce-rest-api').default;
           const api = new WooCommerceRestApi({
             url: process.env.URL_WORDPRESS!,
             consumerKey: process.env.WOOCOMMERCE_CONSUMER_KEY!,
