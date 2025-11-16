@@ -27,28 +27,34 @@ const supabase = createClient<Database>(
 export async function POST(request: NextRequest) {
   try {
     const contentType = request.headers.get('content-type') || '';
+    console.log('📨 Content-Type:', contentType);
+
     let payload: any;
     let body: string;
 
-    // WooCommerce peut envoyer en JSON ou en form-urlencoded
-    if (contentType.includes('application/json')) {
-      body = await request.text();
+    // WooCommerce envoie toujours en JSON dans le body
+    body = await request.text();
+    console.log('📄 Raw body:', body.substring(0, 200));
+
+    try {
+      // Essayer de parser directement en JSON
       payload = JSON.parse(body);
-    } else {
-      // Form-urlencoded - récupérer le JSON depuis le paramètre
-      const formData = await request.formData();
-      const jsonData = formData.get('arg') || formData.get('payload');
+    } catch (e) {
+      // Si ça échoue, c'est peut-être URL-encoded
+      console.log('⚠️ Not JSON, trying URL decode...');
 
-      if (!jsonData) {
-        console.error('❌ No payload found in form data');
-        return NextResponse.json(
-          { error: 'No payload' },
-          { status: 400 }
-        );
+      // Décoder l'URL encoding
+      const decoded = decodeURIComponent(body);
+      console.log('🔓 Decoded body:', decoded.substring(0, 200));
+
+      // Extraire le JSON (format WooCommerce : "arg=<JSON>&other=value")
+      const match = decoded.match(/arg=(.+?)(&|$)/);
+      if (match && match[1]) {
+        payload = JSON.parse(match[1]);
+      } else {
+        // Essayer de parser le body décodé directement
+        payload = JSON.parse(decoded);
       }
-
-      payload = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
-      body = JSON.stringify(payload);
     }
 
     console.log('🔔 Webhook received from WooCommerce');
