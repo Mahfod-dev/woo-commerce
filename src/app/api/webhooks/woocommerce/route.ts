@@ -26,11 +26,34 @@ const supabase = createClient<Database>(
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.text();
-    const payload = JSON.parse(body);
+    const contentType = request.headers.get('content-type') || '';
+    let payload: any;
+    let body: string;
+
+    // WooCommerce peut envoyer en JSON ou en form-urlencoded
+    if (contentType.includes('application/json')) {
+      body = await request.text();
+      payload = JSON.parse(body);
+    } else {
+      // Form-urlencoded - récupérer le JSON depuis le paramètre
+      const formData = await request.formData();
+      const jsonData = formData.get('arg') || formData.get('payload');
+
+      if (!jsonData) {
+        console.error('❌ No payload found in form data');
+        return NextResponse.json(
+          { error: 'No payload' },
+          { status: 400 }
+        );
+      }
+
+      payload = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
+      body = JSON.stringify(payload);
+    }
 
     console.log('🔔 Webhook received from WooCommerce');
     console.log('📋 Topic:', request.headers.get('x-wc-webhook-topic'));
+    console.log('📦 Payload:', payload);
     console.log('🆔 Order ID:', payload.id);
 
     // Vérifier la signature du webhook (sécurité)
