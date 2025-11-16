@@ -6,6 +6,30 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-04-30.basil', // Use the latest version
 });
 
+// Fonction pour convertir le nom du pays en code ISO 3166-1 alpha-2
+function getCountryCode(country: string): string {
+  const countryMap: { [key: string]: string } = {
+    'France': 'FR',
+    'United States': 'US',
+    'United Kingdom': 'GB',
+    'Germany': 'DE',
+    'Spain': 'ES',
+    'Italy': 'IT',
+    'Belgium': 'BE',
+    'Netherlands': 'NL',
+    'Switzerland': 'CH',
+    'Canada': 'CA',
+  };
+
+  // Si c'est déjà un code à 2 lettres, le retourner tel quel
+  if (country.length === 2) {
+    return country.toUpperCase();
+  }
+
+  // Sinon, chercher dans le mapping
+  return countryMap[country] || country.toUpperCase();
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { orderId, amount } = await request.json();
@@ -58,7 +82,7 @@ export async function POST(request: NextRequest) {
               city: orderData.shipping.city || '',
               state: orderData.shipping.state || '',
               postal_code: orderData.shipping.postcode || '',
-              country: orderData.shipping.country || '',
+              country: getCountryCode(orderData.shipping.country || ''),
             };
           }
         }
@@ -79,10 +103,22 @@ export async function POST(request: NextRequest) {
         woocommerce_order_id: orderId.toString()
       },
       description: `Payment for order #${orderId}`,
-      // Enable all available payment methods
-      automatic_payment_methods: {
-        enabled: true
-      }
+      // Spécifier explicitement les méthodes de paiement disponibles
+      // Maximum de méthodes pour montrer le professionnalisme
+      payment_method_types: [
+        'card',           // Cartes bancaires classiques
+        'paypal',         // PayPal
+        'link',           // Link (paiement rapide Stripe)
+        'klarna',         // Klarna (paiement fractionné)
+        'amazon_pay',     // Amazon Pay
+        'ideal',          // iDEAL (Pays-Bas)
+        'bancontact',     // Bancontact (Belgique)
+        'sepa_debit',     // SEPA Direct Debit (Europe)
+        'giropay',        // Giropay (Allemagne)
+        'sofort',         // Sofort (Allemagne)
+        'eps',            // EPS (Autriche)
+        'p24'             // Przelewy24 (Pologne)
+      ]
     };
 
     // Add customer details if available
@@ -97,10 +133,17 @@ export async function POST(request: NextRequest) {
     const paymentIntent = await stripe.paymentIntents.create(paymentIntentParams);
 
     console.log(`Created payment intent for order #${orderId}: ${paymentIntent.id}`);
+    console.log('Payment Intent Details:', {
+      id: paymentIntent.id,
+      amount: paymentIntent.amount,
+      currency: paymentIntent.currency,
+      automatic_payment_methods: paymentIntent.automatic_payment_methods,
+      payment_method_types: paymentIntent.payment_method_types
+    });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
-      paymentIntentId: paymentIntent.id 
+      paymentIntentId: paymentIntent.id
     });
   } catch (err) {
     console.error('Error creating payment intent:', err);

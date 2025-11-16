@@ -127,8 +127,14 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId }) => {
         }
 
         const { order: fetchedOrder } = await response.json();
+        console.log('📥 Received order from API:', fetchedOrder);
+        console.log('📋 Line items:', fetchedOrder?.line_items);
+        console.log('📅 Date created:', fetchedOrder?.date_created);
+        console.log('🏠 Billing address:', fetchedOrder?.billing_address);
+        console.log('🚚 Shipping:', fetchedOrder?.shipping);
+
         setOrder(fetchedOrder);
-        
+
         // Update order status based on the status from backend
         updateOrderStatus(fetchedOrder.status);
       } catch (error) {
@@ -224,8 +230,16 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId }) => {
   };
 
   // Format date for display
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return 'Date non disponible';
+
     const date = new Date(dateString);
+
+    // Vérifier si la date est valide
+    if (isNaN(date.getTime())) {
+      return 'Date invalide';
+    }
+
     return date.toLocaleDateString('fr-FR', {
       year: 'numeric',
       month: 'long',
@@ -413,9 +427,9 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId }) => {
   };
 
   // Calculate order summary
-  const subtotal = order.line_items.reduce((sum, item) => sum + parseFloat(item.subtotal), 0);
-  const shipping = order.shipping_lines.reduce((sum, line) => sum + parseFloat(line.total), 0);
-  const total = parseFloat(order.total);
+  const subtotal = order.line_items?.reduce((sum, item) => sum + parseFloat(item.subtotal || '0'), 0) || 0;
+  const shipping = order.shipping_lines?.reduce((sum, line) => sum + parseFloat(line.total || '0'), 0) || 0;
+  const total = parseFloat(order.total || '0');
 
   return (
     <div className="bg-gray-50 min-h-screen py-16 account-container">
@@ -529,7 +543,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId }) => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {order.line_items.map((item) => (
+                  {order.line_items && order.line_items.length > 0 ? order.line_items.map((item) => (
                     <tr key={item.id}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -557,7 +571,13 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId }) => {
                         {formatPrice(parseFloat(item.total))}
                       </td>
                     </tr>
-                  ))}
+                  )) : (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
+                        Aucun article dans cette commande
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -606,28 +626,28 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId }) => {
                     <div>
                       <h3 className="text-sm font-medium text-gray-900 mb-2">Adresse de livraison</h3>
                       <address className="text-sm text-gray-600 not-italic">
-                        {order.shipping.first_name} {order.shipping.last_name}<br />
-                        {order.shipping.company && <>{order.shipping.company}<br /></>}
-                        {order.shipping.address_1}<br />
-                        {order.shipping.address_2 && <>{order.shipping.address_2}<br /></>}
-                        {order.shipping.postcode} {order.shipping.city}<br />
-                        {order.shipping.state && <>{order.shipping.state}<br /></>}
-                        {order.shipping.country}
+                        {order.shipping?.first_name} {order.shipping?.last_name}<br />
+                        {order.shipping?.company && <>{order.shipping.company}<br /></>}
+                        {order.shipping?.address_1}<br />
+                        {order.shipping?.address_2 && <>{order.shipping.address_2}<br /></>}
+                        {order.shipping?.postcode} {order.shipping?.city}<br />
+                        {order.shipping?.state && <>{order.shipping.state}<br /></>}
+                        {order.shipping?.country}
                       </address>
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-900 mb-2">Adresse de facturation</h3>
                       <address className="text-sm text-gray-600 not-italic">
-                        {order.billing_address.first_name} {order.billing_address.last_name}<br />
-                        {order.billing_address.company && <>{order.billing_address.company}<br /></>}
-                        {order.billing_address.address_1}<br />
-                        {order.billing_address.address_2 && <>{order.billing_address.address_2}<br /></>}
-                        {order.billing_address.postcode} {order.billing_address.city}<br />
-                        {order.billing_address.state && <>{order.billing_address.state}<br /></>}
-                        {order.billing_address.country}<br />
+                        {order.billing_address?.first_name} {order.billing_address?.last_name}<br />
+                        {order.billing_address?.company && <>{order.billing_address.company}<br /></>}
+                        {order.billing_address?.address_1}<br />
+                        {order.billing_address?.address_2 && <>{order.billing_address.address_2}<br /></>}
+                        {order.billing_address?.postcode} {order.billing_address?.city}<br />
+                        {order.billing_address?.state && <>{order.billing_address.state}<br /></>}
+                        {order.billing_address?.country}<br />
                         <div className="mt-2">
-                          <div>{order.billing_address.email}</div>
-                          <div>{order.billing_address.phone}</div>
+                          <div>{order.billing_address?.email}</div>
+                          <div>{order.billing_address?.phone}</div>
                         </div>
                       </address>
                     </div>
@@ -637,8 +657,8 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId }) => {
                   <div className="text-sm text-gray-700">
                     <p className="font-medium">Méthode de livraison</p>
                     <p className="mt-1">
-                      {order.shipping_lines.length > 0 
-                        ? order.shipping_lines[0].method_title 
+                      {order.shipping_lines && order.shipping_lines.length > 0
+                        ? order.shipping_lines[0].method_title
                         : 'Livraison standard'}
                     </p>
                   </div>

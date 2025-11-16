@@ -137,6 +137,21 @@ export async function POST(request: NextRequest) {
         case 'google_pay':
           paymentMethodTitle = 'Google Pay';
           break;
+        case 'amazon_pay':
+          paymentMethodTitle = 'Amazon Pay';
+          break;
+        case 'paypal':
+          paymentMethodTitle = 'PayPal';
+          break;
+        case 'link':
+          paymentMethodTitle = 'Link';
+          break;
+        case 'klarna':
+          paymentMethodTitle = 'Klarna';
+          break;
+        case 'revolut_pay':
+          paymentMethodTitle = 'Revolut Pay';
+          break;
         default:
           paymentMethodTitle = `${paymentMethodType.charAt(0).toUpperCase() + paymentMethodType.slice(1)} Payment`;
       }

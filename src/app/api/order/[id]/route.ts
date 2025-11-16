@@ -44,24 +44,149 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       }
     );
 
-    // Récupérer la commande
-    const { data: order, error } = await supabase
+    console.log('🔍 Fetching order:', orderId, 'for user:', userId);
+
+    // Récupérer la commande depuis Supabase pour vérifier l'ownership
+    const { data: supabaseOrder, error } = await supabase
       .from('orders')
       .select('*')
       .eq('id', orderId)
       .eq('user_id', userId) // Sécurité: vérifier que l'utilisateur est bien propriétaire de la commande
       .single();
 
+    console.log('📦 Supabase order:', supabaseOrder);
+    console.log('❌ Supabase error:', error);
+
     if (error) {
-      console.error('Error fetching order:', error);
+      console.error('Error fetching order from Supabase:', error);
       return NextResponse.json(
         { error: 'Commande non trouvée' },
         { status: 404 }
       );
     }
 
-    // Retourner la commande
-    return NextResponse.json({ order });
+    // Récupérer les détails complets depuis WooCommerce
+    const wooCommerceUrl = process.env.URL_WORDPRESS || 'https://selectura.shop';
+    const consumerKey = process.env.WOOCOMMERCE_CONSUMER_KEY;
+    const consumerSecret = process.env.WOOCOMMERCE_CONSUMER_SECRET;
+
+    console.log('🌐 WooCommerce URL:', wooCommerceUrl);
+    console.log('🔑 Consumer Key:', consumerKey?.substring(0, 10) + '...');
+
+    try {
+      const wooUrl = `${wooCommerceUrl}/wp-json/wc/v3/orders/${orderId}`;
+      console.log('📡 Fetching from WooCommerce:', wooUrl);
+
+      const wooResponse = await fetch(wooUrl, {
+        headers: {
+          Authorization: `Basic ${Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64')}`,
+        },
+      });
+
+      console.log('📊 WooCommerce response status:', wooResponse.status);
+
+      if (wooResponse.ok) {
+        const wooOrder = await wooResponse.json();
+        console.log('✅ WooCommerce order:', wooOrder);
+        console.log('📋 Line items:', wooOrder.line_items);
+
+        // Combiner les données Supabase et WooCommerce
+        const combinedOrder = {
+          ...wooOrder,
+          // Garder l'ID utilisateur de Supabase
+          user_id: supabaseOrder.user_id,
+          // Ajouter les données Supabase si nécessaires
+          billing_address: wooOrder.billing,
+          shipping_address: wooOrder.shipping,
+        };
+
+        console.log('🔄 Combined order:', combinedOrder);
+        return NextResponse.json({ order: combinedOrder });
+      } else {
+        const errorText = await wooResponse.text();
+        console.warn('⚠️ Could not fetch from WooCommerce:', wooResponse.status, errorText);
+        console.log('🔙 Using Supabase data as fallback - mapping to WooCommerce format');
+
+        // Mapper les données Supabase au format WooCommerce
+        const mappedOrder = {
+          id: supabaseOrder.id,
+          number: supabaseOrder.id.toString(),
+          status: supabaseOrder.status,
+          date_created: supabaseOrder.created_at,
+          date_modified: supabaseOrder.updated_at || supabaseOrder.created_at,
+          total: supabaseOrder.total.toString(),
+          currency: 'EUR',
+          payment_method: 'stripe',
+          payment_method_title: 'Carte bancaire',
+          billing_address: supabaseOrder.billing_address,
+          shipping: supabaseOrder.shipping_address,
+          // Mapper items vers line_items
+          line_items: supabaseOrder.items?.map((item: any, index: number) => ({
+            id: index + 1,
+            name: item.product_name,
+            product_id: item.product_id,
+            quantity: item.quantity,
+            subtotal: item.subtotal?.toString() || item.price,
+            total: (parseFloat(item.price) * item.quantity).toString(),
+            price: parseFloat(item.price),
+            sku: '',
+            image: item.image_url,
+          })) || [],
+          shipping_lines: [
+            {
+              id: 1,
+              method_title: 'Livraison gratuite',
+              method_id: 'flat_rate',
+              total: '0.00',
+            }
+          ],
+        };
+
+        console.log('🔄 Mapped Supabase order to WooCommerce format:', mappedOrder);
+        return NextResponse.json({ order: mappedOrder });
+      }
+    } catch (wooError) {
+      console.error('❌ Error fetching from WooCommerce:', wooError);
+      console.log('🔙 Using Supabase data as fallback - mapping to WooCommerce format');
+
+      // Mapper les données Supabase au format WooCommerce
+      const mappedOrder = {
+        id: supabaseOrder.id,
+        number: supabaseOrder.id.toString(),
+        status: supabaseOrder.status,
+        date_created: supabaseOrder.created_at,
+        date_modified: supabaseOrder.updated_at || supabaseOrder.created_at,
+        total: supabaseOrder.total.toString(),
+        currency: 'EUR',
+        payment_method: 'stripe',
+        payment_method_title: 'Carte bancaire',
+        billing_address: supabaseOrder.billing_address,
+        shipping: supabaseOrder.shipping_address,
+        // Mapper items vers line_items
+        line_items: supabaseOrder.items?.map((item: any, index: number) => ({
+          id: index + 1,
+          name: item.product_name,
+          product_id: item.product_id,
+          quantity: item.quantity,
+          subtotal: item.subtotal?.toString() || item.price,
+          total: (parseFloat(item.price) * item.quantity).toString(),
+          price: parseFloat(item.price),
+          sku: '',
+          image: item.image_url,
+        })) || [],
+        shipping_lines: [
+          {
+            id: 1,
+            method_title: 'Livraison gratuite',
+            method_id: 'flat_rate',
+            total: '0.00',
+          }
+        ],
+      };
+
+      console.log('🔄 Mapped Supabase order to WooCommerce format:', mappedOrder);
+      return NextResponse.json({ order: mappedOrder });
+    }
   } catch (error: any) {
     console.error('Error fetching order:', error);
     return NextResponse.json(

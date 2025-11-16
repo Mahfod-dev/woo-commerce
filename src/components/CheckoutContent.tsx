@@ -356,7 +356,7 @@ const CheckoutContent = () => {
 							<div className='form-group'>
 								<label
 									htmlFor='firstName'
-									className='form-label'>
+									className='form-label required'>
 									Prénom
 								</label>
 								<input
@@ -366,6 +366,7 @@ const CheckoutContent = () => {
 									value={formData.firstName}
 									onChange={handleChange}
 									className='form-input'
+									placeholder='Votre prénom'
 									required
 								/>
 							</div>
@@ -373,7 +374,7 @@ const CheckoutContent = () => {
 							<div className='form-group'>
 								<label
 									htmlFor='lastName'
-									className='form-label'>
+									className='form-label required'>
 									Nom
 								</label>
 								<input
@@ -383,6 +384,7 @@ const CheckoutContent = () => {
 									value={formData.lastName}
 									onChange={handleChange}
 									className='form-input'
+									placeholder='Votre nom'
 									required
 								/>
 							</div>
@@ -392,7 +394,7 @@ const CheckoutContent = () => {
 							<div className='form-group'>
 								<label
 									htmlFor='email'
-									className='form-label'>
+									className='form-label required'>
 									Email
 								</label>
 								<input
@@ -402,6 +404,7 @@ const CheckoutContent = () => {
 									value={formData.email}
 									onChange={handleChange}
 									className='form-input'
+									placeholder='votre@email.com'
 									required
 								/>
 							</div>
@@ -419,7 +422,7 @@ const CheckoutContent = () => {
 									value={formData.phone}
 									onChange={handleChange}
 									className='form-input'
-									required
+									placeholder='+33 6 12 34 56 78 (optionnel)'
 								/>
 							</div>
 						</div>
@@ -427,7 +430,7 @@ const CheckoutContent = () => {
 						<div className='form-group'>
 							<label
 								htmlFor='address'
-								className='form-label'>
+								className='form-label required'>
 								Adresse
 							</label>
 							<input
@@ -437,6 +440,7 @@ const CheckoutContent = () => {
 								value={formData.address}
 								onChange={handleChange}
 								className='form-input'
+								placeholder='Numéro et nom de rue'
 								required
 							/>
 						</div>
@@ -445,7 +449,7 @@ const CheckoutContent = () => {
 							<div className='form-group'>
 								<label
 									htmlFor='city'
-									className='form-label'>
+									className='form-label required'>
 									Ville
 								</label>
 								<input
@@ -455,6 +459,7 @@ const CheckoutContent = () => {
 									value={formData.city}
 									onChange={handleChange}
 									className='form-input'
+									placeholder='Votre ville'
 									required
 								/>
 							</div>
@@ -462,7 +467,7 @@ const CheckoutContent = () => {
 							<div className='form-group'>
 								<label
 									htmlFor='postalCode'
-									className='form-label'>
+									className='form-label required'>
 									Code postal
 								</label>
 								<input
@@ -472,6 +477,7 @@ const CheckoutContent = () => {
 									value={formData.postalCode}
 									onChange={handleChange}
 									className='form-input'
+									placeholder='75001'
 									required
 								/>
 							</div>
@@ -480,7 +486,7 @@ const CheckoutContent = () => {
 						<div className='form-group'>
 							<label
 								htmlFor='country'
-								className='form-label'>
+								className='form-label required'>
 								Pays
 							</label>
 							<select
@@ -488,7 +494,8 @@ const CheckoutContent = () => {
 								name='country'
 								value={formData.country}
 								onChange={handleChange}
-								className='form-input'>
+								className='form-input'
+								required>
 								<option value='France'>France</option>
 								<option value='Belgique'>Belgique</option>
 								<option value='Suisse'>Suisse</option>
@@ -508,8 +515,14 @@ const CheckoutContent = () => {
 								type='submit'
 								className='checkout-button'
 								disabled={isSubmitting}>
-								{isSubmitting ? 'Traitement...' : 'Procéder au paiement'}
+								{isSubmitting ? 'Traitement en cours...' : 'Procéder au paiement'}
 							</button>
+							<div className='security-badge mt-4'>
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+									<path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+								</svg>
+								<span>Paiement 100% sécurisé par Stripe</span>
+							</div>
 						</div>
 					</form>
 				</div>

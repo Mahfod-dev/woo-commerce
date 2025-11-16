@@ -38,10 +38,11 @@
 
 .checkout-summary {
   padding: 1.5rem;
-  background-color: #f9f9f9;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 1rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   height: fit-content;
+  border: 1px solid rgba(102, 126, 234, 0.1);
 }
 
 .form-group {
@@ -52,19 +53,58 @@
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
+  color: #1f2937;
+  font-size: 0.95rem;
+}
+
+/* Indicateur de champ obligatoire */
+.form-label.required::after {
+  content: ' *';
+  color: #ef4444;
+  font-weight: 700;
+  margin-left: 2px;
 }
 
 .form-input {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.25rem;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.5rem;
   outline: none;
-  transition: border-color 0.2s;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  background-color: #ffffff;
+}
+
+.form-input:hover {
+  border-color: #cbd5e1;
 }
 
 .form-input:focus {
-  border-color: #4f46e5;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background-color: #ffffff;
+}
+
+/* Style pour les champs invalides après tentative de soumission */
+.form-input:invalid:not(:placeholder-shown) {
+  border-color: #fca5a5;
+}
+
+.form-input:valid:not(:placeholder-shown) {
+  border-color: #86efac;
+}
+
+/* Amélioration du select */
+.form-input[type="select"],
+select.form-input {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23667eea'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+  appearance: none;
 }
 
 .form-row {
@@ -79,25 +119,64 @@
   }
 }
 
-.checkout-btn {
+.checkout-btn,
+.checkout-button {
   width: 100%;
-  padding: 0.75rem 1.5rem;
-  background-color: #4f46e5;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 1.125rem;
   border: none;
-  border-radius: 0.25rem;
+  border-radius: 0.75rem;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
-.checkout-btn:hover {
-  background-color: #4338ca;
+.checkout-btn:hover,
+.checkout-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 }
 
-.checkout-btn:disabled {
-  background-color: #a5b4fc;
+.checkout-btn:active,
+.checkout-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+}
+
+.checkout-btn:disabled,
+.checkout-button:disabled {
+  background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
   cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+  opacity: 0.6;
+}
+
+/* Animation du bouton en chargement */
+.checkout-button:disabled::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 1.5rem;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .summary-item {
@@ -114,10 +193,35 @@
 
 .summary-total {
   font-weight: 700;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 2px solid #e2e8f0;
+  border-top: 2px solid #667eea;
+  color: #667eea;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Message de sécurité */
+.security-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: rgba(16, 185, 129, 0.1);
+  border-radius: 0.5rem;
+  border-left: 4px solid #10b981;
+  font-size: 0.875rem;
+  color: #065f46;
+}
+
+.security-badge svg {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: #10b981;
 }
 
 .cart-item {

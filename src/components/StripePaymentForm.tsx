@@ -126,11 +126,40 @@ const CheckoutForm: React.FC<PaymentFormProps> = ({ orderId, orderTotal, payment
   return (
     <form onSubmit={handleSubmit} className="payment-form">
       <div className="mb-4">
-        <PaymentElement 
+        <PaymentElement
           options={{
             layout: {
-              type: 'tabs',
+              type: 'accordion',
               defaultCollapsed: false,
+              radios: false,
+              spacedAccordionItems: true
+            },
+            // Force l'affichage de toutes les méthodes de paiement disponibles
+            // Ordre d'affichage : méthodes premium en premier
+            paymentMethodOrder: [
+              'card',         // Carte en premier (le plus universel)
+              'paypal',       // PayPal (très populaire)
+              'apple_pay',    // Apple Pay (premium)
+              'google_pay',   // Google Pay (premium)
+              'amazon_pay',   // Amazon Pay (confiance)
+              'link',         // Link (rapide)
+              'klarna',       // Klarna (paiement différé)
+              'ideal',        // iDEAL
+              'bancontact',   // Bancontact
+              'sepa_debit',   // SEPA
+              'giropay',      // Giropay
+              'sofort',       // Sofort
+              'eps',          // EPS
+              'p24'           // Przelewy24
+            ],
+            wallets: {
+              applePay: 'auto',
+              googlePay: 'auto',
+            },
+            fields: {
+              billingDetails: {
+                email: 'auto'
+              }
             }
           }}
         />
