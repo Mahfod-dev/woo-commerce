@@ -8,6 +8,7 @@ export interface BlogPost {
 	category: string;
 	date: string;
 	author: string;
+	authorAvatar?: string;
 	image: string;
 	slug: string;
 	readTime?: string;
@@ -40,6 +41,7 @@ Chaque produit que nous proposons a été testé, comparé et validé par nos ex
 		category: 'Philosophie',
 		date: '2024-01-15',
 		author: 'Pierre Martin',
+		authorAvatar: '/images/pierre.png',
 		image: '/blog/moinsdechoix.png',
 		slug: 'moins-choix-meilleurs-achats',
 		readTime: '5 min',
@@ -74,6 +76,7 @@ Un comité d'experts valide définitivement chaque produit avant son intégratio
 		category: 'Qualité',
 		date: '2024-01-10',
 		author: 'Sophie Leroy',
+		authorAvatar: '/images/sophie.png',
 		image: '/blog/selection.png',
 		slug: 'processus-selection-produits',
 		readTime: '7 min',
@@ -100,6 +103,7 @@ Tous nos produits premium bénéficient d'une garantie étendue et d'un support 
 		category: 'Durabilité',
 		date: '2024-01-05',
 		author: 'Thomas Dubois',
+		authorAvatar: '/images/thomas.png',
 		image: '/blog/investir.png',
 		slug: 'investir-durabilite-vs-quantite',
 		readTime: '6 min',

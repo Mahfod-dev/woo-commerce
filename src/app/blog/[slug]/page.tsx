@@ -100,7 +100,7 @@ export default async function ArticlePage({ params }: PageProps) {
 			...post,
 			author: {
 				name: post.author,
-				avatar: '/images/author-avatar.jpg',
+				avatar: post.authorAvatar || '/images/author-avatar.jpg',
 				bio: 'Expert en curation de produits premium',
 			},
 			content: post.content || '',
