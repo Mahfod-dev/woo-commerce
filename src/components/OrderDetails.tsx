@@ -548,8 +548,8 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId }) => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-16 w-16 relative">
-                            <Image 
-                              src={item.image || '/images/placeholder.jpg'} 
+                            <Image
+                              src={item.image?.src || item.image_url || '/images/placeholder.jpg'}
                               alt={item.name}
                               fill
                               className="object-cover rounded-md"
