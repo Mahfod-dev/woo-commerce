@@ -107,7 +107,12 @@ export default async function OptimizedHomePage() {
 
 	// Récupérer les catégories
 	const { getCategories } = await import('@/lib/woo');
-	const categories = await getCategories();
+	const allCategories = await getCategories();
+
+	// Filtrer pour n'afficher que les catégories principales (pas les sous-catégories)
+	const categories = allCategories.filter(
+		(category) => !category.parent || category.parent === 0
+	);
 
 	console.log('Featured Products:', categories);
 
