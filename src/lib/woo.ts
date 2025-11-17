@@ -459,7 +459,7 @@ export const getProductsByCategory = cache(
 			if (!includeSubcategories) {
 				// Comportement original - uniquement les produits de cette catégorie
 				const products = await wooInstance.fetch<WooProduct[]>(
-					`products?category=${categoryId}`
+					`products?category=${categoryId}&per_page=100`
 				);
 				return products;
 			} else {
@@ -474,7 +474,7 @@ export const getProductsByCategory = cache(
 				if (categoryIds.length === 1) {
 					// Cas où il n'y a pas de sous-catégories
 					const products = await wooInstance.fetch<WooProduct[]>(
-						`products?category=${categoryId}`
+						`products?category=${categoryId}&per_page=100`
 					);
 					return products;
 				} else {
@@ -482,7 +482,7 @@ export const getProductsByCategory = cache(
 					// Utiliser plusieurs requêtes pour éviter les limites d'URL trop longues
 					const productPromises = categoryIds.map((id) =>
 						wooInstance.fetch<WooProduct[]>(
-							`products?category=${id}`
+							`products?category=${id}&per_page=100`
 						)
 					);
 					const productsArrays = await Promise.all(productPromises);
