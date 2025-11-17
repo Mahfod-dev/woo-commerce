@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { useNotification } from '@/context/notificationContext';
 import { useSession, signOut as nextAuthSignOut } from 'next-auth/react';
 import { Database } from '@/lib/supabase/types';
+import { createClient } from '@supabase/supabase-js';
 import '@/app/styles/account.css';
 
 // Types
@@ -362,6 +363,67 @@ const AccountPage = () => {
 
     loadUserData();
   }, [session, status]);
+
+  // Supabase Realtime pour mises à jour en temps réel des commandes
+  useEffect(() => {
+    if (!session?.user?.id) return;
+
+    console.log('🔴 Setting up Supabase Realtime for orders');
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    const channel = supabase
+      .channel('orders_realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'orders'
+        },
+        (payload) => {
+          console.log('🔄 Order update received:', payload);
+
+          if (payload.eventType === 'INSERT') {
+            setOrders((prev) => [payload.new as OrderType, ...prev]);
+            addNotification({
+              type: 'success',
+              message: 'Nouvelle commande reçue !',
+              duration: 3000
+            });
+          } else if (payload.eventType === 'UPDATE') {
+            setOrders((prev) =>
+              prev.map((order) =>
+                order.id === payload.new.id ? (payload.new as OrderType) : order
+              )
+            );
+            addNotification({
+              type: 'info',
+              message: 'Commande mise à jour',
+              duration: 3000
+            });
+          } else if (payload.eventType === 'DELETE') {
+            setOrders((prev) => prev.filter((order) => order.id !== payload.old.id));
+            addNotification({
+              type: 'info',
+              message: 'Commande supprimée',
+              duration: 3000
+            });
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.log('📡 Realtime subscription status:', status);
+      });
+
+    return () => {
+      console.log('🔴 Cleaning up Supabase Realtime subscription');
+      supabase.removeChannel(channel);
+    };
+  }, [session?.user?.id, addNotification]);
 
   // Mettre à jour l'onglet actif quand l'URL change
   useEffect(() => {

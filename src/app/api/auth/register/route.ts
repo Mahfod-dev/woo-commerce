@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { createWooCommerceCustomer } from '@/lib/wooCustomer';
 
 export async function POST(request: NextRequest) {
   try {
@@ -76,6 +77,22 @@ export async function POST(request: NextRequest) {
 
     // Si l'utilisateur est créé avec succès, créer également un enregistrement dans la table profiles
     if (authData.user) {
+      // Créer le customer WooCommerce
+      console.log('🛒 Creating WooCommerce customer for:', email);
+      const wooCustomer = await createWooCommerceCustomer({
+        email,
+        first_name: firstName,
+        last_name: lastName,
+      });
+
+      const wooCustomerId = wooCustomer?.id || null;
+      if (wooCustomerId) {
+        console.log('✅ WooCommerce customer created with ID:', wooCustomerId);
+      } else {
+        console.warn('⚠️ Failed to create WooCommerce customer, continuing without it');
+      }
+
+      // Créer le profil avec le woocommerce_customer_id
       const { error: profileError } = await supabaseAdmin
         .from('profiles')
         .insert({
@@ -83,6 +100,7 @@ export async function POST(request: NextRequest) {
           first_name: firstName,
           last_name: lastName,
           email: email,
+          woocommerce_customer_id: wooCustomerId,
           created_at: new Date().toISOString(),
         });
 
