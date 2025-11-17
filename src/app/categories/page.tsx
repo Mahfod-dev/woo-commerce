@@ -40,13 +40,18 @@ function CategoriesLoading() {
 
 export default async function CategoriesPage() {
 	// Récupération des catégories
-	const categories = await getCategories(
+	const allCategories = await getCategories(
 		'?per_page=100&exclude=uncategorized'
+	);
+
+	// Filtrer pour n'afficher que les catégories principales (pas les sous-catégories)
+	const mainCategories = allCategories.filter(
+		(category) => !category.parent || category.parent === 0
 	);
 
 	return (
 		<Suspense fallback={<CategoriesLoading />}>
-			<CategoriesPageContent categories={categories} />
+			<CategoriesPageContent categories={mainCategories} />
 		</Suspense>
 	);
 }
