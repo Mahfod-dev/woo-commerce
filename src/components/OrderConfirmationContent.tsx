@@ -144,7 +144,7 @@ const OrderConfirmationContent = () => {
           Continuer mes achats
         </Link>
         
-        <Link href={`/my-account/orders/${orderInfo.orderId}`} className="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded hover:bg-gray-200 transition-colors">
+        <Link href={`/orders/${orderInfo.orderId}`} className="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded hover:bg-gray-200 transition-colors">
           Suivre ma commande
         </Link>
       </div>
