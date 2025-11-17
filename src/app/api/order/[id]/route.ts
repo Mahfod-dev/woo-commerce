@@ -46,12 +46,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     console.log('🔍 Fetching order:', orderId, 'for user:', userId);
 
-    // Récupérer la commande depuis Supabase pour vérifier l'ownership
+    // Récupérer la commande depuis Supabase
     const { data: supabaseOrder, error } = await supabase
       .from('orders')
       .select('*')
       .eq('id', orderId)
-      .eq('user_id', userId) // Sécurité: vérifier que l'utilisateur est bien propriétaire de la commande
       .single();
 
     console.log('📦 Supabase order:', supabaseOrder);
@@ -62,6 +61,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json(
         { error: 'Commande non trouvée' },
         { status: 404 }
+      );
+    }
+
+    // Vérifier l'ownership: l'utilisateur doit être propriétaire OU la commande doit être invité
+    if (supabaseOrder.user_id && supabaseOrder.user_id !== userId) {
+      console.error('⛔ Access denied: User', userId, 'trying to access order of user', supabaseOrder.user_id);
+      return NextResponse.json(
+        { error: 'Accès refusé à cette commande' },
+        { status: 403 }
       );
     }
 
