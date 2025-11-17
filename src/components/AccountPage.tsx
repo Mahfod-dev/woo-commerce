@@ -187,9 +187,9 @@ const AccountPage = () => {
           try {
             console.log('Tentative de récupération des commandes...');
 
-            // D'abord essayer l'API admin avec l'ID utilisateur standardisé
-            console.log('Récupération des commandes pour utilisateur:', user.id);
-            const response = await fetch(`/api/admin-get-orders?userId=${user.id}`);
+            // D'abord essayer l'API admin avec l'ID utilisateur standardisé et l'email
+            console.log('Récupération des commandes pour utilisateur:', user.id, 'email:', user.email);
+            const response = await fetch(`/api/admin-get-orders?userId=${user.id}&email=${encodeURIComponent(user.email || '')}`);
 
             if (response.ok) {
               const data = await response.json();

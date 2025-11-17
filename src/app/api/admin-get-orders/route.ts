@@ -48,12 +48,30 @@ export async function GET(request: NextRequest) {
 			}
 		);
 
-		// Récupérer toutes les commandes de l'utilisateur
-		const { data, error } = await supabaseAdmin
-			.from('orders')
-			.select('*')
-			.eq('user_id', userId)
-			.order('created_at', { ascending: false });
+		// Récupérer l'email de l'utilisateur pour aussi chercher les commandes invités
+		const emailParam = searchParams.get('email');
+
+		let data, error;
+
+		// Chercher les commandes soit par user_id, soit par email de facturation (pour les commandes invités)
+		if (emailParam) {
+			console.log('API: Recherche aussi par email:', emailParam);
+			const result = await supabaseAdmin
+				.from('orders')
+				.select('*')
+				.or(`user_id.eq.${userId},billing_address->>email.eq.${emailParam}`)
+				.order('created_at', { ascending: false });
+			data = result.data;
+			error = result.error;
+		} else {
+			const result = await supabaseAdmin
+				.from('orders')
+				.select('*')
+				.eq('user_id', userId)
+				.order('created_at', { ascending: false });
+			data = result.data;
+			error = result.error;
+		}
 
 		if (error) {
 			console.error(
