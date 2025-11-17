@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { WooCategory, WooProduct } from '@/lib/woo';
@@ -22,14 +22,26 @@ export default function CategoryPageContent({
 	const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
 	const [showFilters, setShowFilters] = useState(false);
 	const [filterChanged, setFilterChanged] = useState(false);
+	const [searchQuery, setSearchQuery] = useState('');
 
 	// États pour la pagination
 	const [currentPage, setCurrentPage] = useState(1);
 	const productsPerPage = 12;
+	const productsListRef = useRef<HTMLDivElement>(null);
 
 	// Filtrer et trier les produits
 	useEffect(() => {
 		let filtered = [...products];
+
+		// Filtrer par recherche
+		if (searchQuery) {
+			const query = searchQuery.toLowerCase();
+			filtered = filtered.filter((product) =>
+				product.name.toLowerCase().includes(query) ||
+				product.description.toLowerCase().includes(query) ||
+				product.short_description.toLowerCase().includes(query)
+			);
+		}
 
 		// Filtrer par prix
 		filtered = filtered.filter((product) => {
@@ -70,7 +82,7 @@ export default function CategoryPageContent({
 		}
 
 		setFilteredProducts(filtered);
-	}, [products, sortBy, priceRange]);
+	}, [products, sortBy, priceRange, searchQuery]);
 
 	// Calculer le prix maximum pour le filtre
 	useEffect(() => {
@@ -94,6 +106,7 @@ export default function CategoryPageContent({
 			) * 100;
 		setPriceRange({ min: 0, max: maxPrice });
 		setSortBy('popularity');
+		setSearchQuery('');
 		setFilterChanged(false);
 		setCurrentPage(1); // Retour à la page 1
 	};
@@ -110,6 +123,11 @@ export default function CategoryPageContent({
 		}));
 		setCurrentPage(1); // Retour à la page 1 quand on filtre
 	};
+
+	// Réinitialiser à la page 1 quand on recherche
+	useEffect(() => {
+		setCurrentPage(1);
+	}, [searchQuery]);
 
 	// Calcul de la pagination
 	const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
@@ -156,10 +174,15 @@ export default function CategoryPageContent({
 		return pages;
 	};
 
-	// Scroll vers le haut lors du changement de page
+	// Scroll vers la liste de produits lors du changement de page
 	const handlePageChange = (page: number) => {
 		setCurrentPage(page);
-		window.scrollTo({ top: 0, behavior: 'smooth' });
+		// Scroller vers la section des produits au lieu du haut de la page
+		if (productsListRef.current) {
+			const yOffset = -100; // Offset pour tenir compte du header
+			const y = productsListRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
+			window.scrollTo({ top: y, behavior: 'smooth' });
+		}
 	};
 
 
@@ -224,6 +247,56 @@ export default function CategoryPageContent({
 
 			{/* Contenu principal */}
 			<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+				{/* Barre de recherche */}
+				<div className='mb-6'>
+					<div className='relative max-w-2xl'>
+						<div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+							<svg
+								className='h-5 w-5 text-gray-400'
+								fill='none'
+								viewBox='0 0 24 24'
+								stroke='currentColor'>
+								<path
+									strokeLinecap='round'
+									strokeLinejoin='round'
+									strokeWidth={2}
+									d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'
+								/>
+							</svg>
+						</div>
+						<input
+							type='text'
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+							placeholder='Rechercher un produit par nom ou description...'
+							className='block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+						/>
+						{searchQuery && (
+							<button
+								onClick={() => setSearchQuery('')}
+								className='absolute inset-y-0 right-0 pr-3 flex items-center'>
+								<svg
+									className='h-5 w-5 text-gray-400 hover:text-gray-600'
+									fill='none'
+									viewBox='0 0 24 24'
+									stroke='currentColor'>
+									<path
+										strokeLinecap='round'
+										strokeLinejoin='round'
+										strokeWidth={2}
+										d='M6 18L18 6M6 6l12 12'
+									/>
+								</svg>
+							</button>
+						)}
+					</div>
+					{searchQuery && (
+						<p className='mt-2 text-sm text-gray-600'>
+							{filteredProducts.length} produit{filteredProducts.length !== 1 ? 's' : ''} trouvé{filteredProducts.length !== 1 ? 's' : ''}
+						</p>
+					)}
+				</div>
+
 				{/* Barre de filtres et tri */}
 				<div className='bg-white rounded-lg shadow-sm mb-8 p-4 filters-section'>
 					<div className='flex flex-col sm:flex-row justify-between items-start sm:items-center'>
@@ -435,7 +508,7 @@ export default function CategoryPageContent({
 					</div>
 
 					{/* Grille de produits */}
-					<div className='flex-grow'>
+					<div ref={productsListRef} className='flex-grow'>
 						{filteredProducts.length === 0 ? (
 							<div className='bg-white rounded-lg shadow-sm p-8 text-center'>
 								<svg

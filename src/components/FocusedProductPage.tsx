@@ -42,6 +42,12 @@ const FocusedProductsPage = ({ products, accessories }: FocusedProductsPageProps
 	const [showNotification, setShowNotification] = useState(false);
 	const { addToCart } = useCart();
 	const productRef = useRef<HTMLDivElement>(null);
+	const productsListRef = useRef<HTMLDivElement>(null);
+
+	// États pour la pagination et la recherche
+	const [searchQuery, setSearchQuery] = useState('');
+	const [currentPage, setCurrentPage] = useState(1);
+	const productsPerPage = 12;
 
 	// Calculer le prix total (produit + accessoires)
 	const calculateTotalPrice = () => {
@@ -109,6 +115,62 @@ const FocusedProductsPage = ({ products, accessories }: FocusedProductsPageProps
 			}, 100);
 		}
 	}, [selectedProduct]);
+
+	// Filtrage par recherche
+	const filteredProducts = products.filter((product) => {
+		if (!searchQuery) return true;
+		const query = searchQuery.toLowerCase();
+		return (
+			product.name.toLowerCase().includes(query) ||
+			product.description.toLowerCase().includes(query) ||
+			product.categories.some((cat) => cat.name.toLowerCase().includes(query))
+		);
+	});
+
+	// Calcul de la pagination
+	const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+	const indexOfLastProduct = currentPage * productsPerPage;
+	const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+	const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+
+	// Générer les numéros de pages à afficher
+	const getPageNumbers = () => {
+		const pages: (number | string)[] = [];
+		const maxPagesToShow = 5;
+
+		if (totalPages <= maxPagesToShow) {
+			for (let i = 1; i <= totalPages; i++) {
+				pages.push(i);
+			}
+		} else {
+			pages.push(1);
+			if (currentPage > 3) pages.push('...');
+			const start = Math.max(2, currentPage - 1);
+			const end = Math.min(totalPages - 1, currentPage + 1);
+			for (let i = start; i <= end; i++) {
+				pages.push(i);
+			}
+			if (currentPage < totalPages - 2) pages.push('...');
+			if (totalPages > 1) pages.push(totalPages);
+		}
+		return pages;
+	};
+
+	// Gérer le changement de page
+	const handlePageChange = (page: number) => {
+		setCurrentPage(page);
+		// Scroller vers la section des produits au lieu du haut de la page
+		if (productsListRef.current) {
+			const yOffset = -100; // Offset pour tenir compte du header
+			const y = productsListRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
+			window.scrollTo({ top: y, behavior: 'smooth' });
+		}
+	};
+
+	// Réinitialiser à la page 1 quand on recherche
+	useEffect(() => {
+		setCurrentPage(1);
+	}, [searchQuery]);
 
 	// Animation variants
 	const containerVariants = {
@@ -678,16 +740,79 @@ const FocusedProductsPage = ({ products, accessories }: FocusedProductsPageProps
 					</div>
 				</div>
 
+				<div ref={productsListRef}>
+					{/* Search bar */}
+					<div className='mb-8'>
+					<div className='relative max-w-2xl'>
+						<div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+							<svg
+								className='h-5 w-5 text-gray-400'
+								fill='none'
+								viewBox='0 0 24 24'
+								stroke='currentColor'>
+								<path
+									strokeLinecap='round'
+									strokeLinejoin='round'
+									strokeWidth={2}
+									d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'
+								/>
+							</svg>
+						</div>
+						<input
+							type='text'
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+							placeholder='Rechercher un produit par nom, description ou catégorie...'
+							className='block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+						/>
+						{searchQuery && (
+							<button
+								onClick={() => setSearchQuery('')}
+								className='absolute inset-y-0 right-0 pr-3 flex items-center'>
+								<svg
+									className='h-5 w-5 text-gray-400 hover:text-gray-600'
+									fill='none'
+									viewBox='0 0 24 24'
+									stroke='currentColor'>
+									<path
+										strokeLinecap='round'
+										strokeLinejoin='round'
+										strokeWidth={2}
+										d='M6 18L18 6M6 6l12 12'
+									/>
+								</svg>
+							</button>
+						)}
+					</div>
+					{searchQuery && (
+						<p className='mt-2 text-sm text-gray-600'>
+							{filteredProducts.length} produit{filteredProducts.length !== 1 ? 's' : ''} trouvé{filteredProducts.length !== 1 ? 's' : ''}
+						</p>
+					)}
+				</div>
+
 				<h2 className='text-2xl font-bold text-gray-900 mb-6'>
-					Découvrez Nos Autres Produits Sélectionnés
+					{searchQuery ? 'Résultats de la recherche' : 'Découvrez Nos Autres Produits Sélectionnés'}
 				</h2>
 
-				<motion.div
-					variants={containerVariants}
-					initial='hidden'
-					animate='visible'
-					className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16'>
-					{products.map((product) => (
+				{currentProducts.length === 0 ? (
+					<div className='text-center py-12'>
+						<p className='text-gray-500 text-lg'>
+							Aucun produit ne correspond à votre recherche.
+						</p>
+						<button
+							onClick={() => setSearchQuery('')}
+							className='mt-4 text-indigo-600 hover:text-indigo-800 font-medium'>
+							Effacer la recherche
+						</button>
+					</div>
+				) : (
+					<motion.div
+						variants={containerVariants}
+						initial='hidden'
+						animate='visible'
+						className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16'>
+						{currentProducts.map((product) => (
 						<motion.div
 							key={product.id}
 							variants={itemVariants}
@@ -786,8 +911,75 @@ const FocusedProductsPage = ({ products, accessories }: FocusedProductsPageProps
 								</div>
 							</div>
 						</motion.div>
-					))}
-				</motion.div>
+						))}
+					</motion.div>
+				)}
+
+				{/* Pagination */}
+				{filteredProducts.length > productsPerPage && totalPages > 1 && (
+					<div className='mt-8 flex flex-col sm:flex-row justify-between items-center gap-4'>
+						<p className='text-sm text-gray-700'>
+							Affichage de <span className='font-medium'>{indexOfFirstProduct + 1}</span>
+							{' à '}
+							<span className='font-medium'>{Math.min(indexOfLastProduct, filteredProducts.length)}</span>
+							{' sur '}
+							<span className='font-medium'>{filteredProducts.length}</span>
+							{' produits'}
+						</p>
+						<nav className='relative z-0 inline-flex rounded-md shadow-sm -space-x-px'>
+							{/* Previous button */}
+							<button
+								onClick={() => handlePageChange(currentPage - 1)}
+								disabled={currentPage === 1}
+								className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 text-sm font-medium ${
+									currentPage === 1
+										? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+										: 'bg-white text-gray-700 hover:bg-gray-50'
+								}`}>
+								<svg className='h-5 w-5' fill='currentColor' viewBox='0 0 20 20'>
+									<path fillRule='evenodd' d='M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z' clipRule='evenodd' />
+								</svg>
+							</button>
+
+							{/* Page numbers */}
+							{getPageNumbers().map((page, index) => (
+								page === '...' ? (
+									<span
+										key={`ellipsis-${index}`}
+										className='relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700'>
+										...
+									</span>
+								) : (
+									<button
+										key={page}
+										onClick={() => handlePageChange(page as number)}
+										className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium ${
+											currentPage === page
+												? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
+												: 'bg-white text-gray-700 hover:bg-gray-50'
+										}`}>
+										{page}
+									</button>
+								)
+							))}
+
+							{/* Next button */}
+							<button
+								onClick={() => handlePageChange(currentPage + 1)}
+								disabled={currentPage === totalPages}
+								className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 text-sm font-medium ${
+									currentPage === totalPages
+										? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+										: 'bg-white text-gray-700 hover:bg-gray-50'
+								}`}>
+								<svg className='h-5 w-5' fill='currentColor' viewBox='0 0 20 20'>
+									<path fillRule='evenodd' d='M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z' clipRule='evenodd' />
+								</svg>
+							</button>
+						</nav>
+					</div>
+				)}
+				</div>
 			</div>
 
 			{/* Pourquoi choisir ce produit */}

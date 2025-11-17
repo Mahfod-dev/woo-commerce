@@ -104,9 +104,9 @@ const CATEGORY_IDS = {
 };
 
 export default async function ProductsPage() {
-	// Récupérer tous les produits principaux (en excluant les accessoires pour cette page)
+	// Récupérer tous les produits (augmenté à 100 pour avoir tous les produits)
 	const allProducts = await getProducts(
-		'?per_page=24&orderby=date&order=desc'
+		'?per_page=100&orderby=date&order=desc'
 	);
 
 	// Filtrer les accessoires
