@@ -38,9 +38,9 @@ export default function CategoriesPageContent({
 	};
 
 	return (
-		<div className='bg-gradient-to-b from-gray-50 to-white min-h-screen'>
+		<div className='categories-content bg-gradient-to-b from-gray-50 to-white min-h-screen'>
 			{/* Header Banner */}
-			<div className='relative bg-gradient-to-r from-indigo-600 to-purple-600 text-white'>
+			<div className='categories-header relative bg-gradient-to-r from-indigo-600 to-purple-600 text-white'>
 				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20'>
 					<motion.h1
 						initial={{ opacity: 0, y: 20 }}
@@ -75,7 +75,7 @@ export default function CategoriesPageContent({
 								<Link
 									href={`/categories/${category.slug}`}
 									className='group block'>
-									<div className='relative rounded-2xl overflow-hidden bg-white shadow-md hover:shadow-xl transition-all duration-300 border-2 border-gray-100 hover:border-indigo-300'>
+									<div className='category-card relative rounded-2xl overflow-hidden bg-white shadow-md hover:shadow-xl transition-all duration-300 border-2 border-gray-100 hover:border-indigo-300'>
 										{/* Image */}
 										<div className='relative h-48 bg-gradient-to-br from-indigo-50 to-purple-50 overflow-hidden'>
 											{category.image?.src ? (
