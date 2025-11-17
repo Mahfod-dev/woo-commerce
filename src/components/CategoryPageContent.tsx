@@ -23,6 +23,10 @@ export default function CategoryPageContent({
 	const [showFilters, setShowFilters] = useState(false);
 	const [filterChanged, setFilterChanged] = useState(false);
 
+	// États pour la pagination
+	const [currentPage, setCurrentPage] = useState(1);
+	const productsPerPage = 12;
+
 	// Filtrer et trier les produits
 	useEffect(() => {
 		let filtered = [...products];
@@ -91,6 +95,7 @@ export default function CategoryPageContent({
 		setPriceRange({ min: 0, max: maxPrice });
 		setSortBy('popularity');
 		setFilterChanged(false);
+		setCurrentPage(1); // Retour à la page 1
 	};
 
 	// Mettre à jour la plage de prix avec suivi des changements
@@ -103,6 +108,58 @@ export default function CategoryPageContent({
 			min: min !== null ? min : prev.min,
 			max: max !== null ? max : prev.max,
 		}));
+		setCurrentPage(1); // Retour à la page 1 quand on filtre
+	};
+
+	// Calcul de la pagination
+	const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+	const indexOfLastProduct = currentPage * productsPerPage;
+	const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+	const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+
+	// Générer les numéros de pages à afficher
+	const getPageNumbers = () => {
+		const pages: (number | string)[] = [];
+		const maxPagesToShow = 5;
+
+		if (totalPages <= maxPagesToShow) {
+			// Afficher toutes les pages si moins de 5
+			for (let i = 1; i <= totalPages; i++) {
+				pages.push(i);
+			}
+		} else {
+			// Toujours afficher la première page
+			pages.push(1);
+
+			if (currentPage > 3) {
+				pages.push('...');
+			}
+
+			// Pages autour de la page courante
+			const start = Math.max(2, currentPage - 1);
+			const end = Math.min(totalPages - 1, currentPage + 1);
+
+			for (let i = start; i <= end; i++) {
+				pages.push(i);
+			}
+
+			if (currentPage < totalPages - 2) {
+				pages.push('...');
+			}
+
+			// Toujours afficher la dernière page
+			if (totalPages > 1) {
+				pages.push(totalPages);
+			}
+		}
+
+		return pages;
+	};
+
+	// Scroll vers le haut lors du changement de page
+	const handlePageChange = (page: number) => {
+		setCurrentPage(page);
+		window.scrollTo({ top: 0, behavior: 'smooth' });
 	};
 
 
@@ -408,82 +465,85 @@ export default function CategoryPageContent({
 							</div>
 						) : (
 							<ProductsGrid
-								products={filteredProducts}
+								products={currentProducts}
 							/>
 						)}
 
-						{/* Pagination (si nécessaire) */}
-						{filteredProducts.length > 0 &&
-							filteredProducts.length > 12 && (
-								<div className='mt-8 flex justify-center'>
-									<nav
-										className='relative z-0 inline-flex rounded-md shadow-sm -space-x-px'
-										aria-label='Pagination'>
-										<a
-											href='#'
-											className='relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50'>
-											<span className='sr-only'>
-												Précédent
-											</span>
-											<svg
-												className='h-5 w-5'
-												xmlns='http://www.w3.org/2000/svg'
-												viewBox='0 0 20 20'
-												fill='currentColor'
-												aria-hidden='true'>
-												<path
-													fillRule='evenodd'
-													d='M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z'
-													clipRule='evenodd'
-												/>
-											</svg>
-										</a>
-										<a
-											href='#'
-											aria-current='page'
-											className='z-10 bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium'>
-											1
-										</a>
-										<a
-											href='#'
-											className='bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium'>
-											2
-										</a>
-										<a
-											href='#'
-											className='bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium'>
-											3
-										</a>
-										<span className='relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700'>
-											...
-										</span>
-										<a
-											href='#'
-											className='bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium'>
-											8
-										</a>
-										<a
-											href='#'
-											className='relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50'>
-											<span className='sr-only'>
-												Suivant
-											</span>
-											<svg
-												className='h-5 w-5'
-												xmlns='http://www.w3.org/2000/svg'
-												viewBox='0 0 20 20'
-												fill='currentColor'
-												aria-hidden='true'>
-												<path
-													fillRule='evenodd'
-													d='M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z'
-													clipRule='evenodd'
-												/>
-											</svg>
-										</a>
-									</nav>
-								</div>
-							)}
+						{/* Pagination dynamique */}
+						{filteredProducts.length > productsPerPage && totalPages > 1 && (
+							<div className='mt-8 flex flex-col sm:flex-row justify-between items-center gap-4'>
+								<p className='text-sm text-gray-700'>
+									Affichage de{' '}
+									<span className='font-medium'>{indexOfFirstProduct + 1}</span>
+									{' à '}
+									<span className='font-medium'>
+										{Math.min(indexOfLastProduct, filteredProducts.length)}
+									</span>
+									{' sur '}
+									<span className='font-medium'>{filteredProducts.length}</span>
+									{' produits'}
+								</p>
+
+								<nav className='relative z-0 inline-flex rounded-md shadow-sm -space-x-px' aria-label='Pagination'>
+									{/* Bouton Précédent */}
+									<button
+										onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+										disabled={currentPage === 1}
+										className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 text-sm font-medium ${
+											currentPage === 1
+												? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+												: 'bg-white text-gray-500 hover:bg-gray-50'
+										}`}>
+										<span className='sr-only'>Précédent</span>
+										<svg className='h-5 w-5' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'>
+											<path fillRule='evenodd' d='M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z' clipRule='evenodd' />
+										</svg>
+									</button>
+
+									{/* Numéros de pages */}
+									{getPageNumbers().map((page, index) => {
+										if (page === '...') {
+											return (
+												<span
+													key={`ellipsis-${index}`}
+													className='relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700'>
+													...
+												</span>
+											);
+										}
+
+										const pageNum = page as number;
+										return (
+											<button
+												key={pageNum}
+												onClick={() => handlePageChange(pageNum)}
+												className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+													currentPage === pageNum
+														? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
+														: 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+												}`}>
+												{pageNum}
+											</button>
+										);
+									})}
+
+									{/* Bouton Suivant */}
+									<button
+										onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+										disabled={currentPage === totalPages}
+										className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 text-sm font-medium ${
+											currentPage === totalPages
+												? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+												: 'bg-white text-gray-500 hover:bg-gray-50'
+										}`}>
+										<span className='sr-only'>Suivant</span>
+										<svg className='h-5 w-5' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'>
+											<path fillRule='evenodd' d='M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z' clipRule='evenodd' />
+										</svg>
+									</button>
+								</nav>
+							</div>
+						)}
 					</div>
 				</div>
 
