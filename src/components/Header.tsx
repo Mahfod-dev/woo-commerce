@@ -8,52 +8,21 @@ import { FaUser, FaSearch, FaBars, FaTimes } from 'react-icons/fa';
 import { usePathname } from 'next/navigation';
 import { useCart } from './CartProvider';
 import MiniCart from './MiniCart';
-import MegaMenu from './MegaMenu';
+// import MegaMenu from './MegaMenu'; // Désactivé pour améliorer les performances
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 
-// Interface pour les catégories
-interface Category {
-	id: number;
-	name: string;
-	slug: string;
-	count?: number;
-	image?: {
-		id?: number;
-		src: string;
-		alt?: string;
-	} | null;
-}
+// MegaMenu désactivé pour améliorer les performances - remplacé par un lien simple vers /categories
 
-interface HeaderProps {
-	initialCategories?: Category[];
-}
-
-export default function Header({ initialCategories = [] }: HeaderProps) {
+export default function Header() {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [isSearchOpen, setIsSearchOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [scrolled, setScrolled] = useState(false);
-	const [categories, setCategories] = useState<Category[]>(initialCategories);
 	const pathname = usePathname();
 	const searchRef = useRef<HTMLDivElement>(null);
 	const { itemCount } = useCart();
 	const { data: session, status } = useSession();
-
-	// Initialiser avec les catégories préchargées
-	useEffect(() => {
-		console.log('🔍 [Header] useEffect - initialCategories:', {
-			length: initialCategories.length,
-			categories: initialCategories.map(c => ({ id: c.id, name: c.name }))
-		});
-
-		if (initialCategories.length > 0) {
-			console.log('✅ [Header] Setting categories from initialCategories');
-			setCategories(initialCategories);
-		} else {
-			console.warn('⚠️ [Header] initialCategories is empty, categories not set');
-		}
-	}, [initialCategories]);
 
 	// Détection du scroll pour changer l'apparence du header
 	useEffect(() => {
@@ -162,24 +131,31 @@ export default function Header({ initialCategories = [] }: HeaderProps) {
 							Accueil
 						</Link>
 
-						{/* Produits avec MegaMenu à côté */}
-						<div className='flex items-center'>
-							<Link
-								href='/products'
-								className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 ${
-									pathname === '/products'
-										? 'text-indigo-600'
-										: scrolled || pathname !== '/'
-										? 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
-										: 'text-white hover:text-white hover:bg-white/20'
-								}`}>
-								Produits
-							</Link>
-							<MegaMenu
-								categories={categories}
-								isDarkBg={!scrolled && pathname === '/'}
-							/>
-						</div>
+						{/* Produits */}
+						<Link
+							href='/products'
+							className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 ${
+								pathname === '/products'
+									? 'text-indigo-600'
+									: scrolled || pathname !== '/'
+									? 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
+									: 'text-white hover:text-white hover:bg-white/20'
+							}`}>
+							Produits
+						</Link>
+
+						{/* Catégories - lien direct sans dropdown pour de meilleures performances */}
+						<Link
+							href='/categories'
+							className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 ${
+								pathname === '/categories' || pathname.startsWith('/categories/')
+									? 'text-indigo-600'
+									: scrolled || pathname !== '/'
+									? 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
+									: 'text-white hover:text-white hover:bg-white/20'
+							}`}>
+							Catégories
+						</Link>
 
 						{/* Autres items de navigation */}
 						{navigationItems.slice(2).map((item) => (
@@ -322,31 +298,13 @@ export default function Header({ initialCategories = [] }: HeaderProps) {
 								</Link>
 							))}
 
-							{/* Catégories dans le menu mobile */}
-							<div className='pt-2 pb-1'>
-								<p className='px-3 text-xs font-medium text-gray-500 uppercase tracking-wider'>
-									Catégories
-								</p>
-							</div>
-
-							{categories?.slice(0, 5).map((category) => (
-								<Link
-									key={category.id}
-									href={`/categories/${category.slug}`}
-									onClick={() => setIsMenuOpen(false)}
-									className='block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors'>
-									{category.name}
-								</Link>
-							))}
-
-							{categories?.length > 5 && (
-								<Link
-									href='/categories'
-									onClick={() => setIsMenuOpen(false)}
-									className='block px-3 py-2 rounded-md text-indigo-600 font-medium hover:bg-indigo-50 transition-colors'>
-									Voir toutes les catégories
-								</Link>
-							)}
+							{/* Lien Catégories dans le menu mobile */}
+							<Link
+								href='/categories'
+								onClick={() => setIsMenuOpen(false)}
+								className='block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors font-medium'>
+								Catégories
+							</Link>
 
 							{/* Actions du menu mobile */}
 							<div className='pt-4 pb-3 border-t border-gray-200'>
