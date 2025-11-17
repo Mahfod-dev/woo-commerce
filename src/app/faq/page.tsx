@@ -218,12 +218,6 @@ const faqData = {
 				description: 'Lun-Ven, 9h-18h',
 				action: '+19136759287',
 			},
-			{
-				icon: 'chat',
-				title: 'Chat en direct',
-				description: 'Discussion instantanée',
-				action: 'Démarrer un chat',
-			},
 		],
 	},
 };
