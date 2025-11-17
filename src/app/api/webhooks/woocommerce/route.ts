@@ -126,6 +126,13 @@ export async function POST(request: NextRequest) {
     // Traiter selon le type d'événement
     const topic = request.headers.get('x-wc-webhook-topic');
 
+    // Vérifier si la commande est mise à la corbeille (trash)
+    if (payload.status === 'trash') {
+      console.log('🗑️ Order moved to trash, treating as deletion');
+      await handleOrderDeleted(payload);
+      return NextResponse.json({ success: true });
+    }
+
     switch (topic) {
       case 'order.created':
         await handleOrderCreated(payload);
