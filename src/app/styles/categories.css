@@ -45,6 +45,15 @@
   transform: translateY(-2px);
 }
 
+.product-card {
+  transition: all 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.15);
+}
+
 /* Custom scrollbar for filters */
 .filter-scrollbar::-webkit-scrollbar {
   width: 4px;

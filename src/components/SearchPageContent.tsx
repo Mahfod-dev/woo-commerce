@@ -91,13 +91,17 @@ export default function SearchPageContent({
 	};
 
 	return (
-		<div className='bg-gray-50 min-h-screen'>
+		<div className='categories-content bg-gradient-to-b from-gray-50 to-white min-h-screen'>
 			{/* Header avec barre de recherche */}
-			<div className='bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-12'>
-				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-					<h1 className='text-3xl md:text-4xl font-bold mb-6'>
+			<div className='categories-header relative bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-16 sm:py-20'>
+				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
+					<motion.h1
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.5 }}
+						className='text-3xl md:text-5xl font-bold mb-6'>
 						Recherche de produits
-					</h1>
+					</motion.h1>
 
 					{/* Barre de recherche */}
 					<form onSubmit={handleSearch} className='max-w-2xl'>
@@ -126,11 +130,17 @@ export default function SearchPageContent({
 							</div>
 							<button
 								type='submit'
-								className='absolute inset-y-0 right-0 px-6 bg-indigo-700 hover:bg-indigo-800 rounded-r-lg transition-colors'>
+								className='absolute inset-y-0 right-0 px-6 bg-indigo-700 hover:bg-indigo-800 rounded-r-lg transition-colors font-medium shadow-md hover:shadow-lg'>
 								Rechercher
 							</button>
 						</div>
 					</form>
+				</div>
+
+				{/* Éléments décoratifs */}
+				<div className='absolute inset-0 overflow-hidden opacity-20'>
+					<div className='absolute -top-20 -left-20 w-64 h-64 rounded-full bg-indigo-500' />
+					<div className='absolute bottom-0 right-0 w-80 h-80 rounded-full bg-purple-500' />
 				</div>
 			</div>
 
@@ -192,8 +202,8 @@ export default function SearchPageContent({
 								<motion.div
 									key={product.id}
 									variants={itemVariants}>
-									<Link href={`/products/${product.id}-${product.slug}`}>
-										<div className='bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 h-full flex flex-col'>
+									<Link href={`/products/${product.id}-${product.slug}`} className='group block h-full'>
+										<div className='product-card bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 h-full flex flex-col border-2 border-gray-100 hover:border-indigo-300'>
 											{/* Image */}
 											<div className='relative aspect-square overflow-hidden bg-gray-100'>
 												{product.images &&
