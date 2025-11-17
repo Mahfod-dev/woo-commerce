@@ -247,56 +247,6 @@ export default function CategoryPageContent({
 
 			{/* Contenu principal */}
 			<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-				{/* Barre de recherche */}
-				<div className='mb-6'>
-					<div className='relative max-w-2xl'>
-						<div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-							<svg
-								className='h-5 w-5 text-gray-400'
-								fill='none'
-								viewBox='0 0 24 24'
-								stroke='currentColor'>
-								<path
-									strokeLinecap='round'
-									strokeLinejoin='round'
-									strokeWidth={2}
-									d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'
-								/>
-							</svg>
-						</div>
-						<input
-							type='text'
-							value={searchQuery}
-							onChange={(e) => setSearchQuery(e.target.value)}
-							placeholder='Rechercher un produit par nom ou description...'
-							className='block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
-						/>
-						{searchQuery && (
-							<button
-								onClick={() => setSearchQuery('')}
-								className='absolute inset-y-0 right-0 pr-3 flex items-center'>
-								<svg
-									className='h-5 w-5 text-gray-400 hover:text-gray-600'
-									fill='none'
-									viewBox='0 0 24 24'
-									stroke='currentColor'>
-									<path
-										strokeLinecap='round'
-										strokeLinejoin='round'
-										strokeWidth={2}
-										d='M6 18L18 6M6 6l12 12'
-									/>
-								</svg>
-							</button>
-						)}
-					</div>
-					{searchQuery && (
-						<p className='mt-2 text-sm text-gray-600'>
-							{filteredProducts.length} produit{filteredProducts.length !== 1 ? 's' : ''} trouvé{filteredProducts.length !== 1 ? 's' : ''}
-						</p>
-					)}
-				</div>
-
 				{/* Barre de filtres et tri */}
 				<div className='bg-white rounded-lg shadow-sm mb-8 p-4 filters-section'>
 					<div className='flex flex-col sm:flex-row justify-between items-start sm:items-center'>
@@ -410,6 +360,56 @@ export default function CategoryPageContent({
 								</button>
 							</div>
 						</motion.div>
+					)}
+				</div>
+
+				{/* Barre de recherche */}
+				<div className='mb-6'>
+					<div className='relative max-w-2xl'>
+						<div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+							<svg
+								className='h-5 w-5 text-gray-400'
+								fill='none'
+								viewBox='0 0 24 24'
+								stroke='currentColor'>
+								<path
+									strokeLinecap='round'
+									strokeLinejoin='round'
+									strokeWidth={2}
+									d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'
+								/>
+							</svg>
+						</div>
+						<input
+							type='text'
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+							placeholder='Rechercher un produit par nom ou description...'
+							className='block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+						/>
+						{searchQuery && (
+							<button
+								onClick={() => setSearchQuery('')}
+								className='absolute inset-y-0 right-0 pr-3 flex items-center'>
+								<svg
+									className='h-5 w-5 text-gray-400 hover:text-gray-600'
+									fill='none'
+									viewBox='0 0 24 24'
+									stroke='currentColor'>
+									<path
+										strokeLinecap='round'
+										strokeLinejoin='round'
+										strokeWidth={2}
+										d='M6 18L18 6M6 6l12 12'
+									/>
+								</svg>
+							</button>
+						)}
+					</div>
+					{searchQuery && (
+						<p className='mt-2 text-sm text-gray-600'>
+							{filteredProducts.length} produit{filteredProducts.length !== 1 ? 's' : ''} trouvé{filteredProducts.length !== 1 ? 's' : ''}
+						</p>
 					)}
 				</div>
 
