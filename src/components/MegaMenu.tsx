@@ -36,6 +36,11 @@ interface MegaMenuProps {
 }
 
 const MegaMenu = ({ categories, isDarkBg = false }: MegaMenuProps) => {
+	console.log('🔍 [MegaMenu] Rendered with categories:', {
+		length: categories.length,
+		categories: categories.map(c => ({ id: c.id, name: c.name }))
+	});
+
 	const [isOpen, setIsOpen] = useState(false);
 	const [selectedCategory, setSelectedCategory] = useState<number | null>(
 		null

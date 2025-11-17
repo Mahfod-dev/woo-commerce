@@ -42,8 +42,16 @@ export default function Header({ initialCategories = [] }: HeaderProps) {
 
 	// Initialiser avec les catégories préchargées
 	useEffect(() => {
+		console.log('🔍 [Header] useEffect - initialCategories:', {
+			length: initialCategories.length,
+			categories: initialCategories.map(c => ({ id: c.id, name: c.name }))
+		});
+
 		if (initialCategories.length > 0) {
+			console.log('✅ [Header] Setting categories from initialCategories');
 			setCategories(initialCategories);
+		} else {
+			console.warn('⚠️ [Header] initialCategories is empty, categories not set');
 		}
 	}, [initialCategories]);
 

@@ -395,23 +395,29 @@ export const getProductsByIds = cache(
  */
 const getCategoriesInternal = async (queryParams: string = ''): Promise<WooCategory[]> => {
 	try {
+		console.log('🔍 [woo] getCategoriesInternal called with queryParams:', queryParams);
 		const separator = queryParams.startsWith('?') ? '' : '?';
 		const categories = await wooInstance.fetch<WooCategory[]>(
 			`products/categories${
 				queryParams ? `${separator}${queryParams}` : ''
 			}`
 		);
+		console.log(`✅ [woo] getCategoriesInternal fetched ${categories.length} categories`);
 		return categories;
 	} catch (error) {
-		console.error('[woo] Error fetching categories:', error);
+		console.error('❌ [woo] Error fetching categories:', error);
 		return [];
 	}
 };
 
 export const getCategories = cache(
 	async (queryParams: string = ''): Promise<WooCategory[]> => {
+		console.log('🔍 [woo] getCategories called (with React cache wrapper)');
 		return unstable_cache(
-			async () => getCategoriesInternal(queryParams),
+			async () => {
+				console.log('🔍 [woo] unstable_cache executing getCategoriesInternal');
+				return getCategoriesInternal(queryParams);
+			},
 			['categories', queryParams],
 			{
 				revalidate: 3600, // Cache pendant 1 heure
