@@ -607,59 +607,53 @@ export default function AppleStyleProductDetail({
 									Description
 								</h3>
 								<div
-									className='product-description prose prose-lg max-w-none text-gray-700'
+									className='product-description prose prose-lg max-w-none'
 									style={{
-										lineHeight: '2',
-										fontSize: '1.0625rem'
+										fontSize: '1.0625rem',
+										lineHeight: '1.9',
+										color: '#374151'
 									}}
 									dangerouslySetInnerHTML={{ __html: product.description }}
 								/>
 								<style jsx>{`
 									.product-description :global(p) {
-										margin-bottom: 2.5rem;
-										line-height: 2;
-										color: #374151;
+										margin-bottom: 2rem !important;
+										line-height: 1.9 !important;
 									}
-									.product-description :global(h1),
-									.product-description :global(h2),
-									.product-description :global(h3) {
-										color: #4f46e5;
-										font-weight: 700;
-										margin-top: 3rem;
-										margin-bottom: 1.5rem;
-									}
-									.product-description :global(h2) {
-										font-size: 1.5rem;
-										border-bottom: 2px solid #e0e7ff;
-										padding-bottom: 0.5rem;
+									.product-description :global(strong) {
+										color: #4f46e5 !important;
+										font-size: 1.25rem !important;
+										display: block !important;
+										margin-top: 2.5rem !important;
+										margin-bottom: 1.25rem !important;
+										font-weight: 700 !important;
 									}
 									.product-description :global(ul) {
-										margin: 2.5rem 0;
-										padding-left: 0;
-										list-style: none;
+										margin: 1.5rem 0 !important;
+										list-style: none !important;
+										padding-left: 0 !important;
 									}
 									.product-description :global(ul li) {
-										position: relative;
-										padding-left: 2rem;
-										margin-bottom: 1.25rem;
-										line-height: 2;
-										font-size: 1.0625rem;
+										padding-left: 2.5rem !important;
+										margin-bottom: 1rem !important;
+										position: relative !important;
+										line-height: 1.8 !important;
 									}
 									.product-description :global(ul li::before) {
-										content: '✓';
-										position: absolute;
-										left: 0;
-										top: 0;
-										color: #10b981;
-										font-weight: bold;
-										width: 1.5rem;
-										height: 1.5rem;
-										display: flex;
-										align-items: center;
-										justify-content: center;
-										background: #d1fae5;
-										border-radius: 50%;
-										font-size: 0.875rem;
+										content: '✓' !important;
+										position: absolute !important;
+										left: 0 !important;
+										top: 0.15rem !important;
+										color: #10b981 !important;
+										font-weight: bold !important;
+										width: 1.5rem !important;
+										height: 1.5rem !important;
+										background: #d1fae5 !important;
+										border-radius: 50% !important;
+										display: inline-flex !important;
+										align-items: center !important;
+										justify-content: center !important;
+										font-size: 0.875rem !important;
 									}
 								`}</style>
 							</div>
