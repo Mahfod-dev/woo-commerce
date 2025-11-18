@@ -15,6 +15,46 @@ import ProductGallery from './ProductGalleryComponent';
 import VariationSelector from './VariationSelector';
 import { getProductVariations, WooVariation } from '@/lib/woo';
 
+// Function to decode HTML entities
+const decodeHTMLEntities = (text: string): string => {
+	if (typeof document === 'undefined') return text;
+
+	const tempDiv = document.createElement('div');
+	tempDiv.innerHTML = text;
+	return tempDiv.textContent || tempDiv.innerText || text;
+};
+
+// Function to parse short description into structured parts
+const parseShortDescription = (text: string): { intro: string; bullets: string[]; outro: string } => {
+	const cleanText = decodeHTMLEntities(text.replace(/<[^>]*>/g, ''));
+
+	// Split by checkmark symbol
+	const parts = cleanText.split('✔').map(p => p.trim()).filter(p => p.length > 0);
+
+	if (parts.length <= 1) {
+		return { intro: cleanText, bullets: [], outro: '' };
+	}
+
+	// First part is intro
+	const intro = parts[0];
+
+	// Find if there's text after bullets (usually starts with "Transformez", "Profitez", etc.)
+	const bullets: string[] = [];
+	let outro = '';
+
+	for (let i = 1; i < parts.length; i++) {
+		const part = parts[i];
+		// Check if this looks like a CTA or outro (contains words like "Transformez", "Essayez", etc.)
+		if (part.match(/^(Transformez|Essayez|Profitez|Découvrez|Commandez)/i)) {
+			outro = part;
+		} else {
+			bullets.push(part);
+		}
+	}
+
+	return { intro, bullets, outro };
+};
+
 // Function to extract features from HTML description
 const extractFeaturesFromHTML = (htmlContent: string): string[] => {
 	if (typeof document === 'undefined') return [];
@@ -496,13 +536,40 @@ export default function AppleStyleProductDetail({
 							<h1 className='text-4xl md:text-6xl font-bold text-gray-900 tracking-tight mb-4'>
 								{product.name}
 							</h1>
-							<p className='text-xl md:text-2xl text-gray-500 mb-8'>
-								{product.short_description.replace(
-									/<[^>]*>/g,
-									''
-								)}
-							</p>
-							<div className='flex flex-col sm:flex-row justify-center items-center gap-4 mb-8'>
+							{(() => {
+								const { intro, bullets, outro } = parseShortDescription(product.short_description);
+								return (
+									<div className='space-y-6'>
+										{intro && (
+											<p className='text-lg md:text-xl text-gray-600 leading-relaxed'>
+												{intro}
+											</p>
+										)}
+										{bullets.length > 0 && (
+											<div className='bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 md:p-8 border border-indigo-100'>
+												<ul className='grid grid-cols-1 md:grid-cols-2 gap-3 text-left'>
+													{bullets.map((bullet, index) => (
+														<li key={index} className='flex items-start gap-3'>
+															<div className='flex-shrink-0 w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mt-0.5'>
+																<svg className='w-4 h-4 text-green-600' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+																	<path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 13l4 4L19 7' />
+																</svg>
+															</div>
+															<span className='text-gray-700 text-sm md:text-base flex-1'>{bullet}</span>
+														</li>
+													))}
+												</ul>
+											</div>
+										)}
+										{outro && (
+											<p className='text-base md:text-lg text-indigo-600 font-medium'>
+												{outro}
+											</p>
+										)}
+									</div>
+								);
+							})()}
+							<div className='flex flex-col sm:flex-row justify-center items-center gap-4 mb-8 mt-8'>
 								<span className='text-3xl font-bold text-gray-900'>
 									{selectedVariation
 										? formatPrice(selectedVariation.price)
@@ -617,27 +684,42 @@ export default function AppleStyleProductDetail({
 								/>
 								<style jsx>{`
 									.product-description :global(p) {
-										margin-bottom: 2rem !important;
-										line-height: 1.9 !important;
+										margin-bottom: 0.75rem !important;
+										line-height: 1.65 !important;
 									}
+
+									/* Cacher les checkmarks texte et les remplacer */
+									.product-description :global(p:has(> text):first-line) {
+										text-indent: -9999px !important;
+									}
+
+									/* Style pour les paragraphes qui commencent par ✔ */
+									.product-description :global(p) {
+										position: relative !important;
+									}
+
+									.product-description :global(p)::first-line {
+										color: transparent !important;
+									}
+
 									.product-description :global(strong) {
 										color: #4f46e5 !important;
 										font-size: 1.25rem !important;
 										display: block !important;
-										margin-top: 2.5rem !important;
-										margin-bottom: 1.25rem !important;
+										margin-top: 1.25rem !important;
+										margin-bottom: 0.5rem !important;
 										font-weight: 700 !important;
 									}
 									.product-description :global(ul) {
-										margin: 1.5rem 0 !important;
+										margin: 0.75rem 0 !important;
 										list-style: none !important;
 										padding-left: 0 !important;
 									}
 									.product-description :global(ul li) {
 										padding-left: 2.5rem !important;
-										margin-bottom: 1rem !important;
+										margin-bottom: 0.5rem !important;
 										position: relative !important;
-										line-height: 1.8 !important;
+										line-height: 1.65 !important;
 									}
 									.product-description :global(ul li::before) {
 										content: '✓' !important;
