@@ -177,9 +177,21 @@ export default function ContactContent({ contactData }: ContactContentProps) {
 
 		setFormStatus('submitting');
 
-		// Simuler un appel API (à remplacer par votre propre endpoint)
 		try {
-			await new Promise((resolve) => setTimeout(resolve, 1500));
+			const response = await fetch('/api/contact', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(formData),
+			});
+
+			const data = await response.json();
+
+			if (!response.ok) {
+				throw new Error(data.error || 'Erreur lors de l\'envoi');
+			}
+
 			setFormStatus('success');
 			setFormData({
 				name: '',
@@ -187,14 +199,18 @@ export default function ContactContent({ contactData }: ContactContentProps) {
 				subject: contactData.form.subjectOptions[0].value,
 				message: '',
 			});
+
 			// Réinitialiser après 5 secondes
 			setTimeout(() => {
 				setFormStatus('idle');
 			}, 5000);
 		} catch (error) {
 			setFormStatus('error');
-			setErrors({ form: contactData.form.errorMessage });
+			setErrors({
+				form: error instanceof Error ? error.message : contactData.form.errorMessage
+			});
 			console.error('Submission error:', error);
+
 			setTimeout(() => {
 				setFormStatus('idle');
 			}, 5000);
