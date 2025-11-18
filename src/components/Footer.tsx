@@ -779,7 +779,7 @@ export default function ImprovedFooter() {
 								Politique de cookies
 							</Link>
 							<Link
-								href='/sitemap'
+								href='/sitemap.xml'
 								className='hover:text-white transition-colors'>
 								Plan du site
 							</Link>
