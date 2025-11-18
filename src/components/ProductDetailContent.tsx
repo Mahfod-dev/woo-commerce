@@ -602,14 +602,66 @@ export default function AppleStyleProductDetail({
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ duration: 0.6, delay: 0.2 }}
 							className='max-w-4xl mx-auto mt-12'>
-							<div className='bg-gray-50 rounded-2xl p-8 md:p-10'>
-								<h3 className='text-2xl font-bold text-gray-900 mb-6'>
+							<div className='bg-white rounded-2xl p-8 md:p-12 shadow-sm border border-gray-100'>
+								<h3 className='text-3xl font-bold text-gray-900 mb-8 pb-4 border-b-2 border-indigo-100'>
 									Description
 								</h3>
 								<div
-									className='prose prose-lg max-w-none text-gray-700 leading-relaxed'
+									className='product-description prose prose-lg max-w-none text-gray-700'
+									style={{
+										lineHeight: '2',
+										fontSize: '1.0625rem'
+									}}
 									dangerouslySetInnerHTML={{ __html: product.description }}
 								/>
+								<style jsx>{`
+									.product-description :global(p) {
+										margin-bottom: 2.5rem;
+										line-height: 2;
+										color: #374151;
+									}
+									.product-description :global(h1),
+									.product-description :global(h2),
+									.product-description :global(h3) {
+										color: #4f46e5;
+										font-weight: 700;
+										margin-top: 3rem;
+										margin-bottom: 1.5rem;
+									}
+									.product-description :global(h2) {
+										font-size: 1.5rem;
+										border-bottom: 2px solid #e0e7ff;
+										padding-bottom: 0.5rem;
+									}
+									.product-description :global(ul) {
+										margin: 2.5rem 0;
+										padding-left: 0;
+										list-style: none;
+									}
+									.product-description :global(ul li) {
+										position: relative;
+										padding-left: 2rem;
+										margin-bottom: 1.25rem;
+										line-height: 2;
+										font-size: 1.0625rem;
+									}
+									.product-description :global(ul li::before) {
+										content: '✓';
+										position: absolute;
+										left: 0;
+										top: 0;
+										color: #10b981;
+										font-weight: bold;
+										width: 1.5rem;
+										height: 1.5rem;
+										display: flex;
+										align-items: center;
+										justify-content: center;
+										background: #d1fae5;
+										border-radius: 50%;
+										font-size: 0.875rem;
+									}
+								`}</style>
 							</div>
 						</motion.div>
 					</div>
