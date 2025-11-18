@@ -130,7 +130,7 @@ export async function POST(request: Request) {
 		`;
 
 		// Envoyer l'email via Resend
-		const data = await resend.emails.send({
+		const { data, error: resendError } = await resend.emails.send({
 			from: 'Selectura Contact <onboarding@resend.dev>', // Domaine par défaut Resend
 			to: [SUPPORT_EMAIL],
 			replyTo: email, // Permet de répondre directement au client
@@ -151,11 +151,15 @@ Vous pouvez répondre directement à cet email pour contacter ${name}.
 			`.trim(),
 		});
 
+		if (resendError) {
+			throw new Error(resendError.message);
+		}
+
 		return NextResponse.json(
 			{
 				success: true,
 				message: 'Message envoyé avec succès',
-				id: data.id,
+				emailId: data?.id,
 			},
 			{ status: 200 }
 		);
