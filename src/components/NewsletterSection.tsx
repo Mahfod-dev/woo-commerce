@@ -21,11 +21,23 @@ export default function NewsletterSection() {
 
 		setStatus('loading');
 
-		// Simuler un appel API
 		try {
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			const response = await fetch('/api/newsletter', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ email: email.trim() }),
+			});
+
+			const data = await response.json();
+
+			if (!response.ok) {
+				throw new Error(data.error || 'Erreur lors de l\'inscription');
+			}
+
 			setStatus('success');
-			setMessage('Merci pour votre inscription à notre newsletter!');
+			setMessage(data.message || 'Merci pour votre inscription à notre newsletter!');
 			setEmail('');
 
 			// Réinitialiser après 5 secondes
@@ -36,8 +48,16 @@ export default function NewsletterSection() {
 		} catch (error) {
 			setStatus('error');
 			setMessage(
-				'Une erreur est survenue. Veuillez réessayer plus tard.'
+				error instanceof Error
+					? error.message
+					: 'Une erreur est survenue. Veuillez réessayer plus tard.'
 			);
+
+			// Réinitialiser l'erreur après 5 secondes
+			setTimeout(() => {
+				setStatus('idle');
+				setMessage('');
+			}, 5000);
 		}
 	};
 
