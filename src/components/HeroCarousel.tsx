@@ -93,7 +93,7 @@ const HeroCarousel = () => {
 	};
 
 	return (
-		<section className='relative h-[80vh] md:h-screen overflow-hidden'>
+		<section className='relative h-[80vh] md:h-screen overflow-hidden -mt-16 md:-mt-20'>
 			{/* Slides avec arrière-plan d'image pour plus d'immersion */}
 			<AnimatePresence mode='wait'>
 				{slides.map(
@@ -236,12 +236,12 @@ const HeroCarousel = () => {
 													</motion.div>
 												</motion.div>
 
-												{/* Image produit */}
+												{/* Image produit - cachée sur mobile */}
 												<motion.div
 													initial={{ opacity: 0, x: 50, scale: 0.8 }}
 													animate={{ opacity: 1, x: 0, scale: 1 }}
 													transition={{ duration: 1.2, delay: 0.4 }}
-													className='relative'>
+													className='relative hidden lg:block'>
 													<div className='relative w-full h-96 lg:h-[500px]'>
 														{/* Glow effect */}
 														<div className='absolute inset-0 bg-gradient-to-r from-yellow-400/30 to-pink-400/30 rounded-full blur-3xl scale-110'></div>
@@ -280,7 +280,7 @@ const HeroCarousel = () => {
 													initial={{ opacity: 0, scale: 0.8 }}
 													animate={{ opacity: 1, scale: 1 }}
 													transition={{ duration: 1.2, delay: 0.6 }}
-													className='relative w-full max-w-md mx-auto h-80'>
+													className='relative w-full max-w-md mx-auto h-80 hidden md:block'>
 													<div className='absolute inset-0 bg-gradient-to-r from-blue-400/40 to-purple-400/40 rounded-full blur-3xl'></div>
 													<Image
 														src={slide.image}
@@ -316,12 +316,12 @@ const HeroCarousel = () => {
 
 										{slide.layout === 'overlay' && (
 											<div className='relative h-full flex items-center'>
-												{/* Image en arrière-plan avec effet parallax */}
+												{/* Image en arrière-plan avec effet parallax - cachée sur mobile */}
 												<motion.div
 													initial={{ scale: 1.2, opacity: 0 }}
 													animate={{ scale: 1, opacity: 0.3 }}
 													transition={{ duration: 2 }}
-													className='absolute right-0 top-1/2 transform -translate-y-1/2 w-1/2 h-96'>
+													className='absolute right-0 top-1/2 transform -translate-y-1/2 w-1/2 h-96 hidden lg:block'>
 													<Image
 														src={slide.image}
 														alt={slide.title}
