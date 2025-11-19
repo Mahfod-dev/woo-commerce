@@ -1,0 +1,14 @@
+# robots.txt pour Selectura.co
+
+User-agent: *
+Allow: /
+
+# Pages à ne pas indexer
+Disallow: /api/
+Disallow: /checkout
+Disallow: /order-confirmation
+Disallow: /_next/
+Disallow: /admin/
+
+# Sitemap
+Sitemap: https://selectura.co/sitemap.xml
