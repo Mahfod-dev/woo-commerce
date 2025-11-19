@@ -67,6 +67,41 @@ export default function BestSellersSchema({
 								product.stock_status === 'instock'
 									? 'https://schema.org/InStock'
 									: 'https://schema.org/OutOfStock',
+							hasMerchantReturnPolicy: {
+								'@type': 'MerchantReturnPolicy',
+								'applicableCountry': 'FR',
+								'returnPolicyCategory': 'https://schema.org/MerchantReturnFiniteReturnWindow',
+								'merchantReturnDays': 14,
+								'returnMethod': 'https://schema.org/ReturnByMail',
+								'returnFees': 'https://schema.org/FreeReturn',
+							},
+							shippingDetails: {
+								'@type': 'OfferShippingDetails',
+								'shippingRate': {
+									'@type': 'MonetaryAmount',
+									'value': '0',
+									'currency': 'EUR',
+								},
+								'shippingDestination': {
+									'@type': 'DefinedRegion',
+									'addressCountry': 'FR',
+								},
+								'deliveryTime': {
+									'@type': 'ShippingDeliveryTime',
+									'handlingTime': {
+										'@type': 'QuantitativeValue',
+										'minValue': 0,
+										'maxValue': 1,
+										'unitCode': 'DAY',
+									},
+									'transitTime': {
+										'@type': 'QuantitativeValue',
+										'minValue': 2,
+										'maxValue': 5,
+										'unitCode': 'DAY',
+									},
+								},
+							},
 						},
 						aggregateRating: {
 							'@type': 'AggregateRating',
