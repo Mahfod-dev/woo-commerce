@@ -3,6 +3,16 @@
 User-agent: *
 Allow: /
 
+# Allow OpenAI Bots
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
 # Pages à ne pas indexer
 Disallow: /api/
 Disallow: /checkout
