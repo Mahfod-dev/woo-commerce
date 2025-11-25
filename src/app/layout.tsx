@@ -1,5 +1,5 @@
 // app/layout.tsx
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import './styles/categories.css';
@@ -20,6 +20,10 @@ const geistMono = Geist_Mono({
 	subsets: ['latin'],
 });
 
+export const viewport: Viewport = {
+	themeColor: '#ffffff',
+};
+
 export const metadata: Metadata = {
 	title: 'Selectura | Shop Exclusif',
 	description:
@@ -30,7 +34,6 @@ export const metadata: Metadata = {
 		apple: '/web-app-manifest-192x192.png',
 	},
 	manifest: '/manifest.json',
-	themeColor: '#ffffff',
 	metadataBase: new URL('https://selectura.co'),
 };
 

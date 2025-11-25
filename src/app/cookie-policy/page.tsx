@@ -1,7 +1,12 @@
 // app/cookie-policy/page.tsx
 import { Suspense } from 'react';
+import { Viewport } from 'next';
 import CookiePolicyContent from '@/components/CookiePolicyContent';
 import '../styles/privacy.css';
+
+export const viewport: Viewport = {
+	themeColor: '#4338ca',
+};
 
 // Métadonnées pour le SEO
 export const metadata = {
@@ -10,7 +15,6 @@ export const metadata = {
 		'Découvrez comment nous utilisons les cookies sur notre site. Notre politique de cookies explique les types de cookies utilisés, leur finalité et comment les gérer.',
 	keywords:
 		'politique cookies, cookies, navigation, préférences, données de navigation, Selectura, protection données',
-	themeColor: '#4338ca',
 	openGraph: {
 		title: 'Politique de Cookies | Selectura',
 		description: 'Comprenez notre utilisation des cookies et comment les gérer selon vos préférences.',
