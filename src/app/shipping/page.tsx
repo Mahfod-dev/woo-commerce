@@ -1,15 +1,25 @@
 // app/shipping/page.tsx
 import { Suspense } from 'react';
 import ShippingContent from '@/components/ShippingContent';
+import { ShippingPageSchemaSSR } from '@/components/schemas';
 import '../styles/shipping.css';
 
 // Métadonnées pour le SEO
 export const metadata = {
-	title: 'Politique de Livraison | Votre Boutique',
+	title: 'Politique de Livraison | Selectura',
 	description:
-		'Consultez nos conditions de livraison, délais et frais. Informations détaillées sur nos services de livraison et options disponibles.',
+		'Consultez nos conditions de livraison, délais et frais. Livraison gratuite dès 50€ en France. Livraison 2-3 jours ouvrables.',
 	keywords:
-		'livraison, expédition, délais, frais de port, suivi, international',
+		'livraison, expédition, délais, frais de port, suivi, international, livraison gratuite',
+	openGraph: {
+		title: 'Politique de Livraison | Selectura',
+		description: 'Livraison gratuite dès 50€. Délai 2-3 jours en France.',
+		type: 'website',
+		url: 'https://selectura.co/shipping',
+	},
+	alternates: {
+		canonical: 'https://selectura.co/shipping',
+	},
 };
 
 // Composant de chargement pour Suspense
@@ -259,8 +269,11 @@ const shippingData = {
 
 export default function ShippingPage() {
 	return (
-		<Suspense fallback={<ShippingLoading />}>
-			<ShippingContent shippingData={shippingData} />
-		</Suspense>
+		<>
+			<ShippingPageSchemaSSR />
+			<Suspense fallback={<ShippingLoading />}>
+				<ShippingContent shippingData={shippingData} />
+			</Suspense>
+		</>
 	);
 }

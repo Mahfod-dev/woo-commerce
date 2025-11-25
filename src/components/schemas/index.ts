@@ -7,3 +7,5 @@ export { default as ProductFAQSchemaSSR, generateProductFAQs } from './ProductFA
 export { default as ArticleSchemaSSR } from './ArticleSchemaSSR';
 export { default as AboutPageSchemaSSR } from './AboutPageSchemaSSR';
 export { default as ComparisonTableSchemaSSR } from './ComparisonTableSchemaSSR';
+export { default as ShippingPageSchemaSSR } from './ShippingPageSchemaSSR';
+export { default as ReturnsPageSchemaSSR } from './ReturnsPageSchemaSSR';

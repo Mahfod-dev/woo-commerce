@@ -1,15 +1,25 @@
 // app/returns/page.tsx
 import { Suspense } from 'react';
 import ReturnsContent from '@/components/ReturnsContent';
+import { ReturnsPageSchemaSSR } from '@/components/schemas';
 import '../styles/returns.css';
 
 // Métadonnées pour le SEO
 export const metadata = {
-	title: 'Politique de Retour | Votre Boutique',
+	title: 'Politique de Retour | Selectura',
 	description:
-		"Découvrez notre politique de retour, les modalités de remboursement et d'échange. Informations détaillées sur vos droits et les démarches à suivre.",
+		"Découvrez notre politique de retour sous 14 jours, remboursement intégral et échange. Frais de retour 4,90€.",
 	keywords:
-		'retour, remboursement, échange, garantie, satisfaction, droit de rétractation',
+		'retour, remboursement, échange, garantie, satisfaction, droit de rétractation, 14 jours',
+	openGraph: {
+		title: 'Politique de Retour | Selectura',
+		description: 'Retour sous 14 jours. Remboursement intégral garanti.',
+		type: 'website',
+		url: 'https://selectura.co/returns',
+	},
+	alternates: {
+		canonical: 'https://selectura.co/returns',
+	},
 };
 
 // Composant de chargement pour Suspense
@@ -277,8 +287,11 @@ const returnsData = {
 
 export default function ReturnsPage() {
 	return (
-		<Suspense fallback={<ReturnsLoading />}>
-			<ReturnsContent returnsData={returnsData} />
-		</Suspense>
+		<>
+			<ReturnsPageSchemaSSR />
+			<Suspense fallback={<ReturnsLoading />}>
+				<ReturnsContent returnsData={returnsData} />
+			</Suspense>
+		</>
 	);
 }
