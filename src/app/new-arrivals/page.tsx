@@ -2,6 +2,7 @@
 import { Suspense } from 'react';
 import { getProducts } from '@/lib/woo';
 import NewArrivalsContent from '@/components/NewArrivalsContent';
+import { ItemListSchemaSSR, BreadcrumbSchemaSSR } from '@/components/schemas';
 
 // Métadonnées pour le SEO
 export const metadata = {
@@ -64,8 +65,19 @@ export default async function NewArrivalsPage() {
 	});
 
 	return (
-		<Suspense fallback={<NewArrivalsLoading />}>
-			<NewArrivalsContent products={recentProducts} />
-		</Suspense>
+		<>
+			<ItemListSchemaSSR
+				products={recentProducts}
+				listName="Nouveautés - Selectura"
+				listUrl="https://selectura.co/new-arrivals"
+				description="Découvrez nos tout derniers produits ajoutés ces 2 dernières semaines."
+			/>
+			<BreadcrumbSchemaSSR
+				items={[{ name: 'Nouveautés', url: 'https://selectura.co/new-arrivals' }]}
+			/>
+			<Suspense fallback={<NewArrivalsLoading />}>
+				<NewArrivalsContent products={recentProducts} />
+			</Suspense>
+		</>
 	);
 }

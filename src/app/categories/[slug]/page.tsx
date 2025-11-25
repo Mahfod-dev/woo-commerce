@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { getCategories, getProductsByCategory, getSubcategories } from '@/lib/woo';
 import CategoryPageContent from '@/components/CategoryPageContent';
+import { ItemListSchemaSSR, BreadcrumbSchemaSSR } from '@/components/schemas';
 import '../../styles/categories.css';
 
 // Configuration de revalidation - régénère la page toutes les 30 minutes
@@ -124,12 +125,26 @@ export default async function CategoryPage({ params }: PageProps) {
 	const products = await getProductsByCategory(category.id, true);
 
 	return (
-		<Suspense fallback={<CategoryLoading />}>
-			<CategoryPageContent
-				category={category}
+		<>
+			<ItemListSchemaSSR
 				products={products}
-				subcategories={subcategories}
+				listName={`${category.name} - Selectura`}
+				listUrl={`https://selectura.co/categories/${slug}`}
+				description={`Découvrez notre collection ${category.name.toLowerCase()} - ${products.length} produits premium sélectionnés.`}
 			/>
-		</Suspense>
+			<BreadcrumbSchemaSSR
+				items={[
+					{ name: 'Catégories', url: 'https://selectura.co/categories' },
+					{ name: category.name, url: `https://selectura.co/categories/${slug}` }
+				]}
+			/>
+			<Suspense fallback={<CategoryLoading />}>
+				<CategoryPageContent
+					category={category}
+					products={products}
+					subcategories={subcategories}
+				/>
+			</Suspense>
+		</>
 	);
 }

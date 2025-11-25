@@ -7,8 +7,7 @@ import './styles/product-detail.css';
 import HeaderWrapper from '@/components/HeaderWrapper';
 import Footer from '@/components/Footer';
 import CookieConsentBanner from '@/components/CookieConsentBanner';
-import BreadcrumbSchema from '@/components/BreadcrumbSchema';
-import WebSiteSchema from '@/components/WebSiteSchema';
+import { OrganizationSchemaSSR } from '@/components/schemas';
 import Providers from './providers';
 
 const geistSans = Geist({
@@ -46,8 +45,7 @@ export default function RootLayout({
 			<body
 				className={`${geistSans.className} ${geistMono.className} antialiased`}>
 				<Providers>
-					<WebSiteSchema />
-					<BreadcrumbSchema />
+					<OrganizationSchemaSSR />
 					<HeaderWrapper />
 					<main className='flex-grow min-h-screen pt-16 md:pt-20'>
 						{children}

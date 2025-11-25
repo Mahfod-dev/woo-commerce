@@ -8,9 +8,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const products = await getProducts('?per_page=100')
   const categories = await getCategories()
 
-  // Générer les URLs des produits
+  // Générer les URLs des produits (format ID-slug)
   const productUrls = products.map((product) => ({
-    url: `${baseUrl}/products/${product.slug}`,
+    url: `${baseUrl}/products/${product.id}-${product.slug}`,
     lastModified: product.date_modified ? new Date(product.date_modified) : new Date(),
     changeFrequency: 'weekly' as const,
     priority: 0.8,
@@ -84,6 +84,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/notre-expertise`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
     },
     {
       url: `${baseUrl}/contact`,

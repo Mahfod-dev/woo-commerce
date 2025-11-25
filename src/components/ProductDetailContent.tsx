@@ -13,7 +13,8 @@ import { useCart } from '@/components/CartProvider';
 import { formatPrice } from '@/lib/wooClient';
 import ProductGallery from './ProductGalleryComponent';
 import VariationSelector from './VariationSelector';
-import { getProductVariations, WooVariation } from '@/lib/woo';
+import { getProductVariations, WooVariation, WooProduct } from '@/lib/woo';
+import ProductComparisonTable from './ProductComparisonTable';
 
 // Function to decode HTML entities
 const decodeHTMLEntities = (text: string): string => {
@@ -2126,6 +2127,19 @@ export default function AppleStyleProductDetail({
 						</div>
 					</div>
 				</section>
+
+				{/* Section Tableau Comparatif */}
+				{similarProducts.length > 0 && (
+					<section className='py-16 bg-white'>
+						<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+							<ProductComparisonTable
+								currentProduct={product as unknown as WooProduct}
+								similarProducts={similarProducts as unknown as WooProduct[]}
+								title="Comparez avec des produits similaires"
+							/>
+						</div>
+					</section>
+				)}
 
 				{/* Section "Vous aimerez aussi" */}
 				{similarProducts.length > 0 && (

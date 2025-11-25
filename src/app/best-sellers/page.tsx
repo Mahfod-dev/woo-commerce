@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { getBestSellingProducts, getCategories, WooProduct } from '@/lib/woo';
 import ProductsGrid from '@/components/ProductsGrid';
 import ImprovedFaqSection from '@/components/ImprovedFaqSection';
+import { ItemListSchemaSSR, BreadcrumbSchemaSSR } from '@/components/schemas';
 
 // Configuration de revalidation
 export const revalidate = 1800; // 30 minutes
@@ -120,8 +121,18 @@ export default async function BestSellersPage() {
 	];
 
 	return (
-		<Suspense fallback={<BestSellersLoading />}>
-			<div className='bg-white'>
+		<>
+			<ItemListSchemaSSR
+				products={products}
+				listName="Meilleures ventes - Selectura"
+				listUrl="https://selectura.co/best-sellers"
+				description="Découvrez nos produits les plus populaires, plébiscités par nos clients pour leur qualité exceptionnelle."
+			/>
+			<BreadcrumbSchemaSSR
+				items={[{ name: 'Meilleures ventes', url: 'https://selectura.co/best-sellers' }]}
+			/>
+			<Suspense fallback={<BestSellersLoading />}>
+				<div className='bg-white'>
 				{/* Hero Section */}
 				<div className='bg-gradient-to-r from-indigo-600 to-purple-600 text-white'>
 					<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16'>
@@ -294,7 +305,8 @@ export default async function BestSellersPage() {
 					bgColor='bg-white'
 					showContact={true}
 				/>
-			</div>
-		</Suspense>
+				</div>
+			</Suspense>
+		</>
 	);
 }

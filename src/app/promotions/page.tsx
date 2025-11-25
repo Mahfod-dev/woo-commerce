@@ -2,6 +2,7 @@
 import { Suspense } from 'react';
 import { getProducts } from '@/lib/woo';
 import PromotionsContent from '@/components/PromotionsContent';
+import { ItemListSchemaSSR, BreadcrumbSchemaSSR } from '@/components/schemas';
 
 // Métadonnées pour le SEO
 export const metadata = {
@@ -52,8 +53,19 @@ export default async function PromotionsPage() {
 	const products = await getProducts('?on_sale=true&per_page=30');
 
 	return (
-		<Suspense fallback={<PromotionsLoading />}>
-			<PromotionsContent products={products} />
-		</Suspense>
+		<>
+			<ItemListSchemaSSR
+				products={products}
+				listName="Promotions - Selectura"
+				listUrl="https://selectura.co/promotions"
+				description="Découvrez nos offres spéciales et faites des économies sur notre sélection de produits en promotion."
+			/>
+			<BreadcrumbSchemaSSR
+				items={[{ name: 'Promotions', url: 'https://selectura.co/promotions' }]}
+			/>
+			<Suspense fallback={<PromotionsLoading />}>
+				<PromotionsContent products={products} />
+			</Suspense>
+		</>
 	);
 }

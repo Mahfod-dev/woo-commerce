@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import { notFound, redirect } from 'next/navigation';
 import { getProductById, getProducts, WooProduct } from '@/lib/woo';
 import ProductDetailContent from '@/components/ProductDetailContent';
-import ProductSchema from '@/components/ProductSchema';
+import { ProductSchemaSSR, BreadcrumbSchemaSSR, ProductFAQSchemaSSR, ComparisonTableSchemaSSR } from '@/components/schemas';
 
 // Configuration de revalidation - régénère la page toutes les 30 minutes
 export const revalidate = 1800;
@@ -337,9 +337,27 @@ export default async function ProductPage({ params }: PageProps) {
 		const premiumVariantConverted = premiumVariant ? convertToProduct(premiumVariant) : null;
 		const similarProductsConverted = similarProducts.map(convertToProduct);
 
+		// Breadcrumb pour la page produit
+		const breadcrumbItems = [
+			{ name: 'Produits', url: 'https://selectura.co/products' },
+			...(product.categories.length > 0 ? [{
+				name: product.categories[0].name,
+				url: `https://selectura.co/categories/${product.categories[0].slug}`
+			}] : []),
+			{ name: product.name, url: `https://selectura.co/products/${product.id}-${product.slug}` }
+		];
+
 		return (
 			<>
-				<ProductSchema product={productConverted} />
+				<ProductSchemaSSR product={product} />
+				<BreadcrumbSchemaSSR items={breadcrumbItems} />
+				<ProductFAQSchemaSSR product={product} />
+				{similarProducts.length > 0 && (
+					<ComparisonTableSchemaSSR
+						currentProduct={product}
+						comparedProducts={similarProducts.slice(0, 2)}
+					/>
+				)}
 				<Suspense fallback={<ProductDetailLoading />}>
 					<ProductDetailContent
 						product={productConverted}

@@ -1,6 +1,7 @@
 // app/about/page.tsx
 import { Suspense } from 'react';
 import AboutContent from '@/components/AboutContent';
+import { AboutPageSchemaSSR } from '@/components/schemas';
 import '../styles/about.css';
 
 // Métadonnées pour le SEO
@@ -171,20 +172,23 @@ const aboutData = {
 			{
 				name: 'Pierre Martin',
 				role: 'Fondateur & CEO',
-				bio: "Ingénieur de formation, Pierre a travaillé 15 ans dans l'industrie du luxe avant de fonder Votre Boutique, réalisant ainsi sa vision d'une plateforme dédiée à l'excellence.",
+				bio: "Ingénieur de formation avec 15 ans d'expérience dans l'industrie du luxe. Pierre a fondé Selectura pour créer une plateforme dédiée à l'excellence et à la qualité premium. Expert en sourcing et contrôle qualité.",
 				imageUrl: '/images/dubois.png',
+				linkedIn: 'https://linkedin.com/in/pierre-martin-selectura',
 			},
 			{
 				name: 'Sophie Leroy',
 				role: 'Directrice Produits',
-				bio: 'Avec son expertise en design et sa passion pour la qualité, Sophie dirige notre processus de sélection et de test des produits.',
+				bio: "Experte en design et qualité produit avec 10 ans d'expérience. Sophie dirige notre processus de sélection rigoureux et garantit que chaque produit répond à nos standards d'excellence.",
 				imageUrl: '/images/femme.png',
+				linkedIn: 'https://linkedin.com/in/sophie-leroy-selectura',
 			},
 			{
 				name: 'Thomas Dubois',
 				role: 'Responsable Service Client',
-				bio: "Fort d'une expérience dans le service client haut de gamme, Thomas veille à ce que chaque interaction avec nos clients soit exceptionnelle.",
+				bio: "Spécialiste du service client haut de gamme avec 8 ans d'expérience. Thomas veille à offrir une expérience client exceptionnelle et personnalisée à chaque interaction.",
 				imageUrl: '/images/thomas.png',
+				linkedIn: 'https://linkedin.com/in/thomas-dubois-selectura',
 			},
 		],
 	},
@@ -216,9 +220,25 @@ const aboutData = {
 };
 
 export default function AboutPage() {
+	// Préparer les données de l'équipe pour le schema
+	const teamMembersForSchema = aboutData.team.members.map(member => ({
+		name: member.name,
+		role: member.role,
+		bio: member.bio,
+		imageUrl: member.imageUrl,
+		linkedIn: member.linkedIn,
+	}));
+
 	return (
-		<Suspense fallback={<AboutLoading />}>
-			<AboutContent aboutData={aboutData} />
-		</Suspense>
+		<>
+			<AboutPageSchemaSSR
+				teamMembers={teamMembersForSchema}
+				foundingDate="2024"
+				founderName="Pierre Martin"
+			/>
+			<Suspense fallback={<AboutLoading />}>
+				<AboutContent aboutData={aboutData} />
+			</Suspense>
+		</>
 	);
 }
