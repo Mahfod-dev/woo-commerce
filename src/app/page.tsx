@@ -141,7 +141,7 @@ export default async function OptimizedHomePage() {
 						</p>
 					</div>
 
-					{/* Vidéo format portrait 9:16 hébergée sur Supabase Storage */}
+					// Vidéo format portrait 9:16 hébergée sur Supabase Storage
 					<div className='flex justify-center'>
 						<div className='relative rounded-2xl overflow-hidden shadow-2xl bg-gray-900 w-full max-w-md' style={{ aspectRatio: '9/16' }}>
 							<video
@@ -158,7 +158,7 @@ export default async function OptimizedHomePage() {
 						</div>
 					</div>
 
-					{/* Texte sous la vidéo */}
+					// Texte sous la vidéo
 					<div className='mt-8 text-center'>
 						<p className='text-gray-600'>
 							Qualité premium • Sélection rigoureuse • Livraison Europe & USA
